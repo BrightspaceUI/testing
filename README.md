@@ -9,7 +9,7 @@ Testing utilities that build upon [@web/test-runner](https://modern-web.dev/docs
 Install from NPM:
 
 ```shell
-npm install @brightspace-ui/foo
+npm install @brightspace-ui/testing
 ```
 
 ## Developing, Testing and Contributing
