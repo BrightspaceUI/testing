@@ -12,8 +12,6 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@web/test-runner": "^0.16",
-    "@web/test-runner-playwright": "^0.10",
     "eslint": "^8",
     "eslint-config-brightspace": "^0.23"
   },
@@ -25,6 +23,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@open-wc/testing": "^3"
+    "@open-wc/testing": "^3",
+    "@web/test-runner": "^0.16",
+    "@web/test-runner-playwright": "^0.10"
   }
 }
