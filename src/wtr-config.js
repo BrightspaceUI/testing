@@ -19,7 +19,7 @@ export function getBrowsers(browsers = DEFAULT_BROWSERS) {
 
 function getVisualDiffGroup(pattern) {
 	return {
-		name: 'visual-diff',
+		name: 'vdiff',
 		files: pattern('vdiff'),
 		browsers: getBrowsers(['chromium']),
 		testRunnerHtml: testFramework =>
