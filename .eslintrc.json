@@ -1,6 +1,3 @@
 {
-  "extends": "brightspace/node-config",
-  "parserOptions": {
-    "sourceType": "module"
-  }
+  "extends": "brightspace/browser-config"
 }
