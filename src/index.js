@@ -1,1 +1,1 @@
-export { createWtrConfig } from './createWtrConfig.js';
+export { createConfig, getBrowsers } from './wtr-config.js';
