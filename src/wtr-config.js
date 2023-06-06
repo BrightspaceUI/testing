@@ -5,8 +5,9 @@ import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const DEFAULT_PATTERN = type => `./**/*.${type}.js`;
 const DEFAULT_VDIFF = true;
+const DEFAULT_BROWSERS = ['chromium', 'firefox', 'webkit'];
 
-export function getBrowsers(browsers = ['chromium', 'firefox', 'webkit']) {
+export function getBrowsers(browsers = DEFAULT_BROWSERS) {
 
 	console.assert(Array.isArray(browsers), 'browsers must be an array');
 
