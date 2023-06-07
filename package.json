@@ -6,14 +6,17 @@
   "repository": "https://github.com/BrightspaceUI/testing.git",
   "scripts": {
     "lint": "eslint . --ext .js",
-    "test": "npm run lint && npm run test:headless",
-    "test:headless": "web-test-runner --files \"./test/**/*.test.js\" --node-resolve --playwright"
+    "test": "npm run lint && npm run test:headless && npm test:server",
+    "test:headless": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
+    "test:server": "mocha ./test/server/**/*.test.js"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
+    "chai": "^4.3.7",
     "eslint": "^8",
-    "eslint-config-brightspace": "^0.23"
+    "eslint-config-brightspace": "^0.23",
+    "mocha": "^10.2.0"
   },
   "exports": "./src/index.js",
   "files": [
