@@ -2,5 +2,8 @@
   "extends": "brightspace/node-config",
   "parserOptions": {
     "sourceType": "module"
+  },
+  "env": {
+    "mocha": true
   }
 }
