@@ -1,15 +1,29 @@
+import { argv } from 'node:process';
 import { defaultReporter } from '@web/test-runner';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
 
-const DEFAULT_PATTERN = type => `./**/*.${type}.js`;
-const DEFAULT_VDIFF = true;
-const DEFAULT_BROWSERS = ['chromium', 'firefox', 'webkit'];
+const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
+const DEFAULT_VDIFF = false;
+const ALLOWED_BROWSERS = ['chromium', 'firefox', 'webkit'];
 
-export function getBrowsers(browsers = DEFAULT_BROWSERS) {
+const requestedBrowsers = argv.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'g'));
 
-	console.assert(Array.isArray(browsers), 'browsers must be an array');
+if (argv.includes('default')) {
+	if (argv.includes('--playwright')) {
+		console.warn('Warning: reducedMotion disabled. Use the unit group to enable reducedMotion.');
+	}
+	else {
+		console.warn('Warning: Running with puppeteer, reducedMotion disabled. Use the unit group to enable playwright with reducedMotion');
+	}
+}
+
+export function getBrowsers(browsers) {
+
+	browsers = requestedBrowsers || browsers || ALLOWED_BROWSERS;
+
+	if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 
 	return browsers.map((b) => playwrightLauncher({
 		product: b,
@@ -59,12 +73,13 @@ export function createConfig({
 	...passthroughConfig
 } = {}) {
 
-	console.assert(typeof pattern === 'function', 'pattern must be a function');
+	if (typeof pattern !== 'function') throw new TypeError('pattern must be a function');
 
 	const timeoutConfig = {};
 
 	if (typeof timeout !== 'undefined') {
-		console.assert(typeof timeout === 'number', 'timeout must be a number');
+		if (typeof timeout !== 'number') throw new TypeError('timeout must be a number');
+
 		timeoutConfig.testFramework = {
 			config: {
 				timeout: timeout.toString()
@@ -73,7 +88,6 @@ export function createConfig({
 	}
 
 	const defaultConfig = {
-		browsers: getBrowsers(),
 		files: pattern('test'),
 		nodeResolve: true,
 		testRunnerHtml: testFramework =>
@@ -91,6 +105,13 @@ export function createConfig({
 		...passthroughConfig
 	};
 
+	config.groups ??= [];
+	config.groups.push({
+		name: 'unit',
+		files: pattern('test'),
+		browsers: getBrowsers()
+	});
+
 	if (vdiff) {
 		config.reporters ??= [ defaultReporter() ];
 		config.reporters.push(visualDiffReporter());
@@ -98,7 +119,6 @@ export function createConfig({
 		config.plugins ??= [];
 		config.plugins.push(visualDiff());
 
-		config.groups ??= [];
 		config.groups.push(getVisualDiffGroup(pattern));
 	}
 
