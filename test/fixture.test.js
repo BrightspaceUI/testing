@@ -83,16 +83,25 @@ describe('fixture', () => {
 		});
 
 		it('should reset text direction', async() => {
-			const elem = html`<p>hello</p>`;
-			await fixture(elem);
+			await fixture(html`<p>hello</p>`);
 			expect(document.documentElement.hasAttribute('dir')).to.be.false;
-			await fixture(elem, { rtl: true });
+			await fixture(html`<p>mrhban</p>`, { rtl: true });
 			expect(document.documentElement.getAttribute('dir')).to.equal('rtl');
-			await fixture(elem,);
+			await fixture(html`<p>hello</p>`);
 			expect(document.documentElement.hasAttribute('dir')).to.be.false;
 		});
 
-		it('should reset language', async() => {
+		it('should use RTL text direction with AR language', async() => {
+			await fixture(html`<p>mrhban</p>`, { lang: 'ar' });
+			expect(document.documentElement.getAttribute('dir')).to.equal('rtl');
+		});
+
+		it('should default language to EN', async() => {
+			await fixture(html`<p>hello</p>`);
+			expect(document.documentElement.getAttribute('lang')).to.equal('en');
+		});
+
+		it('should reset language to EN', async() => {
 			await fixture(html`<p>bonjour</p>`, { lang: 'fr' });
 			expect(document.documentElement.getAttribute('lang')).to.equal('fr');
 			await fixture(html`<p>hello</p>`);

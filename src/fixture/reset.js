@@ -5,7 +5,7 @@ const DEFAULT_LANG = 'en',
 	DEFAULT_VIEWPORT_HEIGHT = 800,
 	DEFAULT_VIEWPORT_WIDTH = 800;
 
-let currentLang = DEFAULT_LANG,
+let currentLang = undefined,
 	currentRtl = false,
 	currentViewportHeight = 600,
 	currentViewportWidth = 800;
