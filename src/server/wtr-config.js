@@ -6,14 +6,14 @@ const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
 const DEFAULT_VDIFF = false;
 const ALLOWED_BROWSERS = ['chromium', 'firefox', 'webkit'];
 
-const requestedBrowsers = argv.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'g'));
+const requestedBrowsers = argv.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
 
 if (argv.includes('default')) {
 	if (argv.includes('--playwright')) {
 		console.warn('Warning: reducedMotion disabled. Use the unit group to enable reducedMotion.');
 	}
 	else {
-		console.warn('Warning: Running with puppeteer, reducedMotion disabled. Use the unit group to enable playwright with reducedMotion');
+		console.warn('Warning: Running with puppeteer, reducedMotion disabled. Use the unit group to use playwright with reducedMotion enabled');
 	}
 }
 

@@ -13,10 +13,11 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
-    "chai": "^4.3.7",
+    "chai": "^4",
     "eslint": "^8",
     "eslint-config-brightspace": "^0.23",
-    "mocha": "^10.2.0"
+    "mocha": "^10",
+    "sinon": "^15"
   },
   "exports": "./src/index.js",
   "files": [
