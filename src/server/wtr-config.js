@@ -6,27 +6,39 @@ const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
 const DEFAULT_VDIFF = false;
 const ALLOWED_BROWSERS = ['chromium', 'firefox', 'webkit'];
 
-let requestedBrowsers = getRequestedBrowsers(argv);
-
-export function getRequestedBrowsers(cliArgs = []) {
-	return cliArgs.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
-}
-
-export function getBrowsers(browsers) {
-	browsers = requestedBrowsers || browsers || ALLOWED_BROWSERS;
-
-	if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
-
-	return browsers.map((b) => playwrightLauncher({
-		product: b,
-		createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' })
-	}));
-}
-
 export class WTRConfig {
 
-	constructor(cliArgs) {
-		if (cliArgs) requestedBrowsers = getRequestedBrowsers(cliArgs);
+	static #singleton;
+	#cliArgs = [];
+
+	constructor() {
+		if (!this.constructor.#singleton) {
+			this.constructor.#singleton = this;
+
+			const sgtn = this.constructor.#singleton;
+			sgtn.cliArgs = argv;
+		}
+		return this.constructor.#singleton;
+	}
+
+	set cliArgs(cliArgs) {
+		this.#cliArgs = cliArgs;
+		this.requestedBrowsers = this.#requestedBrowsers;
+	}
+
+	getBrowsers(browsers) {
+		browsers = this.requestedBrowsers || browsers || ALLOWED_BROWSERS;
+
+		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
+
+		return browsers.map((b) => playwrightLauncher({
+			product: b,
+			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' })
+		}));
+	}
+
+	get #requestedBrowsers() {
+		return this.#cliArgs.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
 	}
 
 	create({
@@ -35,8 +47,8 @@ export class WTRConfig {
 		timeout,
 		...passthroughConfig
 	} = {}) {
-
 		delete passthroughConfig.browsers;
+		this.pattern = pattern;
 
 		if (typeof pattern !== 'function') throw new TypeError('pattern must be a function');
 
@@ -74,7 +86,7 @@ export class WTRConfig {
 		config.groups.push({
 			name: 'unit',
 			files: pattern('test'),
-			browsers: getBrowsers()
+			browsers: this.getBrowsers()
 		});
 
 		if (vdiff) {
@@ -84,17 +96,17 @@ export class WTRConfig {
 			config.plugins ??= [];
 			//config.plugins.push(visualDiff());
 
-			config.groups.push(this.getVisualDiffGroup(pattern));
+			config.groups.push(this.visualDiffGroup);
 		}
 
 		return config;
 	}
 
-	getVisualDiffGroup(pattern) {
+	get visualDiffGroup() {
 		return {
 			name: 'vdiff',
-			files: pattern('vdiff'),
-			browsers: getBrowsers(['chromium']),
+			files: this.pattern('vdiff'),
+			browsers: this.getBrowsers(['chromium']),
 			testRunnerHtml: testFramework =>
 				`<html lang="en">
 					<head>
@@ -139,4 +151,9 @@ export function createConfig(...args) {
 
 	const wtrConfig = new WTRConfig();
 	return wtrConfig.create(...args);
+}
+
+export function getBrowsers(browsers) {
+	const wtrConfig = new WTRConfig();
+	return wtrConfig.getBrowsers(browsers);
 }
