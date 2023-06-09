@@ -7,8 +7,8 @@ const DEFAULT_LANG = 'en',
 
 let currentLang = undefined,
 	currentRtl = false,
-	currentViewportHeight = 600,
-	currentViewportWidth = 800;
+	currentViewportHeight = 0,
+	currentViewportWidth = 0;
 
 export async function reset(opts) {
 
