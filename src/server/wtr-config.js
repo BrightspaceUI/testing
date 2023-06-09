@@ -89,7 +89,13 @@ export class WTRConfig {
 			testRunnerHtml: testFramework =>
 				`<html lang="en">
 					<body>
-						<script src="./src/tools/resize-observer-test-error-handler.js"></script>
+						<script>
+							window.addEventListener('error', (err) => {
+								if (err.message.includes('ResizeObserver')) {
+									err.stopImmediatePropagation();
+								}
+							});
+						</script>
 						<script type="module" src="${testFramework}"></script>
 					</body>
 				</html>`,
