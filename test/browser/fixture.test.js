@@ -128,17 +128,20 @@ describe('fixture', () => {
 
 	describe('waitForElem', () => {
 
+		const timeouts = [];
 		afterEach(() => {
 			resolves.clear();
+			while (timeouts.length > 0) {
+				clearTimeout(timeouts.shift()); // otherwise if tests ever fail, code in the timeouts can execute during the next test
+			}
 		});
 
 		it('should wait for element at fixture root', async() => {
 			const finishedPromise = fixture(`<${slowElem} id="elem1"></${slowElem}>`)
 				.then((elem) => elem.finished);
 			await waitUntil(() => resolves.has('elem1'));
-			const timeout = setTimeout(() => resolves.get('elem1')(), 50);
+			timeouts.push(setTimeout(() => resolves.get('elem1')(), 50));
 			const finished = await finishedPromise;
-			clearTimeout(timeout);
 			expect(finished).to.be.true;
 		});
 
@@ -151,13 +154,10 @@ describe('fixture', () => {
 				</div>
 			`).then((elem) => [...elem.querySelectorAll(slowElem)].filter(e => e.finished));
 			await waitUntil(() => resolves.size === 3);
-			const timeout1 = setTimeout(() => resolves.get('elem1')(), 50);
-			const timeout2 = setTimeout(() => resolves.get('elem2')(), 50);
-			const timeout3 = setTimeout(() => resolves.get('elem3')(), 50);
+			timeouts.push(setTimeout(() => resolves.get('elem1')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('elem2')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('elem3')(), 50));
 			const finished = await finishedPromise;
-			clearTimeout(timeout1);
-			clearTimeout(timeout2);
-			clearTimeout(timeout3);
 			expect(finished.length).to.equal(3);
 		});
 
@@ -174,13 +174,10 @@ describe('fixture', () => {
 				</div>
 			`).then((elem) => [...elem.querySelectorAll(slowElem)].filter(e => e.finished));
 			await waitUntil(() => resolves.size === 3);
-			const timeout1 = setTimeout(() => resolves.get('elem1')(), 50);
-			const timeout2 = setTimeout(() => resolves.get('elem2')(), 50);
-			const timeout3 = setTimeout(() => resolves.get('elem3')(), 50);
+			timeouts.push(setTimeout(() => resolves.get('elem1')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('elem2')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('elem3')(), 50));
 			const finished = await finishedPromise;
-			clearTimeout(timeout1);
-			clearTimeout(timeout2);
-			clearTimeout(timeout3);
 			expect(finished.length).to.equal(3);
 		});
 
@@ -189,9 +186,8 @@ describe('fixture', () => {
 				.then((elem) => [elem, elem.shadowRoot.querySelector('#nested')].filter(e => e.finished));
 			await waitUntil(() => resolves.size === 2);
 			resolves.get('parent')();
-			const timeout = setTimeout(() => resolves.get('nested')(), 50);
+			timeouts.push(setTimeout(() => resolves.get('nested')(), 50));
 			const finished = await finishedPromise;
-			clearTimeout(timeout);
 			expect(finished.length).to.equal(2);
 		});
 
