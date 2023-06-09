@@ -19,24 +19,48 @@ export class WTRConfig {
 		return this.constructor.#singleton;
 	}
 
+	get #requestedBrowsers() {
+		return this.#cliArgs.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
+	}
+
+	get visualDiffGroup() {
+		return {
+			name: 'vdiff',
+			files: this.pattern('vdiff'),
+			browsers: this.getBrowsers(['chromium']),
+			testRunnerHtml: testFramework =>
+				`<html lang="en">
+					<head>
+						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-400.woff2" as="font" type="font/woff2" crossorigin>
+						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-700.woff2" as="font" type="font/woff2" crossorigin>
+						<style>
+							html {
+								font-size: 20px;
+							}
+							body {
+								background-color: #ffffff;
+								margin: 0;
+								padding: 30px;
+							}
+							body[data-theme="dark"] {
+								background-color: #000000;
+							}
+							body[data-theme="translucent"] {
+								background: repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px);
+							}
+						</style>
+						<script type="module" src="./components/typography/typography.js"></script>
+					</head>
+					<body class="d2l-typography">
+						<script type="module" src="${testFramework}"></script>
+					</body>
+				</html>`
+		};
+	}
+
 	set cliArgs(cliArgs) {
 		this.#cliArgs = cliArgs;
 		this.requestedBrowsers = this.#requestedBrowsers;
-	}
-
-	getBrowsers(browsers) {
-		browsers = this.requestedBrowsers || browsers || ALLOWED_BROWSERS;
-
-		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
-
-		return browsers.map((b) => playwrightLauncher({
-			product: b,
-			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' })
-		}));
-	}
-
-	get #requestedBrowsers() {
-		return this.#cliArgs.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
 	}
 
 	create({
@@ -100,39 +124,15 @@ export class WTRConfig {
 		return config;
 	}
 
-	get visualDiffGroup() {
-		return {
-			name: 'vdiff',
-			files: this.pattern('vdiff'),
-			browsers: this.getBrowsers(['chromium']),
-			testRunnerHtml: testFramework =>
-				`<html lang="en">
-					<head>
-						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-400.woff2" as="font" type="font/woff2" crossorigin>
-						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-700.woff2" as="font" type="font/woff2" crossorigin>
-						<style>
-							html {
-								font-size: 20px;
-							}
-							body {
-								background-color: #ffffff;
-								margin: 0;
-								padding: 30px;
-							}
-							body[data-theme="dark"] {
-								background-color: #000000;
-							}
-							body[data-theme="translucent"] {
-								background: repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px);
-							}
-						</style>
-						<script type="module" src="./components/typography/typography.js"></script>
-					</head>
-					<body class="d2l-typography">
-						<script type="module" src="${testFramework}"></script>
-					</body>
-				</html>`
-		};
+	getBrowsers(browsers) {
+		browsers = this.requestedBrowsers || browsers || ALLOWED_BROWSERS;
+
+		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
+
+		return browsers.map((b) => playwrightLauncher({
+			product: b,
+			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' })
+		}));
 	}
 
 }
