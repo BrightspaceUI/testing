@@ -89,7 +89,7 @@ export class WTRConfig {
 			testRunnerHtml: testFramework =>
 				`<html lang="en">
 					<body>
-						<script src="./tools/resize-observer-test-error-handler.js"></script>
+						<script src="./src/tools/resize-observer-test-error-handler.js"></script>
 						<script type="module" src="${testFramework}"></script>
 					</body>
 				</html>`,
