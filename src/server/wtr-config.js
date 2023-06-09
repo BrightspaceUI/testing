@@ -9,7 +9,7 @@ const ALLOWED_BROWSERS = ['chromium', 'firefox', 'webkit'];
 export class WTRConfig {
 
 	static #singleton;
-	#cliArgs;
+	cliArgs;
 	#requestedBrowsers;
 
 	constructor(cliArgs) {
@@ -18,8 +18,8 @@ export class WTRConfig {
 		}
 
 		const sgtn = this.constructor.#singleton;
-		if (cliArgs && cliArgs !== sgtn.#cliArgs) {
-			sgtn.#cliArgs = cliArgs;
+		if (cliArgs && cliArgs !== sgtn.cliArgs) {
+			sgtn.cliArgs = cliArgs;
 			sgtn.#requestedBrowsers = cliArgs.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
 		}
 		return sgtn;
