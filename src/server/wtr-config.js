@@ -13,10 +13,8 @@ export class WTRConfig {
 
 	constructor() {
 		if (!this.constructor.#singleton) {
+			this.cliArgs = argv;
 			this.constructor.#singleton = this;
-
-			const sgtn = this.constructor.#singleton;
-			sgtn.cliArgs = argv;
 		}
 		return this.constructor.#singleton;
 	}
