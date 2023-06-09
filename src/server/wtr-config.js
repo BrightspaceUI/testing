@@ -9,18 +9,20 @@ const ALLOWED_BROWSERS = ['chromium', 'firefox', 'webkit'];
 export class WTRConfig {
 
 	static #singleton;
-	#cliArgs = [];
+	#cliArgs;
+	#requestedBrowsers;
 
-	constructor() {
+	constructor(cliArgs) {
 		if (!this.constructor.#singleton) {
-			this.cliArgs = argv;
 			this.constructor.#singleton = this;
 		}
-		return this.constructor.#singleton;
-	}
 
-	get #requestedBrowsers() {
-		return this.#cliArgs.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
+		const sgtn = this.constructor.#singleton;
+		if (cliArgs && cliArgs !== sgtn.#cliArgs) {
+			sgtn.#cliArgs = cliArgs;
+			sgtn.#requestedBrowsers = cliArgs.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
+		}
+		return sgtn;
 	}
 
 	get visualDiffGroup() {
@@ -56,11 +58,6 @@ export class WTRConfig {
 					</body>
 				</html>`
 		};
-	}
-
-	set cliArgs(cliArgs) {
-		this.#cliArgs = cliArgs;
-		this.requestedBrowsers = this.#requestedBrowsers;
 	}
 
 	create({
@@ -125,7 +122,7 @@ export class WTRConfig {
 	}
 
 	getBrowsers(browsers) {
-		browsers = this.requestedBrowsers || browsers || ALLOWED_BROWSERS;
+		browsers = this.#requestedBrowsers || browsers || ALLOWED_BROWSERS;
 
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 
@@ -147,11 +144,11 @@ export function createConfig(...args) {
 		}
 	}
 
-	const wtrConfig = new WTRConfig();
+	const wtrConfig = new WTRConfig(argv);
 	return wtrConfig.create(...args);
 }
 
 export function getBrowsers(browsers) {
-	const wtrConfig = new WTRConfig();
+	const wtrConfig = new WTRConfig(argv);
 	return wtrConfig.getBrowsers(browsers);
 }

@@ -1,3 +1,4 @@
+import { argv } from 'node:process';
 import { createConfig, getBrowsers, WTRConfig } from '../../src/server/wtr-config.js';
 import { createConfig as createConfigPublic, getBrowsers as getBrowsersPublic } from '../../src/index.js';
 import { expect } from 'chai';
@@ -7,6 +8,10 @@ describe('createConfig()', () => {
 
 	it('should be exported from index', () => {
 		expect(createConfig).to.equal(createConfigPublic);
+	});
+
+	it('passes argv to WTRConfig', () => {
+		expect(false);
 	});
 
 	it('calls WTRConfig.create', () => {
@@ -74,11 +79,6 @@ describe('WTRConfig.create()', () => {
 
 describe('getBrowsers()', () => {
 
-	let browsers;
-	before(() => {
-		browsers = getBrowsers();
-	});
-
 	it('should be exported from index', () => {
 		expect(getBrowsers).to.equal(getBrowsersPublic);
 	});
@@ -93,6 +93,15 @@ describe('getBrowsers()', () => {
 
 		getBrowsersStub.restore();
 	});
+});
+
+describe('WTRConfig.getBrowsers()', () => {
+
+	let browsers, wtrConfig;
+	before(() => {
+		wtrConfig = new WTRConfig();
+		browsers = wtrConfig.getBrowsers();
+	});
 
 	it('should default to chromium, firefox, webkit for unit group', () => {
 		expect(browsers).to.be.an('array');
@@ -104,15 +113,14 @@ describe('getBrowsers()', () => {
 	});
 
 	it('should use browsers passed as arguments', () => {
-		const browsers = getBrowsers(['webkit']);
+		const browsers = wtrConfig.getBrowsers(['webkit']);
 		expect(browsers).to.have.length(1);
 		expect(browsers[0].name).to.equal('Webkit');
 	});
 
 	it('should only use CLI browsers when provided', () => {
-		const wtrConfig = new WTRConfig();
-		wtrConfig.cliArgs = ['a', 'firefox', 'webkit', 'b'];
-		const browsers = getBrowsers(['chromium']);
+		const wtrConfig = new WTRConfig(['a', 'firefox', 'webkit', 'b']);
+		const browsers = wtrConfig.getBrowsers(['chromium']);
 		expect(browsers).to.have.length(2);
 		expect(browsers.map(b => b.name)).to.have.members(['Webkit', 'Firefox']);
 	});
