@@ -8,21 +8,12 @@ const ALLOWED_BROWSERS = ['chromium', 'firefox', 'webkit'];
 
 export class WTRConfig {
 
-	static #singleton;
-	cliArgs;
+	#cliArgs;
 	#requestedBrowsers;
 
 	constructor(cliArgs) {
-		if (!this.constructor.#singleton) {
-			this.constructor.#singleton = this;
-		}
-
-		const sgtn = this.constructor.#singleton;
-		if (cliArgs && cliArgs !== sgtn.cliArgs) {
-			sgtn.cliArgs = cliArgs;
-			sgtn.#requestedBrowsers = cliArgs.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
-		}
-		return sgtn;
+		this.#cliArgs = cliArgs || [];
+		this.#requestedBrowsers = this.#cliArgs?.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
 	}
 
 	get visualDiffGroup() {
@@ -66,6 +57,15 @@ export class WTRConfig {
 		timeout,
 		...passthroughConfig
 	} = {}) {
+
+		if (!this.#cliArgs.includes('--group') || this.#cliArgs.includes('default')) {
+			if (this.#cliArgs.includes('--playwright')) {
+				console.warn('Warning: reducedMotion disabled. Use the unit group to enable reducedMotion.');
+			} else {
+				console.warn('Warning: Running with puppeteer, reducedMotion disabled. Use the unit group to use playwright with reducedMotion enabled');
+			}
+		}
+
 		delete passthroughConfig.browsers;
 		this.pattern = pattern;
 
@@ -135,15 +135,6 @@ export class WTRConfig {
 }
 
 export function createConfig(...args) {
-
-	if (!argv.includes('--group') || argv.includes('default')) {
-		if (argv.includes('--playwright')) {
-			console.warn('Warning: reducedMotion disabled. Use the unit group to enable reducedMotion.');
-		} else {
-			console.warn('Warning: Running with puppeteer, reducedMotion disabled. Use the unit group to use playwright with reducedMotion enabled');
-		}
-	}
-
 	const wtrConfig = new WTRConfig(argv);
 	return wtrConfig.create(...args);
 }

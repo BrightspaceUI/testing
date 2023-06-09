@@ -1,7 +1,6 @@
-import { assert, restore, spy, stub } from 'sinon/pkg/sinon-esm.js';
+import { assert, match, restore, spy, stub } from 'sinon/pkg/sinon-esm.js';
 import { createConfig, getBrowsers, WTRConfig } from '../../src/server/wtr-config.js';
 import { createConfig as createConfigPublic, getBrowsers as getBrowsersPublic } from '../../src/index.js';
-import { argv } from 'node:process';
 import { expect } from 'chai';
 
 describe('createWtrConfig', () => {
@@ -14,12 +13,6 @@ describe('createWtrConfig', () => {
 
 		it('should be exported from index', () => {
 			expect(createConfig).to.equal(createConfigPublic);
-		});
-
-		it('sets wtrConfig.cliArgs to argv and maintains them after new WTRConfig()', () => {
-			createConfig();
-			const wtrConfig = new WTRConfig();
-			expect(wtrConfig.cliArgs).to.equal(argv);
 		});
 
 		it('calls WTRConfig.create', () => {
@@ -45,6 +38,29 @@ describe('createWtrConfig', () => {
 		before(() => {
 			wtrConfig = new WTRConfig();
 			config = wtrConfig.create();
+		});
+
+		it('should warn about not using a group', () => {
+			const consoleSpy = spy(console, 'warn');
+			wtrConfig.create();
+			assert.calledOnce(consoleSpy);
+			assert.calledWith(consoleSpy, match('puppeteer'));
+		});
+
+		it('should warn about using the default group', () => {
+			const consoleSpy = spy(console, 'warn');
+			wtrConfig = new WTRConfig(['--group', 'default']);
+			wtrConfig.create();
+			assert.calledOnce(consoleSpy);
+			assert.calledWith(consoleSpy, match('puppeteer'));
+		});
+
+		it('should warn about not using a group with playwright', () => {
+			const consoleSpy = spy(console, 'warn');
+			wtrConfig = new WTRConfig(['--playwright']);
+			wtrConfig.create();
+			assert.calledOnce(consoleSpy);
+			assert.calledWith(consoleSpy, match('Warning: reducedMotion disabled.'));
 		});
 
 		it('should enable nodeResolve', () => {
