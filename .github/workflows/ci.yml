@@ -17,5 +17,5 @@ jobs:
           npx playwright install-deps
       - name: Lint (JavaScript)
         run: npm run lint
-      - name: Unit Tests
-        run: npm run test
+      - name: Unit Tests (Server)
+        run: npm run test:server
