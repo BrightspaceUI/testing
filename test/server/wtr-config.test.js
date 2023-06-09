@@ -1,4 +1,3 @@
-import { argv } from 'node:process';
 import { createConfig, getBrowsers, WTRConfig } from '../../src/server/wtr-config.js';
 import { createConfig as createConfigPublic, getBrowsers as getBrowsersPublic } from '../../src/index.js';
 import { expect } from 'chai';
