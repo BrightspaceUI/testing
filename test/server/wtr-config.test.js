@@ -1,6 +1,6 @@
 import { assert, match, restore, spy, stub } from 'sinon/pkg/sinon-esm.js';
 import { createConfig, getBrowsers, WTRConfig } from '../../src/server/wtr-config.js';
-import { createConfig as createConfigPublic, getBrowsers as getBrowsersPublic } from '../../src/index.js';
+import { createConfig as createConfigPublic, getBrowsers as getBrowsersPublic } from '../../src/server/index.js';
 import { expect } from 'chai';
 
 describe('createWtrConfig', () => {
@@ -27,7 +27,7 @@ describe('createWtrConfig', () => {
 
 	describe('WTRConfig()', () => {
 		it('should not be exported from index', async() => {
-			const res = (await import('../../src/index.js')).WTRConfig;
+			const res = (await import('../../src/server/index.js')).WTRConfig;
 			expect(res).to.be.undefined;
 		});
 	});

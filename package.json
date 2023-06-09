@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint . --ext .js",
     "test": "npm run lint && npm run test:server",
-    "test:headless": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
+    "test:browser": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
     "test:server": "mocha ./test/server/**/*.test.js"
   },
   "author": "D2L Corporation",
@@ -19,7 +19,10 @@
     "mocha": "^10",
     "sinon": "^15"
   },
-  "exports": "./src/index.js",
+  "exports": {
+    ".": "./src/browser/index.js",
+    "./wtr-config.js": "./src/server/index.js"
+  },
   "files": [
     "/src"
   ],

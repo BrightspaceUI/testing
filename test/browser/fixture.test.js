@@ -2,8 +2,8 @@
 import { defineCE, expect, waitUntil } from '@open-wc/testing';
 import { html, LitElement, nothing } from 'lit';
 import { restore, stub } from 'sinon';
-import { fixture } from '../src/index.js';
-import { focusWithKeyboard } from '../src/focus.js';
+import { fixture } from '../../src/browser/index.js';
+import { focusWithKeyboard } from '../../src/browser/focus.js';
 import { sendMouse } from '@web/test-runner-commands';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
