@@ -66,8 +66,8 @@ describe('WTRConfig.create()', () => {
 	});
 
 	it('should not enable vdiff by default', () => {
-		expect(config.groups).to.be.an('array');
-		expect(config.groups.map(g => g.name)).to.not.have.members(['vdiff']);
+		expect(config.groups).to.be.an('array').that.has.length(1);
+		expect(config.groups[0]).to.not.have.property('name', 'vdiff');
 	});
 
 });
