@@ -11,22 +11,43 @@ const resolves = new Map();
 
 const slowElem = defineCE(
 	class extends LitElement {
-		static get properties() {
-			return { nested: { type: Boolean } };
-		}
 		constructor() {
 			super();
-			this.nested = false;
 			this.finished = false;
 			this.promise = new Promise((resolve) => resolves.set(this.id, resolve));
 			this.promise.then(() => this.finished = true);
 		}
 		render() {
-			return this.nested ? html`${unsafeHTML(`<${slowElem} id="nested"></${slowElem}>`)}` : nothing;
+			return html`<slot></slot>`;
 		}
 		async getUpdateComplete() {
 			await super.getUpdateComplete;
 			return this.promise;
+		}
+	}
+);
+
+const asyncElem = defineCE(
+	class extends LitElement {
+		constructor() {
+			super();
+			this.finished = false;
+			this.promise = new Promise((resolve) => resolves.set(this.id, resolve));
+			this.promise.then(() => this.finished = true);
+		}
+		render() {
+			return html`<slot></slot>`;
+		}
+		async getLoadingComplete() {
+			return this.promise;
+		}
+	}
+);
+
+const nestedElem = defineCE(
+	class extends LitElement {
+		render() {
+			return html`${unsafeHTML(`<${slowElem} id="slow"></${slowElem}><${asyncElem} id="async"></${asyncElem}>`)}`;
 		}
 	}
 );
@@ -136,57 +157,101 @@ describe('fixture', () => {
 			}
 		});
 
-		it('should wait for element at fixture root', async() => {
-			const finishedPromise = fixture(`<${slowElem} id="elem1"></${slowElem}>`)
+		it('should wait for slow element at fixture root', async() => {
+			const finishedPromise = fixture(`<${slowElem} id="slow"></${slowElem}>`)
 				.then((elem) => elem.finished);
-			await waitUntil(() => resolves.has('elem1'));
-			timeouts.push(setTimeout(() => resolves.get('elem1')(), 50));
+			await waitUntil(() => resolves.has('slow'));
+			timeouts.push(setTimeout(() => resolves.get('slow')(), 50));
 			const finished = await finishedPromise;
 			expect(finished).to.be.true;
 		});
 
-		it('should wait for elements inside native element', async() => {
+		it('should wait for async element at fixture root', async() => {
+			const finishedPromise = fixture(`<${asyncElem} id="async"></${asyncElem}>`)
+				.then((elem) => elem.finished);
+			await waitUntil(() => resolves.has('async'));
+			timeouts.push(setTimeout(() => resolves.get('async')(), 50));
+			const finished = await finishedPromise;
+			expect(finished).to.be.true;
+		});
+
+		it('should not wait for async element if requested', async() => {
+			const finishedPromise = fixture(`<${asyncElem} id="async"></${asyncElem}>`, { awaitLoadingComplete: false })
+				.then((elem) => elem.finished);
+			await waitUntil(() => resolves.has('async'));
+			timeouts.push(setTimeout(() => resolves.get('async')(), 50));
+			const finished = await finishedPromise;
+			expect(finished).to.be.false;
+		});
+
+		it('should wait for slow/async elements inside native element', async() => {
 			const finishedPromise = fixture(`
 				<div>
-					<${slowElem} id="elem1"></${slowElem}>
-					<${slowElem} id="elem2"></${slowElem}>
-					<${slowElem} id="elem3"></${slowElem}>
+					<${slowElem} id="slow1"></${slowElem}>
+					<${asyncElem} id="async"></${asyncElem}>
+					<${slowElem} id="slow2"></${slowElem}>
 				</div>
-			`).then((elem) => [...elem.querySelectorAll(slowElem)].filter(e => e.finished));
+			`).then((elem) => [...elem.querySelectorAll(`${slowElem}, ${asyncElem}`)].filter(e => e.finished));
 			await waitUntil(() => resolves.size === 3);
-			timeouts.push(setTimeout(() => resolves.get('elem1')(), 50));
-			timeouts.push(setTimeout(() => resolves.get('elem2')(), 50));
-			timeouts.push(setTimeout(() => resolves.get('elem3')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('slow1')(), 40));
+			timeouts.push(setTimeout(() => resolves.get('async')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('slow2')(), 40));
 			const finished = await finishedPromise;
 			expect(finished.length).to.equal(3);
 		});
 
-		it('should wait for elements nested in light DOM', async() => {
+		it('should wait for slow/async elements nested in light DOM', async() => {
 			const finishedPromise = fixture(`
 				<div>
-					<${slowElem} id="elem1"></${slowElem}>
+					<${slowElem} id="slow1"></${slowElem}>
 					<div>
-						<${slowElem} id="elem2"></${slowElem}>
+						<${asyncElem} id="async"></${asyncElem}>
 						<div>
-							<${slowElem} id="elem3"></${slowElem}>
+							<${slowElem} id="slow2"></${slowElem}>
 						</div>
 					</div>
 				</div>
-			`).then((elem) => [...elem.querySelectorAll(slowElem)].filter(e => e.finished));
+			`).then((elem) => [...elem.querySelectorAll(`${slowElem}, ${asyncElem}`)].filter(e => e.finished));
 			await waitUntil(() => resolves.size === 3);
-			timeouts.push(setTimeout(() => resolves.get('elem1')(), 50));
-			timeouts.push(setTimeout(() => resolves.get('elem2')(), 50));
-			timeouts.push(setTimeout(() => resolves.get('elem3')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('slow1')(), 40));
+			timeouts.push(setTimeout(() => resolves.get('async')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('slow2')(), 40));
 			const finished = await finishedPromise;
 			expect(finished.length).to.equal(3);
 		});
 
-		it('should wait for elements nested in shadow DOM', async() => {
-			const finishedPromise = fixture(`<${slowElem} id="parent" nested></${slowElem}>`)
-				.then((elem) => [elem, elem.shadowRoot.querySelector('#nested')].filter(e => e.finished));
+		it('should wait for slow element nested in async element', async() => {
+			const finishedPromise = fixture(`
+				<${asyncElem} id="async">
+					<${slowElem} id="slow"></${slowElem}>
+				</${asyncElem}>
+			`).then((elem) => [elem, elem.querySelector(slowElem)].filter(e => e.finished));
 			await waitUntil(() => resolves.size === 2);
-			resolves.get('parent')();
-			timeouts.push(setTimeout(() => resolves.get('nested')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('slow')(), 40));
+			timeouts.push(setTimeout(() => resolves.get('async')(), 50));
+			const finished = await finishedPromise;
+			expect(finished.length).to.equal(2);
+		});
+
+		it('should wait for async element nested in slow element', async() => {
+			const finishedPromise = fixture(`
+				<${slowElem} id="slow">
+					<${asyncElem} id="async"></${asyncElem}>
+				</${slowElem}>
+			`).then((elem) => [elem, elem.querySelector(asyncElem)].filter(e => e.finished));
+			await waitUntil(() => resolves.size === 2);
+			timeouts.push(setTimeout(() => resolves.get('async')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('slow')(), 40));
+			const finished = await finishedPromise;
+			expect(finished.length).to.equal(2);
+		});
+
+		it('should wait for slow/async elements nested in shadow DOM', async() => {
+			const finishedPromise = fixture(`<${nestedElem}></${nestedElem}>`)
+				.then((elem) => [...elem.shadowRoot.querySelectorAll(`${slowElem}, ${asyncElem}`)].filter(e => e.finished));
+			await waitUntil(() => resolves.size === 2);
+			timeouts.push(setTimeout(() => resolves.get('async')(), 50));
+			timeouts.push(setTimeout(() => resolves.get('slow')(), 40));
 			const finished = await finishedPromise;
 			expect(finished.length).to.equal(2);
 		});
