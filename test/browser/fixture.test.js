@@ -1,6 +1,6 @@
 
 import { defineCE, expect, waitUntil } from '@open-wc/testing';
-import { html, LitElement, nothing } from 'lit';
+import { html, LitElement } from 'lit';
 import { restore, stub } from 'sinon';
 import { fixture } from '../../src/browser/index.js';
 import { focusWithKeyboard } from '../../src/browser/focus.js';
