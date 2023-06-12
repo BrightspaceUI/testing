@@ -1,6 +1,6 @@
-import { argv } from 'node:process';
 import { defaultReporter } from '@web/test-runner';
 import { playwrightLauncher } from '@web/test-runner-playwright';
+import { readCliArgs } from '../../node_modules/@web/test-runner/dist/config/readCliArgs.js';
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
 const DEFAULT_VDIFF = false;
@@ -12,14 +12,14 @@ export class WTRConfig {
 	#requestedBrowsers;
 
 	constructor(cliArgs) {
-		this.#cliArgs = cliArgs || [];
-		this.#requestedBrowsers = this.#cliArgs?.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
+		this.#cliArgs = cliArgs || {};
+		this.#requestedBrowsers = this.#cliArgs?.browsers?.filter(b => ALLOWED_BROWSERS.includes(b));
 	}
 
 	get visualDiffGroup() {
 		return {
 			name: 'vdiff',
-			files: this.pattern('vdiff'),
+			files: this.#getPattern('vdiff'),
 			browsers: this.getBrowsers(['chromium']),
 			testRunnerHtml: testFramework =>
 				`<html lang="en">
@@ -62,6 +62,12 @@ export class WTRConfig {
 		};
 	}
 
+	#getPattern(type) {
+		const pattern = this.pattern(type);
+		// if --files provided, require single-segment wildcards to match
+		return this.#cliArgs.files?.map(f => pattern.replace(/(?<!\*)\*(?!\*)/g, `*${f}*`)) || pattern;
+	}
+
 	create({
 		pattern = DEFAULT_PATTERN,
 		vdiff = DEFAULT_VDIFF,
@@ -69,8 +75,8 @@ export class WTRConfig {
 		...passthroughConfig
 	} = {}) {
 
-		if (!this.#cliArgs.includes('--group') || this.#cliArgs.includes('default')) {
-			if (this.#cliArgs.includes('--playwright')) {
+		if (!this.#cliArgs.group?.length || this.#cliArgs.group?.includes('default')) {
+			if (this.#cliArgs.playwright) {
 				console.warn('Warning: reducedMotion disabled. Use the unit group to enable reducedMotion.');
 			} else {
 				console.warn('Warning: Running with puppeteer, reducedMotion disabled. Use the unit group to use playwright with reducedMotion enabled');
@@ -95,7 +101,7 @@ export class WTRConfig {
 		}
 
 		const defaultConfig = {
-			files: pattern('test'),
+			files: this.#getPattern('test'),
 			nodeResolve: true,
 			testRunnerHtml: testFramework =>
 				`<html lang="en">
@@ -121,7 +127,7 @@ export class WTRConfig {
 		config.groups ??= [];
 		config.groups.push({
 			name: 'unit',
-			files: pattern('test'),
+			files: this.#getPattern('test'),
 			browsers: this.getBrowsers()
 		});
 
@@ -152,11 +158,11 @@ export class WTRConfig {
 }
 
 export function createConfig(...args) {
-	const wtrConfig = new WTRConfig(argv);
+	const wtrConfig = new WTRConfig(readCliArgs());
 	return wtrConfig.create(...args);
 }
 
 export function getBrowsers(browsers) {
-	const wtrConfig = new WTRConfig(argv);
+	const wtrConfig = new WTRConfig(readCliArgs());
 	return wtrConfig.getBrowsers(browsers);
 }
