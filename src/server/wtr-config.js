@@ -27,24 +27,35 @@ export class WTRConfig {
 						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-400.woff2" as="font" type="font/woff2" crossorigin>
 						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-700.woff2" as="font" type="font/woff2" crossorigin>
 						<style>
+							@font-face {
+								font-family: 'Lato';
+								font-style: normal;
+								font-weight: 400;
+								src: url(https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-400.woff2) format('woff2');
+							}
+							@font-face {
+								font-family: 'Lato';
+								font-style: normal;
+								font-weight: 700;
+								src: url(https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-700.woff2) format('woff2');
+							}
 							html {
 								font-size: 20px;
 							}
 							body {
 								background-color: #ffffff;
+								color: var(--d2l-color-ferrite, #202122);
+								font-family: 'Lato';
+								letter-spacing: 0.01rem;
+								font-size: 0.95rem;
+								font-weight: 400;
+								line-height: 1.4rem;
 								margin: 0;
 								padding: 30px;
 							}
-							body[data-theme="dark"] {
-								background-color: #000000;
-							}
-							body[data-theme="translucent"] {
-								background: repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px);
-							}
 						</style>
-						<script type="module" src="./components/typography/typography.js"></script>
 					</head>
-					<body class="d2l-typography">
+					<body>
 						<script type="module" src="${testFramework}"></script>
 					</body>
 				</html>`
