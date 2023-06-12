@@ -6,8 +6,8 @@
   "repository": "https://github.com/BrightspaceUI/testing.git",
   "scripts": {
     "lint": "eslint . --ext .js",
-    "test": "npm run lint && npm run test:server",
-    "test:headless": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
+    "test": "npm run lint && npm run test:server && npm run test:browser",
+    "test:browser": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
     "test:server": "mocha ./test/server/**/*.test.js"
   },
   "author": "D2L Corporation",
@@ -19,7 +19,10 @@
     "mocha": "^10",
     "sinon": "^15"
   },
-  "exports": "./src/index.js",
+  "exports": {
+    ".": "./src/browser/index.js",
+    "./wtr-config.js": "./src/server/index.js"
+  },
   "files": [
     "/src"
   ],
@@ -29,6 +32,7 @@
   "dependencies": {
     "@open-wc/testing": "^3",
     "@web/test-runner": "^0.16",
+    "@web/test-runner-commands": "^0.7",
     "@web/test-runner-playwright": "^0.10"
   }
 }
