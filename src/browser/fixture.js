@@ -47,8 +47,7 @@ async function waitForElem(elem, opts) {
 
 }
 
-export async function fixture(element, opts) {
-	opts ??= {};
+export async function fixture(element, opts = {}) {
 	opts.awaitLoadingComplete ??= true;
 	await Promise.all([reset(opts), document.fonts.ready]);
 	const elem = await wcFixture(element);
