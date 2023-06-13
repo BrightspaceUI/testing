@@ -97,7 +97,7 @@ describe('createWtrConfig', () => {
 			expect(config.groups[0]).to.not.have.property('name', 'vdiff');
 		});
 
-		it('should filter test files using --files values', () => {
+		it('should filter test files using --grep values', () => {
 			wtrConfig = new WTRConfig({ grep: ['subset', 'subset2'] });
 			config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.*` });
 			expect(config.files).to.have.length(2);
