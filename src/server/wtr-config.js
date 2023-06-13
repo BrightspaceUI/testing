@@ -1,6 +1,15 @@
+import commandLineArgs from 'command-line-args';
 import { defaultReporter } from '@web/test-runner';
 import { playwrightLauncher } from '@web/test-runner-playwright';
-import { readCliArgs } from '../../node_modules/@web/test-runner/dist/config/readCliArgs.js';
+
+const optionDefinitions = [
+	{ name: 'playwright', type: Boolean },
+	{ name: 'files', type: String, multiple: true, defaultOption: true },
+	{ name: 'group', type: String },
+	{ name: 'grep', alias: 'g', type: String, multiple: true }
+];
+
+const cliArgs = commandLineArgs(optionDefinitions, { partial: true });
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
 const DEFAULT_VDIFF = false;
@@ -64,8 +73,8 @@ export class WTRConfig {
 
 	#getPattern(type) {
 		const pattern = this.pattern(type);
-		// if --files provided, require single-segment wildcards to match
-		return this.#cliArgs.files?.map(f => pattern.replace(/(?<!\*)\*(?!\*)/g, `*${f}*`)) || pattern;
+		// if --grep provided, require single-segment wildcards to match
+		return this.#cliArgs.grep?.map(g => pattern.replace(/(?<!\*)\*(?!\*)/g, `*${g}*`)) || pattern;
 	}
 
 	create({
@@ -158,11 +167,11 @@ export class WTRConfig {
 }
 
 export function createConfig(...args) {
-	const wtrConfig = new WTRConfig(readCliArgs());
+	const wtrConfig = new WTRConfig(cliArgs);
 	return wtrConfig.create(...args);
 }
 
 export function getBrowsers(browsers) {
-	const wtrConfig = new WTRConfig(readCliArgs());
+	const wtrConfig = new WTRConfig(cliArgs);
 	return wtrConfig.getBrowsers(browsers);
 }
