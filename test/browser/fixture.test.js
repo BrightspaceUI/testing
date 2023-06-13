@@ -32,7 +32,7 @@ const asyncElem = defineCE(
 		constructor() {
 			super();
 			this.finished = false;
-			this.promise = new Promise((resolve) => resolves.set(this.id, resolve));
+			this.promise = new Promise(resolve => resolves.set(this.id, resolve));
 			this.promise.then(() => this.finished = true);
 		}
 		render() {
