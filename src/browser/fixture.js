@@ -29,7 +29,7 @@ function getComposedChildren(node) {
 
 }
 
-async function waitForElem(elem) {
+async function waitForElem(elem, awaitLoadingComplete = true) {
 
 	const update = elem?.updateComplete;
 	if (typeof update === 'object' && Promise.resolve(update) === update) {
@@ -37,14 +37,19 @@ async function waitForElem(elem) {
 		await nextFrame();
 	}
 
+	if (awaitLoadingComplete && typeof elem?.getLoadingComplete === 'function') {
+		await elem.getLoadingComplete();
+		await nextFrame();
+	}
+
 	const children = getComposedChildren(elem);
-	await Promise.all(children.map(e => waitForElem(e)));
+	await Promise.all(children.map(e => waitForElem(e, awaitLoadingComplete)));
 
 }
 
-export async function fixture(element, opts) {
+export async function fixture(element, opts = {}) {
 	await Promise.all([reset(opts), document.fonts.ready]);
 	const elem = await wcFixture(element);
-	await waitForElem(elem);
+	await waitForElem(elem, opts.awaitLoadingComplete);
 	return elem;
 }
