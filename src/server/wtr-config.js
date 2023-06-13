@@ -1,6 +1,7 @@
 import { argv } from 'node:process';
 import { defaultReporter } from '@web/test-runner';
 import { playwrightLauncher } from '@web/test-runner-playwright';
+import { visualDiff } from './visual-diff-plugin.js';
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
 const DEFAULT_VDIFF = false;
@@ -130,7 +131,7 @@ export class WTRConfig {
 			//config.reporters.push(visualDiffReporter());
 
 			config.plugins ??= [];
-			//config.plugins.push(visualDiff());
+			config.plugins.push(visualDiff());
 
 			config.groups.push(this.visualDiffGroup);
 		}
