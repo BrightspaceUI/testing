@@ -73,8 +73,23 @@ export class WTRConfig {
 
 	#getPattern(type) {
 		const pattern = this.pattern(type);
-		// if --grep provided, require single-segment wildcards to match
-		return this.#cliArgs.grep?.map(g => pattern.replace(/(?<!\*)\*(?!\*)/g, `*${g}*`)) || pattern;
+
+		// replace filename wildcards with all grep strings
+		// e.g. ./**/test/*.test.* becomes ./**/test/(*grepString*.test.*|*.test.*grepString*)
+		if (this.#cliArgs.grep) {
+			return this.#cliArgs.grep?.map(grepStr => {
+				return pattern.replace(/([^/]*$)/, fileGlob => {
+					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(m => {
+						const arr = m.input.split('');
+						arr.splice(m.index, 1, `*${grepStr}*`);
+						return arr.join('');
+					});
+					return `(${fileGlobs.join('|')})`;
+				});
+			});
+		}
+
+		return pattern;
 	}
 
 	create({

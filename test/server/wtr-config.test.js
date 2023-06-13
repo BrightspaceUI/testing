@@ -99,9 +99,9 @@ describe('createWtrConfig', () => {
 
 		it('should filter test files using --files values', () => {
 			wtrConfig = new WTRConfig({ grep: ['subset', 'subset2'] });
-			config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.js` });
+			config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.*` });
 			expect(config.files).to.have.length(2);
-			expect(config.files).to.have.members(['./test/**/*subset*/*subset*.test.js', './test/**/*subset2*/*subset2*.test.js']);
+			expect(config.files).to.have.members(['./test/**/*/(*subset*.test.*|*.test.*subset*)', './test/**/*/(*subset2*.test.*|*.test.*subset2*)']);
 		});
 
 	});
