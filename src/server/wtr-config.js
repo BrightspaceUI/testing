@@ -75,20 +75,22 @@ export class WTRConfig {
 		const pattern = this.pattern(type);
 
 		// replace filename wildcards with all grep strings
-		// e.g. ./**/test/*.test.* becomes ./**/test/(*grepString*.test.*|*.test.*grepString*)
+		// e.g. If grep is ['button', 'list'], pattern './test/*.test.*' becomes:
+		// [ './test/(*button*.test.*|*.test.*button*)', './test/(*list*.test.*|*.test.*list*)' ]
 		if (this.#cliArgs.grep) {
-			return this.#cliArgs.grep?.map(grepStr => {
-				return pattern.replace(/([^/]*$)/, fileGlob => {
-					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(m => {
-						const arr = m.input.split('');
-						arr.splice(m.index, 1, `*${grepStr}*`);
+			return this.#cliArgs.grep.map(grepStr => {
+				// replace everything after the last forward slash
+				return pattern.replace(/[^/]*$/, fileGlob => {
+					// create a new glob for each wildcard
+					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
+						const arr = fileGlob.split('');
+						arr.splice(index, 1, `*${grepStr}*`);
 						return arr.join('');
 					});
 					return `(${fileGlobs.join('|')})`;
 				});
 			});
 		}
-
 		return pattern;
 	}
 
