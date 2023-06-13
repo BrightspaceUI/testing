@@ -75,7 +75,7 @@ export class WTRConfig {
 		...passthroughConfig
 	} = {}) {
 
-		if (!this.#cliArgs.group?.length || this.#cliArgs.group?.includes('default')) {
+		if (!this.#cliArgs.group || this.#cliArgs.group === 'default') {
 			if (this.#cliArgs.playwright) {
 				console.warn('Warning: reducedMotion disabled. Use the unit group to enable reducedMotion.');
 			} else {
