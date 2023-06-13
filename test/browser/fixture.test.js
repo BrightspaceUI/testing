@@ -47,7 +47,7 @@ const asyncElem = defineCE(
 const nestedElem = defineCE(
 	class extends LitElement {
 		render() {
-			return unsafeHTML(`<${slowElem} id="slow"></${slowElem}><${asyncElem} id="async"></${asyncElem}>`)};
+			return unsafeHTML(`<${slowElem} id="slow"></${slowElem}><${asyncElem} id="async"></${asyncElem}>`);
 		}
 	}
 );
