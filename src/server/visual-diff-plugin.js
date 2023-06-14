@@ -48,8 +48,8 @@ export function visualDiff() {
 
 			const browser = session.browser.name.toLowerCase();
 			const { dir, newName } = extractTestPartsFromName(payload.name);
-			const goldenFileName = `${join(dirname(session.testFile), 'screenshots', ciDir, 'golden', browser, dir, newName)}.png`;
-			const currentFileName = `${join(dirname(session.testFile), 'screenshots', ciDir, 'current', browser, dir, newName)}.png`;
+			const goldenFileName = `${join(dirname(session.testFile), 'vdiff', ciDir, 'golden', browser, dir, newName)}.png`;
+			const currentFileName = `${join(dirname(session.testFile), 'vdiff', ciDir, 'current', browser, dir, newName)}.png`;
 
 			const opts = payload.opts || {};
 			opts.margin = opts.margin || DEFAULT_MARGIN;
