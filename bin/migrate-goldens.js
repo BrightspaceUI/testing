@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import { mkdir, rename } from 'node:fs/promises';
 import { join, normalize, sep } from 'path';
-import { glob } from 'glob';
+import { mkdir, rename } from 'node:fs/promises';
 import commandLineArgs from 'command-line-args';
+import { glob } from 'glob';
+import { stdout } from 'node:process';
 
 const { pattern = './test/**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true });
-console.log(pattern);
 const oldSuffix = 'screenshots/ci/golden';
 const newSuffix = 'vdiff/ci/chromium/golden';
 const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**' });
@@ -20,4 +20,4 @@ await Promise.all(dirs.map(async dir => {
 	return rename(dir, join(base, normalize(newSuffix)));
 }));
 
-console.log(`Migrated ${files.length} goldens found in ${dirs.length} test directories`);
+stdout.write(`\nMigrated ${files.length} goldens found in ${dirs.length} test directories\n`);
