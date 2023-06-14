@@ -57,7 +57,7 @@ describe('createWtrConfig', () => {
 
 		it('should warn about not using a group with playwright', () => {
 			const consoleSpy = spy(console, 'warn');
-			wtrConfig = new WTRConfig(['--playwright']);
+			wtrConfig = new WTRConfig({ playwright: true });
 			wtrConfig.create();
 			assert.calledOnce(consoleSpy);
 			assert.calledWith(consoleSpy, match('Warning: reducedMotion disabled.'));
@@ -95,6 +95,13 @@ describe('createWtrConfig', () => {
 		it('should not enable vdiff by default', () => {
 			expect(config.groups).to.be.an('array').that.has.length(1);
 			expect(config.groups[0]).to.not.have.property('name', 'vdiff');
+		});
+
+		it('should filter test files using --grep values', () => {
+			wtrConfig = new WTRConfig({ grep: ['subset', 'subset2'] });
+			config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.*` });
+			expect(config.files).to.have.length(2);
+			expect(config.files).to.have.members(['./test/**/*/(*subset*.test.*|*.test.*subset*)', './test/**/*/(*subset2*.test.*|*.test.*subset2*)']);
 		});
 
 	});
@@ -139,7 +146,7 @@ describe('createWtrConfig', () => {
 		});
 
 		it('should only use CLI browsers when provided', () => {
-			const wtrConfig = new WTRConfig(['a', 'firefox', 'webkit', 'b']);
+			const wtrConfig = new WTRConfig({ browsers: ['a', 'firefox', 'webkit', 'b'] });
 			const browsers = wtrConfig.getBrowsers(['chromium']);
 			expect(browsers).to.have.length(2);
 			expect(browsers.map(b => b.name)).to.have.members(['Webkit', 'Firefox']);

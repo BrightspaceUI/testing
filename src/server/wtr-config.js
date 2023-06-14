@@ -1,7 +1,16 @@
-import { argv } from 'node:process';
+import commandLineArgs from 'command-line-args';
 import { defaultReporter } from '@web/test-runner';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualDiff } from './visual-diff-plugin.js';
+
+const optionDefinitions = [
+	{ name: 'playwright', type: Boolean },
+	{ name: 'files', type: String, multiple: true, defaultOption: true },
+	{ name: 'group', type: String },
+	{ name: 'grep', alias: 'g', type: String, multiple: true }
+];
+
+const cliArgs = commandLineArgs(optionDefinitions, { partial: true });
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
 const DEFAULT_VDIFF = false;
@@ -13,14 +22,14 @@ export class WTRConfig {
 	#requestedBrowsers;
 
 	constructor(cliArgs) {
-		this.#cliArgs = cliArgs || [];
-		this.#requestedBrowsers = this.#cliArgs?.toString().match(new RegExp(ALLOWED_BROWSERS.join('|'), 'gi'));
+		this.#cliArgs = cliArgs || {};
+		this.#requestedBrowsers = this.#cliArgs?.browsers?.filter(b => ALLOWED_BROWSERS.includes(b));
 	}
 
 	get visualDiffGroup() {
 		return {
 			name: 'vdiff',
-			files: this.pattern('vdiff'),
+			files: this.#getPattern('vdiff'),
 			browsers: this.getBrowsers(['chromium']),
 			testRunnerHtml: testFramework =>
 				`<html lang="en">
@@ -63,6 +72,29 @@ export class WTRConfig {
 		};
 	}
 
+	#getPattern(type) {
+		const pattern = this.pattern(type);
+
+		// replace filename wildcards with all grep strings
+		// e.g. If grep is ['button', 'list'], pattern './test/*.test.*' becomes:
+		// [ './test/(*button*.test.*|*.test.*button*)', './test/(*list*.test.*|*.test.*list*)' ]
+		if (this.#cliArgs.grep) {
+			return this.#cliArgs.grep.map(grepStr => {
+				// replace everything after the last forward slash
+				return pattern.replace(/[^/]*$/, fileGlob => {
+					// create a new glob for each wildcard
+					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
+						const arr = fileGlob.split('');
+						arr.splice(index, 1, `*${grepStr}*`);
+						return arr.join('');
+					});
+					return `(${fileGlobs.join('|')})`;
+				});
+			});
+		}
+		return pattern;
+	}
+
 	create({
 		pattern = DEFAULT_PATTERN,
 		vdiff = DEFAULT_VDIFF,
@@ -70,8 +102,8 @@ export class WTRConfig {
 		...passthroughConfig
 	} = {}) {
 
-		if (!this.#cliArgs.includes('--group') || this.#cliArgs.includes('default')) {
-			if (this.#cliArgs.includes('--playwright')) {
+		if (!this.#cliArgs.group || this.#cliArgs.group === 'default') {
+			if (this.#cliArgs.playwright) {
 				console.warn('Warning: reducedMotion disabled. Use the unit group to enable reducedMotion.');
 			} else {
 				console.warn('Warning: Running with puppeteer, reducedMotion disabled. Use the unit group to use playwright with reducedMotion enabled');
@@ -96,7 +128,7 @@ export class WTRConfig {
 		}
 
 		const defaultConfig = {
-			files: pattern('test'),
+			files: this.#getPattern('test'),
 			nodeResolve: true,
 			testRunnerHtml: testFramework =>
 				`<html lang="en">
@@ -122,7 +154,7 @@ export class WTRConfig {
 		config.groups ??= [];
 		config.groups.push({
 			name: 'unit',
-			files: pattern('test'),
+			files: this.#getPattern('test'),
 			browsers: this.getBrowsers()
 		});
 
@@ -153,11 +185,11 @@ export class WTRConfig {
 }
 
 export function createConfig(...args) {
-	const wtrConfig = new WTRConfig(argv);
+	const wtrConfig = new WTRConfig(cliArgs);
 	return wtrConfig.create(...args);
 }
 
 export function getBrowsers(browsers) {
-	const wtrConfig = new WTRConfig(argv);
+	const wtrConfig = new WTRConfig(cliArgs);
 	return wtrConfig.getBrowsers(browsers);
 }

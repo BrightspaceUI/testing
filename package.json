@@ -33,6 +33,7 @@
     "@open-wc/testing": "^3",
     "@web/test-runner": "^0.16",
     "@web/test-runner-commands": "^0.7",
-    "@web/test-runner-playwright": "^0.10"
+    "@web/test-runner-playwright": "^0.10",
+    "command-line-args": "^5"
   }
 }
