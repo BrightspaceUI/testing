@@ -20,4 +20,4 @@ await Promise.all(dirs.map(async dir => {
 	return rename(dir, join(base, normalize(newSuffix)));
 }));
 
-stdout.write(`\nMigrated ${files.length} goldens found in ${dirs.length} test directories\n`);
+stdout.write(`\nMigrated ${files.length} ${files.length === 1 ? 'golden' : 'goldens'} found in ${dirs.length} test ${dirs.length === 1 ? 'directory' : 'directories'}\n`);
