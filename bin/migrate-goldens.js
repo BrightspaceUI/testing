@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-import { access, mkdir, rename } from 'node:fs/promises';
+import { mkdir, rename } from 'node:fs/promises';
 import { join, normalize, sep } from 'path';
 import { glob } from 'glob';
 import commandLineArgs from 'command-line-args';
 
-let { pattern = './test/**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true });
-pattern = pattern.replace(/^'|'$/g, '');
-
+const { pattern = './test/**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true });
+console.log(pattern);
 const oldSuffix = 'screenshots/ci/golden';
 const newSuffix = 'vdiff/ci/chromium/golden';
 const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**' });
@@ -17,9 +16,7 @@ await Promise.all(dirs.map(async dir => {
 
 	const base = dir.replace(normalize(oldSuffix), '');
 
-	await access(join(base, 'vdiff')).catch(async err => err && await mkdir(join(base, 'vdiff')));
-	await access(join(base, 'vdiff', 'ci')).catch(async err => err && await mkdir(join(base, 'vdiff', 'ci')));
-	await access(join(base, 'vdiff', 'ci', 'chromium')).catch(async err => err && await mkdir(join(base, 'vdiff', 'ci', 'chromium')));
+	await mkdir(join(base, 'vdiff', 'ci', 'chromium'), { recursive: true });
 	return rename(dir, join(base, normalize(newSuffix)));
 }));
 
