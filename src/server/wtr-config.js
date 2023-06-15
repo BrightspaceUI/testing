@@ -5,10 +5,12 @@ import { visualDiff } from './visual-diff-plugin.js';
 import { manualPause } from './manual-pause-plugin.js';
 
 const optionDefinitions = [
-	{ name: 'playwright', type: Boolean },
+	// @web/test-runner options
+	{ name: 'browsers', type: String, multiple: true },
 	{ name: 'files', type: String, multiple: true, defaultOption: true },
 	{ name: 'group', type: String },
 	{ name: 'manual', type: Boolean },
+	{ name: 'playwright', type: Boolean },
 	{ name: 'watch', type: Boolean },
 	{ name: 'grep', alias: 'g', type: String, multiple: true },
 	{ name: 'golden', type: Boolean }
@@ -121,6 +123,8 @@ export class WTRConfig {
 		if (typeof pattern !== 'function') throw new TypeError('pattern must be a function');
 
 		const timeoutConfig = {};
+
+		if (this.#cliArgs.watch || this.#cliArgs.manual) timeout = 0;
 
 		if (typeof timeout !== 'undefined') {
 			if (typeof timeout !== 'number') throw new TypeError('timeout must be a number');
