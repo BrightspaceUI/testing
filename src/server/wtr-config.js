@@ -2,11 +2,14 @@ import commandLineArgs from 'command-line-args';
 import { defaultReporter } from '@web/test-runner';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualDiff } from './visual-diff-plugin.js';
+import { manualPause } from './manual-pause-plugin.js';
 
 const optionDefinitions = [
 	{ name: 'playwright', type: Boolean },
 	{ name: 'files', type: String, multiple: true, defaultOption: true },
 	{ name: 'group', type: String },
+	{ name: 'manual', type: Boolean },
+	{ name: 'watch', type: Boolean },
 	{ name: 'grep', alias: 'g', type: String, multiple: true },
 	{ name: 'golden', type: Boolean }
 ];
@@ -160,6 +163,9 @@ export class WTRConfig {
 			files: this.#getPattern('test'),
 			browsers: this.getBrowsers()
 		});
+
+		config.plugins ??= [];
+		config.plugins.push(manualPause({ manual: this.#cliArgs.manual, watch: this.#cliArgs.watch }));
 
 		if (vdiff) {
 			config.reporters ??= [ defaultReporter() ];
