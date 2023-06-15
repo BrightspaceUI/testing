@@ -1,9 +1,6 @@
-import { access, constants, stat } from 'node:fs/promises';
+import { access, constants, mkdir, rename, stat } from 'node:fs/promises';
 import { dirname, join } from 'path';
-import { env } from 'node:process';
 
-const isCI = !!env['CI'];
-const ciDir = isCI ? 'ci' : '';
 const DEFAULT_MARGIN = 10;
 
 async function checkFileExists(fileName) {
@@ -11,6 +8,17 @@ async function checkFileExists(fileName) {
 		await access(fileName, constants.F_OK);
 		return true;
 	} catch (e) {
+		return false;
+	}
+}
+
+async function tryMoveFile(srcFileName, destFileName) {
+	await mkdir(dirname(destFileName), { recursive: true });
+	try {
+		await rename(srcFileName, destFileName);
+		return true;
+	} catch (e) {
+		console.warn(e);
 		return false;
 	}
 }
@@ -34,9 +42,13 @@ function extractTestPartsFromName(name) {
 	};
 }
 
-export function visualDiff() {
+export function visualDiff({ updateGoldens = false } = {}) {
+	let rootDir;
 	return {
 		name: 'brightspace-visual-diff',
+		async serverStart({ config }) {
+			rootDir = config.rootDir;
+		},
 		async executeCommand({ command, payload, session }) {
 
 			if (command !== 'brightspace-visual-diff') {
@@ -48,8 +60,10 @@ export function visualDiff() {
 
 			const browser = session.browser.name.toLowerCase();
 			const { dir, newName } = extractTestPartsFromName(payload.name);
-			const goldenFileName = `${join(dirname(session.testFile), 'screenshots', ciDir, 'golden', browser, dir, newName)}.png`;
-			const currentFileName = `${join(dirname(session.testFile), 'screenshots', ciDir, 'current', browser, dir, newName)}.png`;
+			const testPath = dirname(session.testFile).replace(rootDir, '');
+			const goldenFileName = `${join(rootDir, '.vdiff', testPath, 'golden', browser, dir, newName)}.png`;
+			const passFileName = `${join(rootDir, '.vdiff', testPath, 'pass', browser, dir, newName)}.png`;
+			const screenshotFileName = `${join(rootDir, '.vdiff', testPath, 'fail', browser, dir, newName)}.png`;
 
 			const opts = payload.opts || {};
 			opts.margin = opts.margin || DEFAULT_MARGIN;
@@ -63,21 +77,28 @@ export function visualDiff() {
 					width: payload.rect.width + (opts.margin * 2),
 					height: payload.rect.height + (opts.margin * 2)
 				},
-				path: currentFileName
+				path: updateGoldens ? goldenFileName : screenshotFileName
 			});
 
-			const goldenExists = await checkFileExists(goldenFileName);
-			if (!goldenExists) {
-				//return { pass: false, message: 'No golden exists' };
+			if (updateGoldens) {
 				return { pass: true };
 			}
 
-			const currentInfo = await stat(currentFileName);
+			const goldenExists = await checkFileExists(goldenFileName);
+			if (!goldenExists) {
+				return { pass: false, message: 'No golden exists' };
+			}
+
+			const screenshotInfo = await stat(screenshotFileName);
 			const goldenInfo = await stat(goldenFileName);
 
 			// TODO: obviously this isn't how to diff against, the golden! Use pixelmatch here.
-			const same = (currentInfo.size === goldenInfo.size);
+			const same = (screenshotInfo.size === goldenInfo.size);
 
+			if (same) {
+				const success = await tryMoveFile(screenshotFileName, passFileName);
+				if (!success) return { pass: false, message: 'Problem moving file to pass directory' };
+			}
 			return { pass: same, message: 'Does not match golden' };
 
 		}

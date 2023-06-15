@@ -7,7 +7,8 @@ const optionDefinitions = [
 	{ name: 'playwright', type: Boolean },
 	{ name: 'files', type: String, multiple: true, defaultOption: true },
 	{ name: 'group', type: String },
-	{ name: 'grep', alias: 'g', type: String, multiple: true }
+	{ name: 'grep', alias: 'g', type: String, multiple: true },
+	{ name: 'golden', type: Boolean }
 ];
 
 const cliArgs = commandLineArgs(optionDefinitions, { partial: true });
@@ -163,7 +164,7 @@ export class WTRConfig {
 			//config.reporters.push(visualDiffReporter());
 
 			config.plugins ??= [];
-			config.plugins.push(visualDiff());
+			config.plugins.push(visualDiff({ updateGoldens: this.#cliArgs.golden }));
 
 			config.groups.push(this.visualDiffGroup);
 		}
