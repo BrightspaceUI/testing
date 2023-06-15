@@ -9,7 +9,7 @@
     "test": "npm run lint && npm run test:server && npm run test:browser",
     "test:browser": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
     "test:server": "mocha ./test/server/**/*.test.js",
-    "test:vdiff": "web-test-runner --config ./test/vdiff/wtr-vdiff.config.js --group vdiff",
+    "test:vdiff": "web-test-runner --config ./test/browser/wtr-vdiff.config.js --group vdiff",
     "test:vdiff:golden": "npm run test:vdiff -- --golden"
   },
   "author": "D2L Corporation",

@@ -36,7 +36,7 @@ const elementTag = defineCE(
 	}
 );
 
-describe('vdiff-matches', () => {
+describe('element-matches', () => {
 	[
 		{ name: 'default' },
 		{ name: 'rtl', rtl: true },
@@ -50,7 +50,7 @@ describe('vdiff-matches', () => {
 	});
 });
 
-describe('vdiff-different', () => {
+describe('element-different', () => {
 	[
 		{ name: 'default', action: elem => {
 			elem.style.borderColor = 'black';

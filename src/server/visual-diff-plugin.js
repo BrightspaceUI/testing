@@ -55,7 +55,7 @@ export function visualDiff({ updateGoldens = false } = {}) {
 				return;
 			}
 			if (session.browser.type !== 'playwright') {
-				throw new Error('Visual-diff is only supported for browser type Playwright');
+				throw new Error('Visual-diff is only supported for browser type Playwright.');
 			}
 
 			const browser = session.browser.name.toLowerCase();
@@ -86,20 +86,20 @@ export function visualDiff({ updateGoldens = false } = {}) {
 
 			const goldenExists = await checkFileExists(goldenFileName);
 			if (!goldenExists) {
-				return { pass: false, message: 'No golden exists' };
+				return { pass: false, message: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.' };
 			}
 
 			const screenshotInfo = await stat(screenshotFileName);
 			const goldenInfo = await stat(goldenFileName);
 
-			// TODO: obviously this isn't how to diff against, the golden! Use pixelmatch here.
+			// TODO: obviously this isn't how to diff against the golden! Use pixelmatch here.
 			const same = (screenshotInfo.size === goldenInfo.size);
 
 			if (same) {
 				const success = await tryMoveFile(screenshotFileName, passFileName);
-				if (!success) return { pass: false, message: 'Problem moving file to pass directory' };
+				if (!success) return { pass: false, message: 'Problem moving file to pass directory.' };
 			}
-			return { pass: same, message: 'Does not match golden' };
+			return { pass: same, message: 'Does not match golden.' }; // TODO: Add more details once actually diff-ing
 
 		}
 	};
