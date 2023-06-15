@@ -1,6 +1,12 @@
-import { sendKeys } from '@web/test-runner-commands';
+import { sendKeys, sendMouse } from '@web/test-runner-commands';
 
-export const focusWithKeyboard = async(element) => {
-	await sendKeys({ press: 'Escape' });
+export async function focusWithKeyboard(element) {
+	await sendKeys({ press: 'Shift' }); // Tab moves focus, Escape causes dismissible things to close
 	element.focus({ focusVisible: true });
-};
+}
+
+export async function focusWithMouse(element) {
+	const { x, y } = element.getBoundingClientRect();
+	await sendMouse({ type: 'click', position: [Math.ceil(x), Math.ceil(y)] });
+	await sendMouse({ type: 'move', position: [0, 0] });
+}
