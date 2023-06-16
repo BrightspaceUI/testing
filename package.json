@@ -10,6 +10,9 @@
     "test:browser": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
     "test:server": "mocha ./test/server/**/*.test.js"
   },
+  "bin": {
+    "migrate-goldens": "./bin/migrate-goldens.js"
+  },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
@@ -34,6 +37,7 @@
     "@web/test-runner": "^0.16",
     "@web/test-runner-commands": "^0.7",
     "@web/test-runner-playwright": "^0.10",
-    "command-line-args": "^5"
+    "command-line-args": "^5",
+    "glob": "^10"
   }
 }
