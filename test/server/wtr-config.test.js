@@ -85,11 +85,9 @@ describe('createWtrConfig', () => {
 		});
 
 		it('should set timeout to 0 and add headedMode plugin when headed', () => {
-			let wtrConfig, config;
-
 			['watch', 'manual'].forEach(mode => {
-				wtrConfig = new WTRConfig({ timeout: 4000, [mode]: true });
-				config = wtrConfig.create({ timeout: 3000 });
+				const wtrConfig = new WTRConfig({ timeout: 4000, [mode]: true });
+				const config = wtrConfig.create({ timeout: 3000 });
 				expect(config.plugins).to.have.length(1);
 				expect(config.testFramework.config.timeout).to.equal('0');
 			});
@@ -109,7 +107,7 @@ describe('createWtrConfig', () => {
 			expect(config.groups.map(g => g.name)).to.have.members(['unit']);
 		});
 
-		it('should not enable vdiff by default', () => {
+		it('should not configure vdiff by default', () => {
 			expect(config.groups).to.be.an('array').that.has.length(1);
 			expect(config.plugins).to.be.undefined;
 			expect(config.groups.find(g => g.name === 'vdiff')).to.be.undefined;
