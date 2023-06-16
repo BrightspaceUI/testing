@@ -6,14 +6,19 @@ import { manualPause } from './manual-pause-plugin.js';
 
 const optionDefinitions = [
 	// @web/test-runner options
-	{ name: 'browsers', type: String, multiple: true },
 	{ name: 'files', type: String, multiple: true, defaultOption: true },
 	{ name: 'group', type: String },
 	{ name: 'manual', type: Boolean },
 	{ name: 'playwright', type: Boolean },
 	{ name: 'watch', type: Boolean },
-	{ name: 'grep', alias: 'g', type: String, multiple: true },
-	{ name: 'golden', type: Boolean }
+	// custom options
+	{ name: 'chromium', type: Boolean },
+	{ name: 'firefox', type: Boolean },
+	{ name: 'golden', type: Boolean },
+	{ name: 'grep', alias: 'g', type: String },
+	{ name: 'filter', alias: 'f', type: String, multiple: true },
+	{ name: 'timeout', type: Number },
+	{ name: 'webkit', type: Boolean },
 ];
 
 const cliArgs = commandLineArgs(optionDefinitions, { partial: true });
@@ -29,7 +34,8 @@ export class WTRConfig {
 
 	constructor(cliArgs) {
 		this.#cliArgs = cliArgs || {};
-		this.#requestedBrowsers = this.#cliArgs?.browsers?.filter(b => ALLOWED_BROWSERS.includes(b));
+		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs[b]);
+		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
 	}
 
 	get visualDiffGroup() {
@@ -80,13 +86,13 @@ export class WTRConfig {
 	}
 
 	#getPattern(type) {
-		const pattern = this.pattern(type);
+		const pattern = this.#cliArgs.files || this.pattern(type);
 
 		// replace filename wildcards with all grep strings
 		// e.g. If grep is ['button', 'list'], pattern './test/*.test.*' becomes:
 		// [ './test/(*button*.test.*|*.test.*button*)', './test/(*list*.test.*|*.test.*list*)' ]
-		if (this.#cliArgs.grep) {
-			return this.#cliArgs.grep.map(grepStr => {
+		if (this.#cliArgs.filter) {
+			return this.#cliArgs.filter.map(grepStr => {
 				// replace everything after the last forward slash
 				return pattern.replace(/[^/]*$/, fileGlob => {
 					// create a new glob for each wildcard
@@ -100,6 +106,50 @@ export class WTRConfig {
 			});
 		}
 		return pattern;
+	}
+
+	get #defaultConfig() {
+		return {
+			files: this.#getPattern('test'),
+			nodeResolve: true,
+			testRunnerHtml: testFramework =>
+				`<!DOCTYPE html>
+				<html lang="en">
+					<body>
+						<script>
+							window.addEventListener('error', (err) => {
+								if (err.message.includes('ResizeObserver')) {
+									err.stopImmediatePropagation();
+								}
+							});
+						</script>
+						<script type="module" src="${testFramework}"></script>
+					</body>
+				</html>`,
+		};
+	}
+
+	#getMochaConfig(timeoutConfig) {
+		const {
+			timeout = timeoutConfig,
+			grep,
+			watch,
+			manual
+		} = this.#cliArgs;
+
+		if (typeof timeout !== 'undefined' && typeof timeout !== 'number') throw new TypeError('timeout must be a number');
+
+		const config = {};
+
+		if (timeout) config.timeout = String(timeout);
+
+		if (grep) config.grep = grep;
+
+		if (watch || manual) {
+			config.timeout = '0';
+		}
+
+		return Object.keys(config).length && { testFramework: { config } };
 	}
 
 	create({
@@ -118,46 +168,13 @@ export class WTRConfig {
 		}
 
 		delete passthroughConfig.browsers;
-		this.pattern = pattern;
 
 		if (typeof pattern !== 'function') throw new TypeError('pattern must be a function');
-
-		const timeoutConfig = {};
-
-		if (this.#cliArgs.watch || this.#cliArgs.manual) timeout = 0;
-
-		if (typeof timeout !== 'undefined') {
-			if (typeof timeout !== 'number') throw new TypeError('timeout must be a number');
-
-			timeoutConfig.testFramework = {
-				config: {
-					timeout: timeout.toString()
-				}
-			};
-		}
-
-		const defaultConfig = {
-			files: this.#getPattern('test'),
-			nodeResolve: true,
-			testRunnerHtml: testFramework =>
-				`<!DOCTYPE html>
-				<html lang="en">
-					<body>
-						<script>
-							window.addEventListener('error', (err) => {
-								if (err.message.includes('ResizeObserver')) {
-									err.stopImmediatePropagation();
-								}
-							});
-						</script>
-						<script type="module" src="${testFramework}"></script>
-					</body>
-				</html>`,
-		};
+		this.pattern = pattern;
 
 		const config = {
-			...defaultConfig,
-			...timeoutConfig,
+			...this.#defaultConfig,
+			...this.#getMochaConfig(timeout),
 			...passthroughConfig
 		};
 
@@ -169,7 +186,6 @@ export class WTRConfig {
 		});
 
 		config.plugins ??= [];
-		config.plugins.push(manualPause({ manual: this.#cliArgs.manual, watch: this.#cliArgs.watch }));
 
 		if (vdiff) {
 			config.reporters ??= [ defaultReporter() ];
@@ -180,6 +196,14 @@ export class WTRConfig {
 
 			config.groups.push(this.visualDiffGroup);
 		}
+
+		const currentPattern = this.#cliArgs.files || config.groups.find(g => g.name === this.#cliArgs.group)?.files || config.files;
+
+		config.plugins.push(manualPause({
+			pattern: currentPattern,
+			manual: this.#cliArgs.manual,
+			watch: this.#cliArgs.watch,
+		}));
 
 		return config;
 	}
