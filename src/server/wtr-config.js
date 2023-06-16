@@ -1,8 +1,8 @@
 import commandLineArgs from 'command-line-args';
 import { defaultReporter } from '@web/test-runner';
+import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualDiff } from './visual-diff-plugin.js';
-import { manualPause } from './manual-pause-plugin.js';
 
 const optionDefinitions = [
 	// @web/test-runner options
@@ -34,8 +34,29 @@ export class WTRConfig {
 
 	constructor(cliArgs) {
 		this.#cliArgs = cliArgs || {};
-		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs[b]);
+		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs?.[b]);
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
+	}
+
+	get #defaultConfig() {
+		return {
+			files: this.#getPattern('test'),
+			nodeResolve: true,
+			testRunnerHtml: testFramework =>
+				`<!DOCTYPE html>
+				<html lang="en">
+					<body>
+						<script>
+							window.addEventListener('error', (err) => {
+								if (err.message.includes('ResizeObserver')) {
+									err.stopImmediatePropagation();
+								}
+							});
+						</script>
+						<script type="module" src="${testFramework}"></script>
+					</body>
+				</html>`,
+		};
 	}
 
 	get visualDiffGroup() {
@@ -85,50 +106,6 @@ export class WTRConfig {
 		};
 	}
 
-	#getPattern(type) {
-		const pattern = this.#cliArgs.files || this.pattern(type);
-
-		// replace filename wildcards with all grep strings
-		// e.g. If grep is ['button', 'list'], pattern './test/*.test.*' becomes:
-		// [ './test/(*button*.test.*|*.test.*button*)', './test/(*list*.test.*|*.test.*list*)' ]
-		if (this.#cliArgs.filter) {
-			return this.#cliArgs.filter.map(grepStr => {
-				// replace everything after the last forward slash
-				return pattern.replace(/[^/]*$/, fileGlob => {
-					// create a new glob for each wildcard
-					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
-						const arr = fileGlob.split('');
-						arr.splice(index, 1, `*${grepStr}*`);
-						return arr.join('');
-					});
-					return `(${fileGlobs.join('|')})`;
-				});
-			});
-		}
-		return pattern;
-	}
-
-	get #defaultConfig() {
-		return {
-			files: this.#getPattern('test'),
-			nodeResolve: true,
-			testRunnerHtml: testFramework =>
-				`<!DOCTYPE html>
-				<html lang="en">
-					<body>
-						<script>
-							window.addEventListener('error', (err) => {
-								if (err.message.includes('ResizeObserver')) {
-									err.stopImmediatePropagation();
-								}
-							});
-						</script>
-						<script type="module" src="${testFramework}"></script>
-					</body>
-				</html>`,
-		};
-	}
-
 	#getMochaConfig(timeoutConfig) {
 		const {
 			timeout = timeoutConfig,
@@ -152,6 +129,29 @@ export class WTRConfig {
 		return Object.keys(config).length && { testFramework: { config } };
 	}
 
+	#getPattern(type) {
+		const pattern = this.#cliArgs.files || this.pattern(type);
+
+		// replace filename wildcards with all grep strings
+		// e.g. If grep is ['button', 'list'], pattern './test/*.test.*' becomes:
+		// [ './test/(*button*.test.*|*.test.*button*)', './test/(*list*.test.*|*.test.*list*)' ]
+		if (this.#cliArgs.filter) {
+			return this.#cliArgs.filter.map(grepStr => {
+				// replace everything after the last forward slash
+				return pattern.replace(/[^/]*$/, fileGlob => {
+					// create a new glob for each wildcard
+					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
+						const arr = fileGlob.split('');
+						arr.splice(index, 1, `*${grepStr}*`);
+						return arr.join('');
+					});
+					return `(${fileGlobs.join('|')})`;
+				});
+			});
+		}
+		return pattern;
+	}
+
 	create({
 		pattern = DEFAULT_PATTERN,
 		vdiff = DEFAULT_VDIFF,
@@ -159,8 +159,10 @@ export class WTRConfig {
 		...passthroughConfig
 	} = {}) {
 
-		if (!this.#cliArgs.group || this.#cliArgs.group === 'default') {
-			if (this.#cliArgs.playwright) {
+		const { watch, manual, group, files, playwright	} = this.#cliArgs;
+
+		if (!group || group === 'default') {
+			if (playwright) {
 				console.warn('Warning: reducedMotion disabled. Use the unit group to enable reducedMotion.');
 			} else {
 				console.warn('Warning: Running with puppeteer, reducedMotion disabled. Use the unit group to use playwright with reducedMotion enabled');
@@ -197,13 +199,15 @@ export class WTRConfig {
 			config.groups.push(this.visualDiffGroup);
 		}
 
-		const currentPattern = this.#cliArgs.files || config.groups.find(g => g.name === this.#cliArgs.group)?.files || config.files;
+		if (watch || manual) {
+			const currentPattern = files || config.groups.find(g => g.name === group)?.files || config.files;
 
-		config.plugins.push(manualPause({
-			pattern: currentPattern,
-			manual: this.#cliArgs.manual,
-			watch: this.#cliArgs.watch,
-		}));
+			config.plugins.push(headedMode({
+				pattern: currentPattern,
+				manual,
+				watch
+			}));
+		}
 
 		return config;
 	}

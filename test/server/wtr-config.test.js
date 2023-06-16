@@ -49,7 +49,7 @@ describe('createWtrConfig', () => {
 
 		it('should warn about using the default group', () => {
 			const consoleSpy = spy(console, 'warn');
-			wtrConfig = new WTRConfig(['--group', 'default']);
+			wtrConfig = new WTRConfig({ group: 'default' });
 			wtrConfig.create();
 			assert.calledOnce(consoleSpy);
 			assert.calledWith(consoleSpy, match('puppeteer'));
@@ -97,11 +97,17 @@ describe('createWtrConfig', () => {
 			expect(config.groups[0]).to.not.have.property('name', 'vdiff');
 		});
 
-		it('should filter test files using --grep values', () => {
-			wtrConfig = new WTRConfig({ grep: ['subset', 'subset2'] });
+		it('should filter test files using --filter values', () => {
+			wtrConfig = new WTRConfig({ filter: ['subset', 'subset2'] });
 			config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.*` });
 			expect(config.files).to.have.length(2);
 			expect(config.files).to.have.members(['./test/**/*/(*subset*.test.*|*.test.*subset*)', './test/**/*/(*subset2*.test.*|*.test.*subset2*)']);
+		});
+
+		it('should add --grep value to testFramework config', () => {
+			wtrConfig = new WTRConfig({ grep: 'subset|subset2' });
+			config = wtrConfig.create();
+			expect(config.testFramework.config).to.have.property('grep', 'subset|subset2');
 		});
 
 	});
@@ -146,7 +152,7 @@ describe('createWtrConfig', () => {
 		});
 
 		it('should only use CLI browsers when provided', () => {
-			const wtrConfig = new WTRConfig({ browsers: ['a', 'firefox', 'webkit', 'b'] });
+			const wtrConfig = new WTRConfig({ firefox: true, webkit: true });
 			const browsers = wtrConfig.getBrowsers(['chromium']);
 			expect(browsers).to.have.length(2);
 			expect(browsers.map(b => b.name)).to.have.members(['Webkit', 'Firefox']);
