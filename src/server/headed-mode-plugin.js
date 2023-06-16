@@ -2,7 +2,7 @@ import { globSync } from 'glob';
 
 export function headedMode({ manual, watch, pattern }) {
 
-	const files = globSync(pattern, { ignore: './node_modules' });
+	const files = globSync(pattern, { ignore: 'node_modules/**' });
 
 	return {
 		name: 'brightspace-manual-pause',
