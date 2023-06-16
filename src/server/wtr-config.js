@@ -119,12 +119,8 @@ export class WTRConfig {
 		const config = {};
 
 		if (timeout) config.timeout = String(timeout);
-
+		if (watch || manual) config.timeout = '0';
 		if (grep) config.grep = grep;
-
-		if (watch || manual) {
-			config.timeout = '0';
-		}
 
 		return Object.keys(config).length && { testFramework: { config } };
 	}
@@ -187,9 +183,8 @@ export class WTRConfig {
 			browsers: this.getBrowsers()
 		});
 
-		config.plugins ??= [];
-
 		if (vdiff) {
+			config.plugins ??= [];
 			config.reporters ??= [ defaultReporter() ];
 			//config.reporters.push(visualDiffReporter());
 
@@ -200,6 +195,7 @@ export class WTRConfig {
 		}
 
 		if (watch || manual) {
+			config.plugins ??= [];
 			const currentPattern = files || config.groups.find(g => g.name === group)?.files || config.files;
 
 			config.plugins.push(headedMode({

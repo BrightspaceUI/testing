@@ -49,7 +49,7 @@ describe('createWtrConfig', () => {
 
 		it('should warn about using the default group', () => {
 			const consoleSpy = spy(console, 'warn');
-			wtrConfig = new WTRConfig({ group: 'default' });
+			const wtrConfig = new WTRConfig({ group: 'default' });
 			wtrConfig.create();
 			assert.calledOnce(consoleSpy);
 			assert.calledWith(consoleSpy, match('puppeteer'));
@@ -57,7 +57,7 @@ describe('createWtrConfig', () => {
 
 		it('should warn about not using a group with playwright', () => {
 			const consoleSpy = spy(console, 'warn');
-			wtrConfig = new WTRConfig({ playwright: true });
+			const wtrConfig = new WTRConfig({ playwright: true });
 			wtrConfig.create();
 			assert.calledOnce(consoleSpy);
 			assert.calledWith(consoleSpy, match('Warning: reducedMotion disabled.'));
@@ -67,15 +67,32 @@ describe('createWtrConfig', () => {
 			expect(config.nodeResolve).to.be.true;
 		});
 
-		it('should not configure a timeout by default', () => {
+		it('should not configure testFramework by default', () => {
 			expect(config.testFramework).to.be.undefined;
 		});
 
-		it('should set timeout when provided with a timeout value', () => {
+		it('should configure testFramework when provided with a timeout value', () => {
 			const config = wtrConfig.create({ timeout: 3000 });
 			expect(config.testFramework).to.not.be.undefined;
 			expect(config.testFramework.config).to.not.be.undefined;
 			expect(config.testFramework.config.timeout).to.equal('3000');
+		});
+
+		it('should set timeout from CLI when provided', () => {
+			const wtrConfig = new WTRConfig({ timeout: 4000 });
+			const config = wtrConfig.create({ timeout: 3000 });
+			expect(config.testFramework.config.timeout).to.equal('4000');
+		});
+
+		it('should set timeout to 0 and add headedMode plugin when headed', () => {
+			let wtrConfig, config;
+
+			['watch', 'manual'].forEach(mode => {
+				wtrConfig = new WTRConfig({ timeout: 4000, [mode]: true });
+				config = wtrConfig.create({ timeout: 3000 });
+				expect(config.plugins).to.have.length(1);
+				expect(config.testFramework.config.timeout).to.equal('0');
+			});
 		});
 
 		it('should set a common default files pattern', () => {
@@ -94,19 +111,27 @@ describe('createWtrConfig', () => {
 
 		it('should not enable vdiff by default', () => {
 			expect(config.groups).to.be.an('array').that.has.length(1);
-			expect(config.groups[0]).to.not.have.property('name', 'vdiff');
+			expect(config.plugins).to.be.undefined;
+			expect(config.groups.find(g => g.name === 'vdiff')).to.be.undefined;
+		});
+
+		it('should configure vdiff when enabled', () => {
+			const config = wtrConfig.create({ vdiff: true });
+			expect(config.groups).to.be.an('array').that.has.length(2);
+			expect(config.plugins).to.be.an('array').that.has.length(1);
+			expect(config.groups[1]).to.have.property('name', 'vdiff');
 		});
 
 		it('should filter test files using --filter values', () => {
-			wtrConfig = new WTRConfig({ filter: ['subset', 'subset2'] });
-			config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.*` });
+			const wtrConfig = new WTRConfig({ filter: ['subset', 'subset2'] });
+			const config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.*` });
 			expect(config.files).to.have.length(2);
 			expect(config.files).to.have.members(['./test/**/*/(*subset*.test.*|*.test.*subset*)', './test/**/*/(*subset2*.test.*|*.test.*subset2*)']);
 		});
 
 		it('should add --grep value to testFramework config', () => {
-			wtrConfig = new WTRConfig({ grep: 'subset|subset2' });
-			config = wtrConfig.create();
+			const wtrConfig = new WTRConfig({ grep: 'subset|subset2' });
+			const config = wtrConfig.create();
 			expect(config.testFramework.config).to.have.property('grep', 'subset|subset2');
 		});
 
