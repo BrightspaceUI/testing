@@ -8,7 +8,9 @@
     "lint": "eslint . --ext .js",
     "test": "npm run lint && npm run test:server && npm run test:browser",
     "test:browser": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
-    "test:server": "mocha ./test/server/**/*.test.js"
+    "test:server": "mocha ./test/server/**/*.test.js",
+    "test:vdiff": "web-test-runner --config ./test/browser/wtr-vdiff.config.js --group vdiff",
+    "test:vdiff:golden": "npm run test:vdiff -- --golden"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
@@ -16,6 +18,7 @@
     "chai": "^4",
     "eslint": "^8",
     "eslint-config-brightspace": "^0.23",
+    "lit": "^2",
     "mocha": "^10",
     "sinon": "^15"
   },
