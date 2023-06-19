@@ -33,7 +33,8 @@ export class WTRConfig {
 			files: this.#getPattern('vdiff'),
 			browsers: this.getBrowsers(['chromium']),
 			testRunnerHtml: testFramework =>
-				`<html lang="en">
+				`<!DOCTYPE html>
+				<html lang="en">
 					<head>
 						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-400.woff2" as="font" type="font/woff2" crossorigin>
 						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-700.woff2" as="font" type="font/woff2" crossorigin>
@@ -132,7 +133,8 @@ export class WTRConfig {
 			files: this.#getPattern('test'),
 			nodeResolve: true,
 			testRunnerHtml: testFramework =>
-				`<html lang="en">
+				`<!DOCTYPE html>
+				<html lang="en">
 					<body>
 						<script>
 							window.addEventListener('error', (err) => {
