@@ -6,7 +6,7 @@ import { visualDiff } from './visual-diff-plugin.js';
 
 const optionDefinitions = [
 	// @web/test-runner options
-	{ name: 'files', type: String, multiple: true, defaultOption: true },
+	{ name: 'files', type: String, multiple: true },
 	{ name: 'group', type: String },
 	{ name: 'manual', type: Boolean },
 	{ name: 'playwright', type: Boolean },

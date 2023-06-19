@@ -5,7 +5,7 @@ export function headedMode({ manual, watch, pattern }) {
 	const files = globSync(pattern, { ignore: 'node_modules/**' });
 
 	return {
-		name: 'brightspace-manual-pause',
+		name: 'brightspace-headed-mode',
 		async transform(context) {
 			if ((watch || manual) && files.includes(context.path.slice(1))) {
 				watch && await new Promise(r => setTimeout(r, 2000));
