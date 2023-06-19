@@ -184,7 +184,6 @@ export class WTRConfig {
 		});
 
 		if (vdiff) {
-			config.plugins ??= [];
 			config.reporters ??= [ defaultReporter() ];
 			//config.reporters.push(visualDiffReporter());
 
