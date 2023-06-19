@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit';
-import { defineCE, expect, fixture, screenshotAndCompare } from '../../src/browser/index.js';
+import { defineCE, expect, fixture } from '../../src/browser/index.js';
 import { executeServerCommand } from '@web/test-runner-commands';
 
 const elementTag = defineCE(
@@ -45,7 +45,7 @@ describe('element-matches', () => {
 		it(name, async function() {
 			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { rtl: rtl });
 			if (action) await action(elem);
-			await screenshotAndCompare(elem, this.test.fullTitle());
+			await expect(elem).to.be.golden(this.test.fullTitle());
 		});
 	});
 });
@@ -75,7 +75,7 @@ describe('element-different', () => {
 
 			let fail = false;
 			try {
-				await screenshotAndCompare(elem, this.test.fullTitle());
+				await expect(elem).to.be.golden(this.test.fullTitle());
 			} catch (ex) {
 				fail = true;
 			}
