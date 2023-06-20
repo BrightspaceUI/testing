@@ -2,10 +2,10 @@ import { sendKeys as cmdSendKeys, sendMouse } from '@web/test-runner-commands';
 
 function getElementPosition(elem) {
 	const { x, y, width, height } = elem.getBoundingClientRect();
-	return [
-		Math.floor(x + window.scrollX + width / 2),
-		Math.floor(y + window.scrollY + height / 2),
-	];
+	return {
+		x: Math.floor(x + window.scrollX + width / 2),
+		y: Math.floor(y + window.scrollY + height / 2),
+	};
 }
 
 export async function clickAt(x, y) {
@@ -14,7 +14,7 @@ export async function clickAt(x, y) {
 
 export async function clickElem(elem) {
 	const position = getElementPosition(elem);
-	return clickAt(position[0], position[1]);
+	return clickAt(position.x, position.y);
 }
 
 export async function focusElem(elem) {
@@ -28,7 +28,7 @@ export async function hoverAt(x, y) {
 
 export async function hoverElem(elem) {
 	const position = getElementPosition(elem);
-	return hoverAt(position[0], position[1]);
+	return hoverAt(position.x, position.y);
 }
 
 export async function sendKeys(action, keys) {
