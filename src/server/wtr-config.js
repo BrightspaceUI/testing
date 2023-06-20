@@ -3,6 +3,7 @@ import { defaultReporter } from '@web/test-runner';
 import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualDiff } from './visual-diff-plugin.js';
+import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const optionDefinitions = [
 	// @web/test-runner options
@@ -185,7 +186,7 @@ export class WTRConfig {
 
 		if (vdiff) {
 			config.reporters ??= [ defaultReporter() ];
-			//config.reporters.push(visualDiffReporter());
+			config.reporters.push(visualDiffReporter({ updateGoldens: this.#cliArgs.golden, runSubset: this.#cliArgs.filter?.length > 0 }));
 
 			config.plugins ??= [];
 			config.plugins.push(visualDiff({ updateGoldens: this.#cliArgs.golden }));

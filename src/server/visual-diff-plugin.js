@@ -61,9 +61,9 @@ export function visualDiff({ updateGoldens = false } = {}) {
 			const browser = session.browser.name.toLowerCase();
 			const { dir, newName } = extractTestPartsFromName(payload.name);
 			const testPath = dirname(session.testFile).replace(rootDir, '');
-			const goldenFileName = `${join(rootDir, '.vdiff', testPath, 'golden', browser, dir, newName)}.png`;
-			const passFileName = `${join(rootDir, '.vdiff', testPath, 'pass', browser, dir, newName)}.png`;
-			const screenshotFileName = `${join(rootDir, '.vdiff', testPath, 'fail', browser, dir, newName)}.png`;
+			const goldenFileName = `${join(rootDir, '.vdiff', testPath, dir, 'golden', browser, newName)}.png`;
+			const passFileName = `${join(rootDir, '.vdiff', testPath, dir, 'pass', browser, newName)}.png`;
+			const screenshotFileName = `${join(rootDir, '.vdiff', testPath, dir, 'fail', browser, newName)}.png`;
 
 			const opts = payload.opts || {};
 			opts.margin = opts.margin || DEFAULT_MARGIN;
