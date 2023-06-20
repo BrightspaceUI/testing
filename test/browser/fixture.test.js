@@ -1,9 +1,8 @@
 
-import { defineCE, expect, waitUntil } from '@open-wc/testing';
-import { html, LitElement } from 'lit';
+import { defineCE, expect, fixture, html, waitUntil } from '../../src/browser/index.js';
 import { restore, stub } from 'sinon';
-import { fixture } from '../../src/browser/index.js';
-import { focusWithKeyboard } from '../../src/browser/focus.js';
+import { focusElem } from '../../src/browser/commands.js';
+import { LitElement } from 'lit';
 import { sendMouse } from '@web/test-runner-commands';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
@@ -97,7 +96,7 @@ describe('fixture', () => {
 		it('should reset focus', async() => {
 			const elem = await fixture(html`<button>hello</button>`);
 			expect(document.activeElement).to.equal(document.body);
-			await focusWithKeyboard(elem);
+			await focusElem(elem);
 			expect(document.activeElement).to.equal(elem);
 			await fixture(html`<div>hello</div>`);
 			expect(document.activeElement).to.equal(document.body);
