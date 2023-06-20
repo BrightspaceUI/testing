@@ -1,5 +1,5 @@
 import { access, constants, mkdir, rename, stat } from 'node:fs/promises';
-import { dirname, join } from 'path';
+import { dirname, join } from 'node:path';
 
 const DEFAULT_MARGIN = 10;
 

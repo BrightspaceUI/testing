@@ -23,7 +23,7 @@ export async function reset(opts) {
 
 	window.scroll(0, 0);
 
-	await sendMouse({ type: 'move', position: [0, 0] });
+	await sendMouse({ type: 'move', position: [0, 0] }).catch(() => {});
 
 	if (document.activeElement !== document.body) {
 		document.activeElement.blur();
@@ -47,7 +47,7 @@ export async function reset(opts) {
 	}
 
 	if (opts.viewport.height !== currentViewportHeight || opts.viewport.width !== currentViewportWidth) {
-		await setViewport(opts.viewport);
+		await setViewport(opts.viewport).catch(() => {});
 		awaitNextFrame = true;
 		currentViewportHeight = opts.viewport.height;
 		currentViewportWidth = opts.viewport.width;
