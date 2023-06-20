@@ -1,9 +1,8 @@
 
-import { defineCE, expect, waitUntil } from '@open-wc/testing';
-import { html, LitElement } from 'lit';
+import { defineCE, expect, fixture, html, waitUntil } from '../../src/browser/index.js';
 import { restore, stub } from 'sinon';
-import { fixture } from '../../src/browser/index.js';
 import { focusElem } from '../../src/browser/commands.js';
+import { LitElement } from 'lit';
 import { sendMouse } from '@web/test-runner-commands';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
