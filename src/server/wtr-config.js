@@ -155,7 +155,7 @@ export class WTRConfig {
 		...passthroughConfig
 	} = {}) {
 
-		const { watch, manual, group, files, playwright	} = this.#cliArgs;
+		const { files, filter, golden, grep, group, manual, playwright, watch } = this.#cliArgs;
 
 		if (!group || group === 'default') {
 			if (playwright) {
@@ -188,7 +188,7 @@ export class WTRConfig {
 			//config.reporters.push(visualDiffReporter());
 
 			config.plugins ??= [];
-			config.plugins.push(visualDiff({ updateGoldens: this.#cliArgs.golden }));
+			config.plugins.push(visualDiff({ updateGoldens: golden, runSubset: filter?.length > 0 || grep?.length > 0 }));
 
 			config.groups.push(this.visualDiffGroup);
 		}
