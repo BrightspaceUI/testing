@@ -124,7 +124,7 @@ describe('createWtrConfig', () => {
 			const wtrConfig = new WTRConfig({ filter: ['subset', 'subset2'] });
 			const config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.*` });
 			expect(config.files).to.have.length(2);
-			expect(config.files).to.have.members(['./test/**/*/(*subset*.test.*|*.test.*subset*)', './test/**/*/(*subset2*.test.*|*.test.*subset2*)']);
+			expect(config.files).to.have.members(['./test/**/*/+(*subset*.test.*|*.test.*subset*)', './test/**/*/+(*subset2*.test.*|*.test.*subset2*)']);
 		});
 
 		it('should add --grep value to testFramework config', () => {
