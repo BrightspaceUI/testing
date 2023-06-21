@@ -42,7 +42,7 @@ async function clearDiffPaths(dir) {
 			if (base === 'pass' || base === 'fail') await rm(full, { force: true, recursive: true });
 			else await clearDiffPaths(full);
 		} else {
-			if (base === 'report.html') await rm(full, { force: true, recursive: true });
+			if (base === 'report.html') await rm(full, { force: true });
 		}
 	}
 }
