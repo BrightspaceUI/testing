@@ -87,6 +87,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 			rootDir = config.rootDir;
 
 			if (runSubset || isCI) return;
+			// Do a more complete cleanup to remove orphaned directories
 			await clearAllDirs(updateGoldens, join(rootDir, '.vdiff'));
 		},
 		async executeCommand({ command, payload, session }) {
