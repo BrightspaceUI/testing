@@ -13,10 +13,10 @@ const optionDefinitions = [
 	{ name: 'watch', type: Boolean },
 	// custom options
 	{ name: 'chromium', type: Boolean },
+	{ name: 'filter', alias: 'f', type: String, multiple: true },
 	{ name: 'firefox', type: Boolean },
 	{ name: 'golden', type: Boolean },
 	{ name: 'grep', alias: 'g', type: String },
-	{ name: 'filter', alias: 'f', type: String, multiple: true },
 	{ name: 'timeout', type: Number },
 	{ name: 'webkit', type: Boolean },
 ];
