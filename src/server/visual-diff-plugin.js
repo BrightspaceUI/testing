@@ -115,12 +115,9 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 				if (runSubset || currentRun > 0) {
 					if (!clearedDirs.has(newPath)) {
-						const promise = clearDir(updateGoldens, newPath);
-						clearedDirs.set(newPath, promise);
-						await promise;
-					} else {
-						await clearedDirs.get(newPath);
+						clearedDirs.set(newPath, clearDir(updateGoldens, newPath));
 					}
+					await clearedDirs.get(newPath);
 				}
 			}
 
