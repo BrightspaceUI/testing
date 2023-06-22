@@ -56,14 +56,14 @@ describe('element-different', () => {
 			elem.style.borderColor = 'black';
 			elem.text = 'Different Text';
 		} },
-		/*{ name: 'smaller', action: elem => {
+		{ name: 'smaller', action: elem => {
 			elem.style.width = '200px';
 			elem.style.height = '50px';
 		} },
 		{ name: 'larger', action: elem => {
 			elem.style.width = '350px';
 			elem.style.height = '70px';
-		} }*/
+		} }
 	].forEach(({ name, action }) => {
 		it(name, async function() {
 			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
