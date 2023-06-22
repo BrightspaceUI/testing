@@ -58,7 +58,7 @@ describe('commands', () => {
 	});
 
 	it('should send keys to element', async() => {
-		await sendKeysElem('type', 'Hello', elem);
+		await sendKeysElem(elem, 'type', 'Hello');
 		expect(elem.value).to.equal('Hello');
 	});
 
