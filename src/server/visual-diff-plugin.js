@@ -1,7 +1,15 @@
-import { access, constants, mkdir, rename, stat } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { access, constants, mkdir, readdir, rename, rm, stat } from 'node:fs/promises';
+import { basename, dirname, join } from 'node:path';
+import { env } from 'node:process';
 
+const isCI = !!env['CI'];
 const DEFAULT_MARGIN = 10;
+const PATHS = {
+	FAIL: 'fail',
+	GOLDEN: 'golden',
+	PASS: 'pass',
+	VDIFF_ROOT: '.vdiff'
+};
 
 async function checkFileExists(fileName) {
 	try {
@@ -9,6 +17,41 @@ async function checkFileExists(fileName) {
 		return true;
 	} catch (e) {
 		return false;
+	}
+}
+
+async function clearDir(updateGoldens, path) {
+	if (updateGoldens) {
+		await rm(path, { force: true, recursive: true });
+	} else {
+		await Promise.all([
+			rm(join(path, PATHS.FAIL), { force: true, recursive: true }),
+			rm(join(path, PATHS.PASS), { force: true, recursive: true }),
+			rm(join(path, 'report.html'), { force: true })
+		]);
+	}
+}
+
+async function clearAllDirs(updateGoldens, vdiffPath) {
+	if (updateGoldens) {
+		await rm(vdiffPath, { force: true, recursive: true });
+	} else {
+		await clearDiffPaths(vdiffPath);
+	}
+}
+
+async function clearDiffPaths(dir) {
+	const paths = await readdir(dir, { withFileTypes: true });
+	for (const path of paths) {
+		const full = join(dir, path.name);
+		const base = basename(path.name);
+
+		if (path.isDirectory()) {
+			if (base === PATHS.PASS || base === PATHS.FAIL) await rm(full, { force: true, recursive: true });
+			else await clearDiffPaths(full);
+		} else {
+			if (base === 'report.html') await rm(full, { force: true });
+		}
 	}
 }
 
@@ -42,12 +85,18 @@ function extractTestPartsFromName(name) {
 	};
 }
 
-export function visualDiff({ updateGoldens = false } = {}) {
-	let rootDir;
+export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
+	let currentRun = 0,
+		rootDir;
+	const clearedDirs = new Map();
 	return {
 		name: 'brightspace-visual-diff',
 		async serverStart({ config }) {
 			rootDir = config.rootDir;
+
+			if (runSubset || isCI) return;
+			// Do a more complete cleanup to remove orphaned directories
+			await clearAllDirs(updateGoldens, join(rootDir, PATHS.VDIFF_ROOT));
 		},
 		async executeCommand({ command, payload, session }) {
 
@@ -61,9 +110,24 @@ export function visualDiff({ updateGoldens = false } = {}) {
 			const browser = session.browser.name.toLowerCase();
 			const { dir, newName } = extractTestPartsFromName(payload.name);
 			const testPath = dirname(session.testFile).replace(rootDir, '');
-			const goldenFileName = `${join(rootDir, '.vdiff', testPath, 'golden', browser, dir, newName)}.png`;
-			const passFileName = `${join(rootDir, '.vdiff', testPath, 'pass', browser, dir, newName)}.png`;
-			const screenshotFileName = `${join(rootDir, '.vdiff', testPath, 'fail', browser, dir, newName)}.png`;
+			const newPath = join(rootDir, PATHS.VDIFF_ROOT, testPath, dir);
+			const goldenFileName = `${join(newPath, PATHS.GOLDEN, browser, newName)}.png`;
+			const passFileName = `${join(newPath, PATHS.PASS, browser, newName)}.png`;
+			const screenshotFileName = `${join(newPath, PATHS.FAIL, browser, newName)}.png`;
+
+			if (!isCI) { // CI will be a fresh .vdiff folder each time and only one run
+				if (session.testRun !== currentRun) {
+					currentRun = session.testRun;
+					clearedDirs.clear();
+				}
+
+				if (runSubset || currentRun > 0) {
+					if (!clearedDirs.has(newPath)) {
+						clearedDirs.set(newPath, clearDir(updateGoldens, newPath));
+					}
+					await clearedDirs.get(newPath);
+				}
+			}
 
 			const opts = payload.opts || {};
 			opts.margin = opts.margin || DEFAULT_MARGIN;
