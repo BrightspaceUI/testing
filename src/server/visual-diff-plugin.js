@@ -4,6 +4,12 @@ import { env } from 'node:process';
 
 const isCI = !!env['CI'];
 const DEFAULT_MARGIN = 10;
+const PATHS = {
+	FAIL: 'fail',
+	GOLDEN: 'golden',
+	PASS: 'pass',
+	VDIFF_ROOT: '.vdiff'
+};
 
 async function checkFileExists(fileName) {
 	try {
@@ -18,8 +24,8 @@ async function clearDir(updateGoldens, path) {
 	if (updateGoldens) {
 		await rm(path, { force: true, recursive: true });
 	} else {
-		await rm(join(path, 'fail'), { force: true, recursive: true });
-		await rm(join(path, 'pass'), { force: true, recursive: true });
+		await rm(join(path, PATHS.FAIL), { force: true, recursive: true });
+		await rm(join(path, PATHS.PASS), { force: true, recursive: true });
 		await rm(join(path, 'report.html'), { force: true });
 	}
 }
@@ -39,7 +45,7 @@ async function clearDiffPaths(dir) {
 		const base = basename(path.name);
 
 		if (path.isDirectory()) {
-			if (base === 'pass' || base === 'fail') await rm(full, { force: true, recursive: true });
+			if (base === PATHS.PASS || base === PATHS.FAIL) await rm(full, { force: true, recursive: true });
 			else await clearDiffPaths(full);
 		} else {
 			if (base === 'report.html') await rm(full, { force: true });
@@ -88,7 +94,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 			if (runSubset || isCI) return;
 			// Do a more complete cleanup to remove orphaned directories
-			await clearAllDirs(updateGoldens, join(rootDir, '.vdiff'));
+			await clearAllDirs(updateGoldens, join(rootDir, PATHS.VDIFF_ROOT));
 		},
 		async executeCommand({ command, payload, session }) {
 
@@ -102,10 +108,10 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 			const browser = session.browser.name.toLowerCase();
 			const { dir, newName } = extractTestPartsFromName(payload.name);
 			const testPath = dirname(session.testFile).replace(rootDir, '');
-			const newPath = join(rootDir, '.vdiff', testPath, dir);
-			const goldenFileName = `${join(newPath, 'golden', browser, newName)}.png`;
-			const passFileName = `${join(newPath, 'pass', browser, newName)}.png`;
-			const screenshotFileName = `${join(newPath, 'fail', browser, newName)}.png`;
+			const newPath = join(rootDir, PATHS.VDIFF_ROOT, testPath, dir);
+			const goldenFileName = `${join(newPath, PATHS.GOLDEN, browser, newName)}.png`;
+			const passFileName = `${join(newPath, PATHS.PASS, browser, newName)}.png`;
+			const screenshotFileName = `${join(newPath, PATHS.FAIL, browser, newName)}.png`;
 
 			if (!isCI) { // CI will be a fresh .vdiff folder each time and only one run
 				if (session.testRun !== currentRun) {
