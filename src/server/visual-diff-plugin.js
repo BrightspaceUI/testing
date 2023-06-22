@@ -24,9 +24,11 @@ async function clearDir(updateGoldens, path) {
 	if (updateGoldens) {
 		await rm(path, { force: true, recursive: true });
 	} else {
-		await rm(join(path, PATHS.FAIL), { force: true, recursive: true });
-		await rm(join(path, PATHS.PASS), { force: true, recursive: true });
-		await rm(join(path, 'report.html'), { force: true });
+		await Promise.all([
+			rm(join(path, PATHS.FAIL), { force: true, recursive: true }),
+			rm(join(path, PATHS.PASS), { force: true, recursive: true }),
+			rm(join(path, 'report.html'), { force: true })
+		]);
 	}
 }
 

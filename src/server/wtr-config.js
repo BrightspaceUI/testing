@@ -188,7 +188,7 @@ export class WTRConfig {
 			//config.reporters.push(visualDiffReporter());
 
 			config.plugins ??= [];
-			config.plugins.push(visualDiff({ updateGoldens: golden, runSubset: filter?.length > 0 || grep?.length > 0 }));
+			config.plugins.push(visualDiff({ updateGoldens: golden, runSubset: !!(filter || grep) }));
 
 			config.groups.push(this.visualDiffGroup);
 		}
