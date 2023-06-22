@@ -13,10 +13,10 @@ const optionDefinitions = [
 	{ name: 'watch', type: Boolean },
 	// custom options
 	{ name: 'chromium', type: Boolean },
+	{ name: 'filter', alias: 'f', type: String, multiple: true },
 	{ name: 'firefox', type: Boolean },
 	{ name: 'golden', type: Boolean },
 	{ name: 'grep', alias: 'g', type: String },
-	{ name: 'filter', alias: 'f', type: String, multiple: true },
 	{ name: 'timeout', type: Number },
 	{ name: 'webkit', type: Boolean },
 ];
@@ -213,6 +213,7 @@ export class WTRConfig {
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 
 		return browsers.map((b) => playwrightLauncher({
+			concurrency: b === 'firefox' ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
 			product: b,
 			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' })
 		}));

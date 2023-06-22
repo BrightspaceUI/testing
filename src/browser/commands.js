@@ -37,7 +37,7 @@ export async function sendKeys(action, keys) {
 	await cmdSendKeys(val);
 }
 
-export async function sendKeysElem(action, keys, elem) {
+export async function sendKeysElem(elem, action, keys) {
 	if (elem) {
 		await focusElem(elem);
 	}
