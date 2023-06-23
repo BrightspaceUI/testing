@@ -3,11 +3,15 @@ import { executeServerCommand } from '@web/test-runner-commands';
 
 chai.Assertion.addMethod('golden', ScreenshotAndCompare);
 
-async function ScreenshotAndCompare(name, opts) {
+async function ScreenshotAndCompare(testInfo, opts) {
 	const elem = this._obj;
 	const rect = elem.getBoundingClientRect();
-	const { pass, message } = await executeServerCommand('brightspace-visual-diff', { name, rect, opts });
-	if (!pass) {
-		expect.fail(message);
+	let results = await executeServerCommand('brightspace-visual-diff-compare', { name: testInfo.test.fullTitle(), rect, opts });
+	if (results.differentSizes) {
+		testInfo.timeout('100000');
+		results = await executeServerCommand('brightspace-visual-diff-compare-different-sizes', { name: testInfo.test.fullTitle() });
+	}
+	if (!results.pass) {
+		expect.fail(results.message);
 	}
 }

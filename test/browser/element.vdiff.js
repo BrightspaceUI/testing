@@ -45,7 +45,7 @@ describe('element-matches', () => {
 		it(name, async function() {
 			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { rtl: rtl });
 			if (action) await action(elem);
-			await expect(elem).to.be.golden(this.test.fullTitle());
+			await expect(elem).to.be.golden(this);
 		});
 	});
 });
@@ -75,7 +75,7 @@ describe('element-different', () => {
 
 			let fail = false;
 			try {
-				await expect(elem).to.be.golden(this.test.fullTitle());
+				await expect(elem).to.be.golden(this);
 			} catch (ex) {
 				fail = true;
 			}

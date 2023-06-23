@@ -127,9 +127,6 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 		},
 		async executeCommand({ command, payload, session }) {
 
-			if (command !== 'brightspace-visual-diff') {
-				return;
-			}
 			if (session.browser.type !== 'playwright') {
 				throw new Error('Visual-diff is only supported for browser type Playwright.');
 			}
@@ -143,96 +140,100 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 			const screenshotFile = join(newPath, PATHS.FAIL, browser, newName);
 			const screenshotFileName = `${screenshotFile}.png`;
 
-			if (!isCI) { // CI will be a fresh .vdiff folder each time and only one run
-				if (session.testRun !== currentRun) {
-					currentRun = session.testRun;
-					clearedDirs.clear();
-				}
-
-				if (runSubset || currentRun > 0) {
-					if (!clearedDirs.has(newPath)) {
-						clearedDirs.set(newPath, clearDir(updateGoldens, newPath));
+			if (command === 'brightspace-visual-diff-compare') {
+				if (!isCI) { // CI will be a fresh .vdiff folder each time and only one run
+					if (session.testRun !== currentRun) {
+						currentRun = session.testRun;
+						clearedDirs.clear();
 					}
-					await clearedDirs.get(newPath);
+
+					if (runSubset || currentRun > 0) {
+						if (!clearedDirs.has(newPath)) {
+							clearedDirs.set(newPath, clearDir(updateGoldens, newPath));
+						}
+						await clearedDirs.get(newPath);
+					}
 				}
-			}
 
-			const opts = payload.opts || {};
-			opts.margin = opts.margin || DEFAULT_MARGIN;
+				const opts = payload.opts || {};
+				opts.margin = opts.margin || DEFAULT_MARGIN;
 
-			const page = session.browser.getPage(session.id);
-			await page.screenshot({
-				animations: 'disabled',
-				clip: {
-					x: payload.rect.x - opts.margin,
-					y: payload.rect.y - opts.margin,
-					width: payload.rect.width + (opts.margin * 2),
-					height: payload.rect.height + (opts.margin * 2)
-				},
-				path: updateGoldens ? goldenFileName : screenshotFileName
-			});
+				const page = session.browser.getPage(session.id);
+				await page.screenshot({
+					animations: 'disabled',
+					clip: {
+						x: payload.rect.x - opts.margin,
+						y: payload.rect.y - opts.margin,
+						width: payload.rect.width + (opts.margin * 2),
+						height: payload.rect.height + (opts.margin * 2)
+					},
+					path: updateGoldens ? goldenFileName : screenshotFileName
+				});
 
-			if (updateGoldens) {
-				return { pass: true };
-			}
-
-			const goldenExists = await checkFileExists(goldenFileName);
-			if (!goldenExists) {
-				return { pass: false, message: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.' };
-			}
-
-			/* In Progress */
-			const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
-			const goldenImage = PNG.sync.read(await readFile(goldenFileName));
-
-			if (screenshotImage.width === goldenImage.width && screenshotImage.height === goldenImage.height) {
-				const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
-				const pixelsDiff = pixelmatch(
-					screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { threshold: 0 }
-				);
-
-				if (pixelsDiff !== 0) {
-					await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
-					return { pass: false, message: 'Does not match golden' };  // TODO: Add more details
-				} else {
-					const success = await tryMoveFile(screenshotFileName, passFileName);
-					if (!success) return { pass: false, message: 'Problem moving file to pass directory.' };
+				if (updateGoldens) {
 					return { pass: true };
 				}
-			}
 
-			const newWidth = Math.max(screenshotImage.width, goldenImage.width);
-			const newHeight = Math.max(screenshotImage.height, goldenImage.height);
-			const newSize = { width: newWidth, height: newHeight };
-
-			const newScreenshots = await createComparisonPNGs(screenshotImage, newSize);
-			const newGoldens = await createComparisonPNGs(goldenImage, newSize);
-
-			let bestIndex = -1;
-			let bestDiff = null;
-			let pixelsDiff = Number.MAX_SAFE_INTEGER;
-			for (let i = 0; i < newScreenshots.length; i++) {
-				const currentDiff = new PNG(newSize);
-				const currentPixelsDiff = pixelmatch(
-					newScreenshots[i].png.data, newGoldens[i].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { threshold: 0 }
-				);
-
-				//console.log(newScreenshots[i].position, currentPixelsDiff);
-
-				if (currentPixelsDiff < pixelsDiff) {
-					bestIndex = i;
-					bestDiff = currentDiff;
-					pixelsDiff = currentPixelsDiff;
+				const goldenExists = await checkFileExists(goldenFileName);
+				if (!goldenExists) {
+					return { pass: false, message: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.' };
 				}
+
+				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
+				const goldenImage = PNG.sync.read(await readFile(goldenFileName));
+
+				if (screenshotImage.width === goldenImage.width && screenshotImage.height === goldenImage.height) {
+					const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
+					const pixelsDiff = pixelmatch(
+						screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { threshold: 0 }
+					);
+
+					if (pixelsDiff !== 0) {
+						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
+						return { pass: false, message: 'Does not match golden' };  // TODO: Add more details
+					} else {
+						const success = await tryMoveFile(screenshotFileName, passFileName);
+						if (!success) return { pass: false, message: 'Problem moving file to pass directory.' };
+						return { pass: true };
+					}
+				} else {
+					return { differentSizes: true };
+				}
+			} else if (command === 'brightspace-visual-diff-compare-different-sizes') {
+				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
+				const goldenImage = PNG.sync.read(await readFile(goldenFileName));
+
+				const newWidth = Math.max(screenshotImage.width, goldenImage.width);
+				const newHeight = Math.max(screenshotImage.height, goldenImage.height);
+				const newSize = { width: newWidth, height: newHeight };
+
+				const newScreenshots = await createComparisonPNGs(screenshotImage, newSize);
+				const newGoldens = await createComparisonPNGs(goldenImage, newSize);
+
+				let bestIndex = -1;
+				let bestDiff = null;
+				let pixelsDiff = Number.MAX_SAFE_INTEGER;
+				for (let i = 0; i < newScreenshots.length; i++) {
+					const currentDiff = new PNG(newSize);
+					const currentPixelsDiff = pixelmatch(
+						newScreenshots[i].png.data, newGoldens[i].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { threshold: 0 }
+					);
+
+					//console.log(newScreenshots[i].position, currentPixelsDiff);
+
+					if (currentPixelsDiff < pixelsDiff) {
+						bestIndex = i;
+						bestDiff = currentDiff;
+						pixelsDiff = currentPixelsDiff;
+					}
+				}
+
+				await writeFile(`${screenshotFile}-resized-screenshot.png`, PNG.sync.write(newScreenshots[bestIndex].png));
+				await writeFile(`${screenshotFile}-resized-golden.png`, PNG.sync.write(newGoldens[bestIndex].png));
+				await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(bestDiff));
+
+				return { pass: false, message: 'Images are not the same size' };  // TODO: Add more details
 			}
-
-			await writeFile(`${screenshotFile}-resized-screenshot.png`, PNG.sync.write(newScreenshots[bestIndex].png));
-			await writeFile(`${screenshotFile}-resized-golden.png`, PNG.sync.write(newGoldens[bestIndex].png));
-			await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(bestDiff));
-
-			return { pass: false, message: 'Images are not the same size' };  // TODO: Add more details
-
-			/* End In Progress */
 
 		}
 	};
