@@ -155,7 +155,6 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 						}
 						await clearedDirs.get(newPath);
 					}
-					await clearedDirs.get(newPath);
 				}
 
 				const opts = { margin: DEFAULT_MARGIN, ...payload.opts };
