@@ -4,16 +4,16 @@ import { executeServerCommand } from '@web/test-runner-commands';
 mocha.setup({ // eslint-disable-line no-undef
 	rootHooks: {
 		beforeEach() {
-			chai.Assertion.addMethod('golden',
-				(test => function(...args) {
-					return ScreenshotAndCompare.call(test, this._obj, ...args); // eslint-disable-line no-invalid-this
-				})(this.currentTest));
+			const { currentTest } = this;
+			chai.Assertion.addMethod('golden', function(...args) {
+				return ScreenshotAndCompare(currentTest, this._obj, ...args); // eslint-disable-line no-invalid-this
+			});
 		}
 	}
 });
 
-async function ScreenshotAndCompare(elem, opts) {
-	const name = this.fullTitle();
+async function ScreenshotAndCompare(test, elem, opts) {
+	const name = test.fullTitle();
 	const rect = elem.getBoundingClientRect();
 	const { pass, message } = await executeServerCommand('brightspace-visual-diff', { name, rect, opts });
 	if (!pass) {
