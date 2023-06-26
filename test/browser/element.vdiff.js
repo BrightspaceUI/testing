@@ -63,6 +63,10 @@ describe('element-different', () => {
 		{ name: 'larger', action: elem => {
 			elem.style.width = '350px';
 			elem.style.height = '70px';
+		} },
+		{ name: 'mixed', action: elem => {
+			elem.style.width = '200px';
+			elem.style.height = '70px';
 		} }
 	].forEach(({ name, action }) => {
 		it(name, async() => {
