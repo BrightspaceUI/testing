@@ -155,8 +155,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					}
 				}
 
-				const opts = payload.opts || {};
-				opts.margin = opts.margin || DEFAULT_MARGIN;
+				const opts = { margin: DEFAULT_MARGIN, ...payload.opts };
 
 				const page = session.browser.getPage(session.id);
 				await page.screenshot({
