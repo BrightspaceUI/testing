@@ -1,13 +1,15 @@
 import { chai, expect } from '@open-wc/testing';
 import { executeServerCommand } from '@web/test-runner-commands';
 
+let test;
+
+chai.Assertion.addMethod('golden', function(...args) {
+	return ScreenshotAndCompare.call({ test, elem: this._obj }, ...args); // eslint-disable-line no-invalid-this
+});
 mocha.setup({ // eslint-disable-line no-undef
 	rootHooks: {
 		beforeEach() {
-			const { currentTest } = this;
-			chai.Assertion.addMethod('golden', function(...args) {
-				return ScreenshotAndCompare.call({ test: currentTest, elem: this._obj }, ...args); // eslint-disable-line no-invalid-this
-			});
+			test = this.currentTest;
 		}
 	}
 });
