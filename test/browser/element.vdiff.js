@@ -42,10 +42,10 @@ describe('element-matches', () => {
 		{ name: 'rtl', rtl: true },
 		{ name: 'transition', action: elem => elem.style.opacity = '0.2' }
 	].forEach(({ name, rtl, action }) => {
-		it(name, async function() {
+		it(name, async() => {
 			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { rtl: rtl });
 			if (action) await action(elem);
-			await expect(elem).to.be.golden(this.test.fullTitle());
+			await expect(elem).to.be.golden();
 		});
 	});
 });
@@ -65,7 +65,7 @@ describe('element-different', () => {
 			elem.style.height = '70px';
 		} }
 	].forEach(({ name, action }) => {
-		it(name, async function() {
+		it(name, async() => {
 			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
 			const isGolden = await executeServerCommand('vdiff-get-golden-flag');
 			if (!isGolden) {
@@ -75,7 +75,7 @@ describe('element-different', () => {
 
 			let fail = false;
 			try {
-				await expect(elem).to.be.golden(this.test.fullTitle());
+				await expect(elem).to.be.golden();
 			} catch (ex) {
 				fail = true;
 			}
