@@ -213,20 +213,24 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				let bestIndex = -1;
 				let bestDiff = null;
 				let pixelsDiff = Number.MAX_SAFE_INTEGER;
-				for (let i = 0; i < newScreenshots.length; i++) {
-					const currentDiff = new PNG(newSize);
-					const currentPixelsDiff = pixelmatch(
-						newScreenshots[i].png.data, newGoldens[i].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { threshold: DEFAULT_TOLERANCE }
-					);
+				for (let j = 0; j < newGoldens.length; j++) {
+					for (let i = 0; i < newScreenshots.length; i++) {
+						const currentDiff = new PNG(newSize);
+						const currentPixelsDiff = pixelmatch(
+							newScreenshots[i].png.data, newGoldens[j].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { threshold: DEFAULT_TOLERANCE }
+						);
 
-					//console.log(newScreenshots[i].position, currentPixelsDiff);
+						//console.log(`i: ${newScreenshots[i].position}, j: ${newGoldens[j].position}`, currentPixelsDiff);
 
-					if (currentPixelsDiff < pixelsDiff) {
-						bestIndex = i;
-						bestDiff = currentDiff;
-						pixelsDiff = currentPixelsDiff;
+						if (currentPixelsDiff < pixelsDiff) {
+							bestIndex = i;
+							bestDiff = currentDiff;
+							pixelsDiff = currentPixelsDiff;
+						}
 					}
 				}
+
+				console.log('BEST', `i: ${newScreenshots[bestIndex].position}, j: ${newGoldens[bestIndex].position}`);
 
 				await writeFile(`${screenshotFile}-resized-screenshot.png`, PNG.sync.write(newScreenshots[bestIndex].png));
 				await writeFile(`${screenshotFile}-resized-golden.png`, PNG.sync.write(newGoldens[bestIndex].png));
