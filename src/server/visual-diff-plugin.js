@@ -6,6 +6,7 @@ import { PNG } from 'pngjs';
 
 const isCI = !!env['CI'];
 const DEFAULT_MARGIN = 10;
+const DEFAULT_TOLERANCE = 0; // TODO: Support tolerance override?
 const PATHS = {
 	FAIL: 'fail',
 	GOLDEN: 'golden',
@@ -184,21 +185,21 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				if (screenshotImage.width === goldenImage.width && screenshotImage.height === goldenImage.height) {
 					const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
 					const pixelsDiff = pixelmatch(
-						screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { threshold: 0 }
+						screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { threshold: DEFAULT_TOLERANCE }
 					);
 
 					if (pixelsDiff !== 0) {
 						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
-						return { pass: false, message: 'Does not match golden' };  // TODO: Add more details
+						return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
 					} else {
 						const success = await tryMoveFile(screenshotFileName, passFileName);
-						if (!success) return { pass: false, message: 'Problem moving file to pass directory.' };
+						if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
 						return { pass: true };
 					}
 				} else {
-					return { differentSizes: true };
+					return { resizeRequired: true };
 				}
-			} else if (command === 'brightspace-visual-diff-compare-different-sizes') {
+			} else if (command === 'brightspace-visual-diff-compare-resize') {
 				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
 				const goldenImage = PNG.sync.read(await readFile(goldenFileName));
 
@@ -215,7 +216,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				for (let i = 0; i < newScreenshots.length; i++) {
 					const currentDiff = new PNG(newSize);
 					const currentPixelsDiff = pixelmatch(
-						newScreenshots[i].png.data, newGoldens[i].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { threshold: 0 }
+						newScreenshots[i].png.data, newGoldens[i].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { threshold: DEFAULT_TOLERANCE }
 					);
 
 					//console.log(newScreenshots[i].position, currentPixelsDiff);
@@ -231,7 +232,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				await writeFile(`${screenshotFile}-resized-golden.png`, PNG.sync.write(newGoldens[bestIndex].png));
 				await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(bestDiff));
 
-				return { pass: false, message: 'Images are not the same size' };  // TODO: Add more details
+				return { pass: false, message: `Images are not the same size. When resized, ${pixelsDiff} pixels are different.` };
 			}
 
 		}

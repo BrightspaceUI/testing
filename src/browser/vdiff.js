@@ -10,7 +10,7 @@ mocha.setup({ // eslint-disable-line no-undef
 	rootHooks: {
 		beforeEach() {
 			test = this.currentTest;
-			timeout = this.timeout;
+			timeout = this.timeout.bind(this);
 		}
 	}
 });
@@ -18,12 +18,12 @@ mocha.setup({ // eslint-disable-line no-undef
 async function ScreenshotAndCompare(opts) {
 	const name = this.test.fullTitle();
 	const rect = this.elem.getBoundingClientRect();
-	let results = await executeServerCommand('brightspace-visual-diff', { name, rect, opts });
-	if (results.differentSizes) {
+	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, rect, opts });
+	if (result.resizeRequired) {
 		this.timeout('100000');
-		results = await executeServerCommand('brightspace-visual-diff-compare-different-sizes', { name });
+		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name });
 	}
-	if (!results.pass) {
-		expect.fail(results.message);
+	if (!result.pass) {
+		expect.fail(result.message);
 	}
 }
