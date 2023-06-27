@@ -39,7 +39,8 @@ async function clearAllDirs(updateGoldens, vdiffPath) {
 	if (updateGoldens) {
 		await rm(vdiffPath, { force: true, recursive: true });
 	} else {
-		await clearDiffPaths(vdiffPath);
+		const exists = await checkFileExists(vdiffPath);
+		if (exists) await clearDiffPaths(vdiffPath);
 	}
 }
 
