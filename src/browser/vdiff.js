@@ -1,16 +1,15 @@
 import { chai, expect } from '@open-wc/testing';
 import { executeServerCommand } from '@web/test-runner-commands';
 
-let test, timeout;
+let test;
 
 chai.Assertion.addMethod('golden', function(...args) {
-	return ScreenshotAndCompare.call({ test, timeout, elem: this._obj }, ...args); // eslint-disable-line no-invalid-this
+	return ScreenshotAndCompare.call({ test, elem: this._obj }, ...args); // eslint-disable-line no-invalid-this
 });
 mocha.setup({ // eslint-disable-line no-undef
 	rootHooks: {
 		beforeEach() {
 			test = this.currentTest;
-			timeout = this.timeout.bind(this);
 		}
 	}
 });
@@ -20,7 +19,7 @@ async function ScreenshotAndCompare(opts) {
 	const rect = this.elem.getBoundingClientRect();
 	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, rect, opts });
 	if (result.resizeRequired) {
-		this.timeout('100000');
+		this.test.timeout('100000');
 		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name });
 	}
 	if (!result.pass) {
