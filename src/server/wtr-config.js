@@ -3,6 +3,7 @@ import { defaultReporter } from '@web/test-runner';
 import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualDiff } from './visual-diff-plugin.js';
+import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const optionDefinitions = [
 	// @web/test-runner options
@@ -89,7 +90,7 @@ export class WTRConfig {
 							body {
 								background-color: #ffffff;
 								color: var(--d2l-color-ferrite, #202122);
-								font-family: 'Lato';
+								font-family: 'Lato', sans-serif;
 								letter-spacing: 0.01rem;
 								font-size: 0.95rem;
 								font-weight: 400;
@@ -184,7 +185,7 @@ export class WTRConfig {
 
 		if (vdiff) {
 			config.reporters ??= [ defaultReporter() ];
-			//config.reporters.push(visualDiffReporter());
+			config.reporters.push(visualDiffReporter());
 
 			config.plugins ??= [];
 			config.plugins.push(visualDiff({ updateGoldens: golden, runSubset: !!(filter || grep) }));

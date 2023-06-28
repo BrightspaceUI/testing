@@ -1,2 +1,3 @@
 node_modules/
 .vdiff/
+src/server/report/data.js

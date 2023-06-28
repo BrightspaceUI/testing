@@ -1,13 +1,14 @@
 import { access, constants, mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { env } from 'node:process';
+import merge from 'deepmerge';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
 const isCI = !!env['CI'];
 const DEFAULT_MARGIN = 10;
 const DEFAULT_TOLERANCE = 0; // TODO: Support tolerance override?
-const PATHS = {
+export const PATHS = {
 	FAIL: 'fail',
 	GOLDEN: 'golden',
 	PASS: 'pass',
@@ -114,6 +115,21 @@ function extractTestPartsFromName(name) {
 	};
 }
 
+const testInfoMap = new Map();
+export function getTestInfo(session, fullTitle) {
+	return testInfoMap.get(getTestInfoKey(session, fullTitle));
+}
+function getTestInfoKey(session, fullTitle) {
+	return `${session.browser.name.toLowerCase()}|${session.testFile}|${fullTitle}`;
+}
+function setTestInfo(session, fullTitle, testInfo) {
+	const key = getTestInfoKey(session, fullTitle);
+	if (testInfoMap.has(key)) {
+		testInfo = merge(testInfoMap.get(key), testInfo);
+	}
+	testInfoMap.set(key, testInfo);
+}
+
 export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 	let currentRun = 0,
 		rootDir;
@@ -171,6 +187,16 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					path: updateGoldens ? goldenFileName : screenshotFileName
 				});
 
+				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
+				setTestInfo(session, payload.name, {
+					golden: {
+						path: goldenFileName.substring(rootLength)
+					},
+					new: {
+						path: passFileName.substring(rootLength)
+					}
+				});
+
 				if (updateGoldens) {
 					return { pass: true };
 				}
@@ -183,6 +209,17 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
 				const goldenImage = PNG.sync.read(await readFile(goldenFileName));
 
+				setTestInfo(session, payload.name, {
+					golden: {
+						height: goldenImage.height,
+						width: goldenImage.width
+					},
+					new: {
+						height: screenshotImage.height,
+						width: screenshotImage.width
+					}
+				});
+
 				if (screenshotImage.width === goldenImage.width && screenshotImage.height === goldenImage.height) {
 					const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
 					const pixelsDiff = pixelmatch(
@@ -190,6 +227,12 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					);
 
 					if (pixelsDiff !== 0) {
+						setTestInfo(session, payload.name, {
+							diff: `${screenshotFile.substring(rootLength)}-diff.png`,
+							new: {
+								path: `${screenshotFile.substring(rootLength)}.png`
+							}
+						});
 						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
 						return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
 					} else {
@@ -230,6 +273,17 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				await writeFile(`${screenshotFile}-resized-screenshot.png`, PNG.sync.write(newScreenshots[bestIndex].png));
 				await writeFile(`${screenshotFile}-resized-golden.png`, PNG.sync.write(newGoldens[bestIndex].png));
 				await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(bestDiffImage));
+
+				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
+				setTestInfo(session, payload.name, {
+					diff: `${screenshotFile.substring(rootLength)}-diff.png`,
+					golden: {
+						path: `${screenshotFile.substring(rootLength)}-resized-golden.png`
+					},
+					new: {
+						path: `${screenshotFile.substring(rootLength)}-resized-screenshot.png`
+					}
+				});
 
 				return { pass: false, message: `Images are not the same size. When resized, ${pixelsDiff} pixels are different.` };
 			}
