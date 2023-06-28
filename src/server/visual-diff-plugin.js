@@ -64,13 +64,13 @@ async function createComparisonPNGs(original, newSize) {
 	[
 		{ name: 'top', coord: 0 },
 		{ name: 'center', coord: Math.floor((newSize.height - original.height) / 2) },
-		{ name: 'top', coord: newSize.height - original.height }
+		{ name: 'bottom', coord: newSize.height - original.height }
 	].forEach(y => {
 		[
 			{ name: 'left', coord: 0 },
 			{ name: 'center', coord: Math.floor((newSize.width - original.width) / 2) },
 			{ name: 'right', coord: newSize.width - original.width }
-		].forEach(x => {
+		].forEach(x => { // TODO: position added for reports, remove/adjust as needed
 			if (original.width === newSize.width && original.height === newSize.height) {
 				resizedPNGs.push({ png: original, position: `${y.name}-${x.name}` });
 			} else {
@@ -211,11 +211,13 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				const newScreenshots = await createComparisonPNGs(screenshotImage, newSize);
 				const newGoldens = await createComparisonPNGs(goldenImage, newSize);
 
-				let bestIndex = -1;
+				let bestXIndex = -1;
+				let bestYIndex = -1;
 				let bestDiff = null;
 				let pixelsDiff = Number.MAX_SAFE_INTEGER;
 				for (let j = 0; j < newGoldens.length; j++) {
 					for (let i = 0; i < newScreenshots.length; i++) {
+						//if (i === j) continue;
 						const currentDiff = new PNG(newSize);
 						const currentPixelsDiff = pixelmatch(
 							newScreenshots[i].png.data, newGoldens[j].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { threshold: DEFAULT_TOLERANCE }
@@ -224,17 +226,18 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 						//console.log(`i: ${newScreenshots[i].position}, j: ${newGoldens[j].position}`, currentPixelsDiff);
 
 						if (currentPixelsDiff < pixelsDiff) {
-							bestIndex = i;
+							bestXIndex = i;
+							bestYIndex = j;
 							bestDiff = currentDiff;
 							pixelsDiff = currentPixelsDiff;
 						}
 					}
 				}
 
-				console.log('BEST', `i: ${newScreenshots[bestIndex].position}, j: ${newGoldens[bestIndex].position}`);
+				console.log('BEST', `i: ${newScreenshots[bestXIndex].position}, j: ${newGoldens[bestYIndex].position}`);
 
-				await writeFile(`${screenshotFile}-resized-screenshot.png`, PNG.sync.write(newScreenshots[bestIndex].png));
-				await writeFile(`${screenshotFile}-resized-golden.png`, PNG.sync.write(newGoldens[bestIndex].png));
+				await writeFile(`${screenshotFile}-resized-screenshot.png`, PNG.sync.write(newScreenshots[bestXIndex].png));
+				await writeFile(`${screenshotFile}-resized-golden.png`, PNG.sync.write(newGoldens[bestYIndex].png));
 				await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(bestDiff));
 
 				return { pass: false, message: `Images are not the same size. When resized, ${pixelsDiff} pixels are different.` };
