@@ -19,7 +19,7 @@ async function ScreenshotAndCompare(opts) {
 	const rect = this.elem.getBoundingClientRect();
 	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, rect, opts });
 	if (result.resizeRequired) {
-		this.test.timeout('100000');
+		this.test.timeout(0);
 		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name });
 	}
 	if (!result.pass) {
