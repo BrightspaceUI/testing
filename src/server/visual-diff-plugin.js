@@ -64,13 +64,13 @@ async function createComparisonPNGs(original, newSize) {
 	[
 		{ name: 'top', coord: 0 },
 		{ name: 'center', coord: Math.floor((newSize.height - original.height) / 2) },
-		{ name: 'top', coord: newSize.height - original.height }
+		{ name: 'bottom', coord: newSize.height - original.height }
 	].forEach(y => {
 		[
 			{ name: 'left', coord: 0 },
 			{ name: 'center', coord: Math.floor((newSize.width - original.width) / 2) },
 			{ name: 'right', coord: newSize.width - original.width }
-		].forEach(x => {
+		].forEach(x => { // TODO: position added for reports, remove/adjust as needed
 			if (original.width === newSize.width && original.height === newSize.height) {
 				resizedPNGs.push({ png: original, position: `${y.name}-${x.name}` });
 			} else {
@@ -219,8 +219,6 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					const currentPixelsDiff = pixelmatch(
 						newScreenshots[i].png.data, newGoldens[i].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { threshold: DEFAULT_TOLERANCE }
 					);
-
-					//console.log(newScreenshots[i].position, currentPixelsDiff);
 
 					if (currentPixelsDiff < pixelsDiff) {
 						bestIndex = i;
