@@ -212,7 +212,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				const newGoldens = await createComparisonPNGs(goldenImage, newSize);
 
 				let bestIndex = -1;
-				let bestDiff = null;
+				let bestDiffImage = null;
 				let pixelsDiff = Number.MAX_SAFE_INTEGER;
 				for (let i = 0; i < newScreenshots.length; i++) {
 					const currentDiff = new PNG(newSize);
@@ -222,14 +222,14 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 					if (currentPixelsDiff < pixelsDiff) {
 						bestIndex = i;
-						bestDiff = currentDiff;
+						bestDiffImage = currentDiff;
 						pixelsDiff = currentPixelsDiff;
 					}
 				}
 
 				await writeFile(`${screenshotFile}-resized-screenshot.png`, PNG.sync.write(newScreenshots[bestIndex].png));
 				await writeFile(`${screenshotFile}-resized-golden.png`, PNG.sync.write(newGoldens[bestIndex].png));
-				await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(bestDiff));
+				await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(bestDiffImage));
 
 				return { pass: false, message: `Images are not the same size. When resized, ${pixelsDiff} pixels are different.` };
 			}
