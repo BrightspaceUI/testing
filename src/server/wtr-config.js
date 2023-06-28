@@ -94,7 +94,6 @@ export class WTRConfig {
 								font-size: 0.95rem;
 								font-weight: 400;
 								line-height: 1.4rem;
-								margin: 0;
 								padding: 30px;
 							}
 						</style>
