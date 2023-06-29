@@ -186,7 +186,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				if (screenshotImage.width === goldenImage.width && screenshotImage.height === goldenImage.height) {
 					const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
 					const pixelsDiff = pixelmatch(
-						screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { threshold: DEFAULT_TOLERANCE }
+						screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { diffMask: true, threshold: DEFAULT_TOLERANCE }
 					);
 
 					if (pixelsDiff !== 0) {
@@ -217,7 +217,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				for (let i = 0; i < newScreenshots.length; i++) {
 					const currentDiff = new PNG(newSize);
 					const currentPixelsDiff = pixelmatch(
-						newScreenshots[i].png.data, newGoldens[i].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { threshold: DEFAULT_TOLERANCE }
+						newScreenshots[i].png.data, newGoldens[i].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { diffMask: true, threshold: DEFAULT_TOLERANCE }
 					);
 
 					if (currentPixelsDiff < pixelsDiff) {
