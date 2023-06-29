@@ -56,14 +56,24 @@ describe('element-different', () => {
 			elem.style.borderColor = 'black';
 			elem.text = 'Different Text';
 		} },
-		/*{ name: 'smaller', action: elem => {
+		{ name: 'smaller', action: elem => {
 			elem.style.width = '200px';
 			elem.style.height = '50px';
 		} },
 		{ name: 'larger', action: elem => {
 			elem.style.width = '350px';
 			elem.style.height = '70px';
-		} }*/
+		} },
+		{ name: 'slimer-taller', action: elem => {
+			elem.style.width = '200px';
+			elem.style.height = '70px';
+			elem.style.textAlign = 'end';
+		} },
+		{ name: 'wider-shorter', action: elem => {
+			elem.style.width = '350px';
+			elem.style.height = '50px';
+			elem.style.textAlign = 'end';
+		} }
 	].forEach(({ name, action }) => {
 		it(name, async() => {
 			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);

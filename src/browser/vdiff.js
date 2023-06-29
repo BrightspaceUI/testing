@@ -17,8 +17,12 @@ mocha.setup({ // eslint-disable-line no-undef
 async function ScreenshotAndCompare(opts) {
 	const name = this.test.fullTitle();
 	const rect = this.elem.getBoundingClientRect();
-	const { pass, message } = await executeServerCommand('brightspace-visual-diff', { name, rect, opts });
-	if (!pass) {
-		expect.fail(message);
+	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, rect, opts });
+	if (result.resizeRequired) {
+		this.test.timeout(0);
+		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name });
+	}
+	if (!result.pass) {
+		expect.fail(result.message);
 	}
 }
