@@ -1,8 +1,8 @@
+import { cpSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
+import { getTestInfo, PATHS } from './visual-diff-plugin.js';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
-import { getTestInfo } from './visual-diff-plugin.js';
-import { writeFileSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -92,9 +92,19 @@ export function visualDiffReporter({ reportResults = true } = {}) {
 				return val;
 			}, '\t');
 
-			writeFileSync(join(__dirname, 'report', 'data.js'), `export default ${json};`);
+			const inputDir = join(__dirname, 'report');
+			const reportDir = join(rootDir, PATHS.VDIFF_ROOT, 'report');
+			const tempDir = join(reportDir, 'temp');
 
-			execSync(`rollup -c ${join(__dirname, './report/rollup.config.js')}`);
+			rmSync(reportDir, { force: true, recursive: true }),
+			mkdirSync(reportDir);
+
+			cpSync(inputDir, tempDir, { force: true, recursive: true });
+			writeFileSync(join(tempDir, 'data.js'), `export default ${json};`);
+
+			execSync(`rollup -c ${join(__dirname, './rollup.config.js')}`);
+
+			rmSync(tempDir, { recursive: true });
 
 		}
 	};
