@@ -30,8 +30,7 @@ async function clearDir(updateGoldens, path) {
 	} else {
 		await Promise.all([
 			rm(join(path, PATHS.FAIL), { force: true, recursive: true }),
-			rm(join(path, PATHS.PASS), { force: true, recursive: true }),
-			rm(join(path, 'report.html'), { force: true })
+			rm(join(path, PATHS.PASS), { force: true, recursive: true })
 		]);
 	}
 }
@@ -54,8 +53,6 @@ async function clearDiffPaths(dir) {
 		if (path.isDirectory()) {
 			if (base === PATHS.PASS || base === PATHS.FAIL) await rm(full, { force: true, recursive: true });
 			else await clearDiffPaths(full);
-		} else {
-			if (base === 'report.html') await rm(full, { force: true });
 		}
 	}
 }
