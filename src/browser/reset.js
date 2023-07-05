@@ -23,7 +23,11 @@ export async function reset(opts) {
 
 	window.scroll(0, 0);
 
+	const startTime = Date.now();
 	await sendMouse({ type: 'move', position: [0, 0] }).catch(() => {});
+	const timeTaken = Date.now() - startTime;
+	// eslint-disable-next-line no-console
+	if (timeTaken > 200) console.log(`*** Took ${timeTaken}ms to reset mouse position.`);
 
 	if (document.activeElement !== document.body) {
 		document.activeElement.blur();
