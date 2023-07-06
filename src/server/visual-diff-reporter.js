@@ -32,7 +32,18 @@ function createData(rootDir, sessions) {
 
 	});
 
-	return { files, browsers };
+	let numTests = 0, numFailed = 0;
+	files.forEach(f => {
+		numTests += f.tests.size;
+		f.tests.forEach(t => {
+			if (t.numFailed > 0) {
+				f.numFailed++;
+				numFailed++;
+			}
+		});
+	});
+
+	return { browsers, files, numFailed, numTests };
 
 }
 
@@ -52,7 +63,6 @@ function flattenResults(session, browserData, fileData) {
 			const testData = fileData.tests.get(testName);
 			if (!t.passed) {
 				browserData.numFailed++;
-				fileData.numFailed++;
 				testData.numFailed++;
 			}
 			testData.results.push({

@@ -17,7 +17,7 @@ class TestResult extends LitElement {
 			gap: 10px;
 		}
 		.side-by-side > div {
-			flex: 0 1 50%;
+			flex: 0 1 auto;
 		}
 		img {
 			max-width: 100%;
