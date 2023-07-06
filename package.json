@@ -6,7 +6,7 @@
   "repository": "https://github.com/BrightspaceUI/testing.git",
   "scripts": {
     "lint": "eslint . --ext .js",
-    "start": "web-dev-server --root-dir ./.vdiff/report --open",
+    "start": "web-dev-server --root-dir ./.vdiff --open ./report/",
     "test": "npm run lint && npm run test:server && npm run test:browser",
     "test:browser": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
     "test:server": "mocha ./test/server/**/*.test.js",

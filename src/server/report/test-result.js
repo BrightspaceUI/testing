@@ -81,11 +81,11 @@ class TestResult extends LitElement {
 		}
 
 		const noChanges = html`<div class="no-changes">No changes</div>`;
-		const goldenImage = html`<img src="${resultData.info.golden.path}" loading="lazy" alt="">`;
-		const newImage = html`<img src="${resultData.info.new.path}" loading="lazy" alt="">`;
+		const goldenImage = html`<img src="../${resultData.info.golden.path}" loading="lazy" alt="">`;
+		const newImage = html`<img src="../${resultData.info.new.path}" loading="lazy" alt="">`;
 
 		const overlay = (this.showOverlay && !resultData.passed) ?
-			html`<div class="overlay"><img src="${resultData.info.diff}" loading="lazy" alt=""></div>` : nothing;
+			html`<div class="overlay"><img src="../${resultData.info.diff}" loading="lazy" alt=""></div>` : nothing;
 
 		if (this.mode === 'sideBySide') {
 			const g = html`<div class="diff-container">${goldenImage}</div>`;
