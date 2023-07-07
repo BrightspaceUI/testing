@@ -9,7 +9,7 @@ let currentLang = undefined,
 	currentRtl = false,
 	currentViewportHeight = 0,
 	currentViewportWidth = 0,
-	shouldResetMouse = true;
+	shouldResetMouse = false;
 
 export function requestMouseReset() {
 	shouldResetMouse = true;
