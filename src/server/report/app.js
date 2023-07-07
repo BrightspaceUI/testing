@@ -62,10 +62,10 @@ class App extends LitElement {
 			text-align: left;
 		}
 		td.passed {
-			background-color: #EFFFD9;
+			background-color: #efffd9;
 		}
 		td.failed {
-			background-color: #FFEDE8;
+			background-color: #ffede8;
 		}
 		fieldset {
 			border: none;
