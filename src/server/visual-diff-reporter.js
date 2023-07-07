@@ -91,7 +91,7 @@ export function visualDiffReporter({ reportResults = true } = {}) {
 	return {
 		start({ config }) {
 			rootDir = config.rootDir;
-			rmSync(join(rootDir, PATHS.VDIFF_ROOT, 'report'), { force: true, recursive: true });
+			rmSync(join(rootDir, PATHS.VDIFF_ROOT, PATHS.REPORT_ROOT), { force: true, recursive: true });
 		},
 		stop({ sessions }) {
 
@@ -104,7 +104,7 @@ export function visualDiffReporter({ reportResults = true } = {}) {
 			}, '\t');
 
 			const inputDir = join(__dirname, 'report');
-			const reportDir = join(rootDir, PATHS.VDIFF_ROOT, 'report');
+			const reportDir = join(rootDir, PATHS.VDIFF_ROOT, PATHS.REPORT_ROOT);
 			const tempDir = join(reportDir, 'temp');
 
 			mkdirSync(reportDir);
