@@ -4,9 +4,9 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { PATHS } from './visual-diff-plugin.js';
 
 export default {
-	input: join(PATHS.VDIFF_ROOT, './report/temp/index.html'),
+	input: join(PATHS.VDIFF_ROOT, PATHS.REPORT_ROOT, './temp/index.html'),
 	output: {
-		dir: join(PATHS.VDIFF_ROOT, 'report')
+		dir: join(PATHS.VDIFF_ROOT, PATHS.REPORT_ROOT)
 	},
 	plugins: [
 		html(),

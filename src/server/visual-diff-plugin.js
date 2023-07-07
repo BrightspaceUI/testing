@@ -12,6 +12,7 @@ export const PATHS = {
 	FAIL: 'fail',
 	GOLDEN: 'golden',
 	PASS: 'pass',
+	REPORT_ROOT: '.report',
 	VDIFF_ROOT: '.vdiff'
 };
 

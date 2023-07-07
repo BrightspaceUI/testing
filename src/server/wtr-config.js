@@ -185,7 +185,7 @@ export class WTRConfig {
 
 		if (vdiff) {
 			config.reporters ??= [ defaultReporter() ];
-			config.reporters.push(visualDiffReporter());
+			config.reporters.push(visualDiffReporter({ reportResults: !golden }));
 
 			config.plugins ??= [];
 			config.plugins.push(visualDiff({ updateGoldens: golden, runSubset: !!(filter || grep) }));
