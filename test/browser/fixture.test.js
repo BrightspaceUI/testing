@@ -3,6 +3,7 @@ import { defineCE, expect, fixture, html, waitUntil } from '../../src/browser/in
 import { restore, stub } from 'sinon';
 import { focusElem } from '../../src/browser/commands.js';
 import { LitElement } from 'lit';
+import { requestMouseReset } from '../../src/browser/reset.js';
 import { sendMouse } from '@web/test-runner-commands';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
@@ -82,10 +83,22 @@ describe('fixture', () => {
 			expect(window.scrollY).to.equal(0);
 		});
 
-		it('should reset mouse position', async() => {
+		it('will not reset mouse position by default', async() => {
 			const elem = html`<p>hello</p>`;
 			await fixture(elem);
 			await sendMouse({ type: 'move', position: [5, 10] });
+			expect(mousePos.x).to.equal(5);
+			expect(mousePos.y).to.equal(10);
+			await fixture(elem);
+			expect(mousePos.x).to.equal(5);
+			expect(mousePos.y).to.equal(10);
+		});
+
+		it('should reset mouse position if requested', async() => {
+			const elem = html`<p>hello</p>`;
+			await fixture(elem);
+			await sendMouse({ type: 'move', position: [5, 10] });
+			requestMouseReset();
 			expect(mousePos.x).to.equal(5);
 			expect(mousePos.y).to.equal(10);
 			await fixture(elem);

@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit';
-import { defineCE, expect, fixture } from '../../src/browser/index.js';
+import { defineCE, expect, fixture, hoverElem } from '../../src/browser/index.js';
 import { executeServerCommand } from '@web/test-runner-commands';
 
 const elementTag = defineCE(
@@ -18,6 +18,9 @@ const elementTag = defineCE(
 					text-align: center;
 					transition: opacity 2000ms ease-out;
 					width: 300px;
+				}
+				:host(:hover) {
+					background-color: rgba(255,165,225,0.5);
 				}
 				b {
 					display: block;
@@ -40,6 +43,8 @@ describe('element-matches', () => {
 	[
 		{ name: 'default' },
 		{ name: 'rtl', rtl: true },
+		{ name: 'hover', action: async(elem) => await hoverElem(elem) },
+		{ name: 'no-hover' }, // Test will fail if mouse reseting breaks
 		{ name: 'transition', action: elem => elem.style.opacity = '0.2' }
 	].forEach(({ name, rtl, action }) => {
 		it(name, async() => {
