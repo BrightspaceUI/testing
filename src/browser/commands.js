@@ -1,4 +1,5 @@
-import { sendKeys as cmdSendKeys, sendMouse } from '@web/test-runner-commands';
+import { sendKeys as cmdSendKeys, sendMouse as cmdSendMouse } from '@web/test-runner-commands';
+import { requestMouseReset } from './reset.js';
 
 function getElementPosition(elem) {
 	const { x, y, width, height } = elem.getBoundingClientRect();
@@ -6,6 +7,11 @@ function getElementPosition(elem) {
 		x: Math.floor(x + window.scrollX + width / 2),
 		y: Math.floor(y + window.scrollY + height / 2),
 	};
+}
+
+async function sendMouse(options) {
+	await cmdSendMouse(options);
+	requestMouseReset();
 }
 
 export async function clickAt(x, y) {

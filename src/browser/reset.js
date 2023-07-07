@@ -8,7 +8,12 @@ const DEFAULT_LANG = 'en',
 let currentLang = undefined,
 	currentRtl = false,
 	currentViewportHeight = 0,
-	currentViewportWidth = 0;
+	currentViewportWidth = 0,
+	shouldResetMouse = true;
+
+export function requestMouseReset() {
+	shouldResetMouse = true;
+}
 
 export async function reset(opts) {
 
@@ -23,11 +28,10 @@ export async function reset(opts) {
 
 	window.scroll(0, 0);
 
-	const startTime = Date.now();
-	await sendMouse({ type: 'move', position: [0, 0] }).catch(() => {});
-	const timeTaken = Date.now() - startTime;
-	// eslint-disable-next-line no-console
-	if (timeTaken > 200) console.log(`*** Took ${timeTaken}ms to reset mouse position.`);
+	if (shouldResetMouse) {
+		shouldResetMouse = false;
+		await sendMouse({ type: 'move', position: [0, 0] }).catch(() => {});
+	}
 
 	if (document.activeElement !== document.body) {
 		document.activeElement.blur();

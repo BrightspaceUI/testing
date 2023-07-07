@@ -5,8 +5,9 @@ import { spy } from 'sinon';
 describe('commands', () => {
 
 	let elem;
+	const input = html`<input type="text">`;
 	beforeEach(async() => {
-		elem = await fixture(html`<input type="text">`);
+		elem = await fixture(input);
 	});
 
 	it('should click on element', async() => {
@@ -71,6 +72,38 @@ describe('commands', () => {
 		await sendKeys('press', 'Escape');
 		expect(key).to.equal('Escape');
 		window.removeEventListener('keydown', onKeyDown);
+	});
+
+	describe('mouseReset', () => {
+		const mousePos = { x: 0, y: 0 };
+		function onMouseMove(e) {
+			mousePos.x = e.clientX;
+			mousePos.y = e.clientY;
+		}
+
+		beforeEach(() => {
+			window.addEventListener('mousemove', onMouseMove);
+		});
+
+		afterEach(() => {
+			window.removeEventListener('mousemove', onMouseMove);
+		});
+
+		[
+			{ command: 'clickElem', action: (elem) => clickElem(elem) },
+			{ command: 'clickAt', action: () => clickAt(5, 10) },
+			{ command: 'hoverElem', action: (elem) => hoverElem(elem) },
+			{ command: 'hoverAt', action: () => hoverAt(5, 10) },
+		].forEach(({ command, action }) => {
+			it(`should reset mouse position after ${command}`, async() => {
+				await action(elem);
+				expect(mousePos.x).to.not.equal(0);
+				expect(mousePos.y).to.not.equal(0);
+				await fixture(input);
+				expect(mousePos.x).to.equal(0);
+				expect(mousePos.y).to.equal(0);
+			});
+		});
 	});
 
 });
