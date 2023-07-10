@@ -89,6 +89,7 @@ async function tryMoveFile(srcFileName, destFileName) {
 		await rename(srcFileName, destFileName);
 		return true;
 	} catch (e) {
+		console.log('HEY!');
 		console.warn(e);
 		return false;
 	}

@@ -169,14 +169,14 @@ describe('createWtrConfig', () => {
 		});
 
 		it('should use browsers passed as arguments', () => {
-			const browsers = wtrConfig.getBrowsers(['webkit']);
+			const browsers = wtrConfig.getBrowsers(['safari']);
 			expect(browsers).to.have.length(1);
 			expect(browsers[0].name).to.equal('Webkit');
 		});
 
 		it('should only use CLI browsers when provided', () => {
-			const wtrConfig = new WTRConfig({ firefox: true, webkit: true });
-			const browsers = wtrConfig.getBrowsers(['chromium']);
+			const wtrConfig = new WTRConfig({ firefox: true, safari: true });
+			const browsers = wtrConfig.getBrowsers(['chrome']);
 			expect(browsers).to.have.length(2);
 			expect(browsers.map(b => b.name)).to.have.members(['Webkit', 'Firefox']);
 		});
