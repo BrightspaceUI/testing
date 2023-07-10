@@ -1,20 +1,17 @@
-import './test-result.js';
+import './test.js';
 import { css, html, LitElement, nothing } from 'lit';
+import { FILTER_STATUS, FULL_MODE, LAYOUTS } from './common.js';
+import { classMap } from 'lit/directives/class-map.js';
 import data from './data.js';
 import page from 'page';
-
-const FILTER_STATUS = {
-	ALL: 'All',
-	PASSED: 'Passed',
-	FAILED: 'Failed'
-};
 
 class App extends LitElement {
 	static properties = {
 		_files: { state: true },
 		_filterFile: { state: true },
 		_filterTest: { state: true },
-		_mode: { state: true },
+		_fullMode: { state: true },
+		_layout: { state: true },
 		_overlay: { state: true }
 	};
 	static styles = [css`
@@ -26,7 +23,7 @@ class App extends LitElement {
 		}
 		aside {
 			background-color: #fff;
-			border: 1px solid #e6e6e6;
+			border-right: 1px solid #e6e6e6;
 			box-shadow: 0 0 6px rgba(0,0,0,.07);
 			box-sizing: border-box;
 			grid-area: sidebar;
@@ -41,9 +38,6 @@ class App extends LitElement {
 		main {
 			background-color: #fafafa;
 			grid-area: content;
-		}
-		main > div {
-			padding: 20px;
 		}
 		table {
 			background-color: #ffffff;
@@ -75,12 +69,16 @@ class App extends LitElement {
 		fieldset > legend {
 			font-weight: bold;
 		}
+		.padding {
+			padding: 20px;
+		}
 	`];
 	constructor() {
 		super();
 		this._filterBrowsers = data.browsers.map(b => b.name);
 		this._filterStatus = data.numFailed > 0 ? FILTER_STATUS.FAILED : FILTER_STATUS.ALL;
-		this._mode = 'sideBySide';
+		this._fullMode = FULL_MODE.GOLDEN.value;
+		this._layout = LAYOUTS.SPLIT.value;
 		this._overlay = true;
 		this._updateFiles();
 	}
@@ -104,7 +102,7 @@ class App extends LitElement {
 		page();
 	}
 	render() {
-		let view;
+		let hasPadding = true, view;
 		if (this._filterFile !== undefined && this._filterTest !== undefined) {
 			const fileData = data.files.find(f => f.name === this._filterFile);
 			if (!fileData) {
@@ -114,7 +112,13 @@ class App extends LitElement {
 				if (!testData) {
 					view = html`<p>Test not found: <b>${this._filterTest}</b>.</p>`;
 				} else {
-					view = this._renderTest(fileData, testData);
+					hasPadding = false;
+					view = html`
+						<d2l-vdiff-report-test full-mode="${this._fullMode}" file="${fileData.name}" layout="${this._layout}" ?show-overlay="${this._overlay}" test="${testData.name}" @setting-change="${this._handleSettingChange}"></d2l-vdiff-report-test>
+						<div class="padding">
+							<button @click="${this._goHome}">Back</button>
+						</div>
+					`;
 				}
 			}
 		} else {
@@ -132,7 +136,7 @@ class App extends LitElement {
 						${this._renderFilters()}
 					</div>
 				</aside>
-				<main><div>${view}</div></main>
+				<main><div class="${classMap({ padding: hasPadding })}">${view}</div></main>
 			</div>
 		`;
 	}
@@ -152,11 +156,8 @@ class App extends LitElement {
 		this._filterStatus = e.target.value;
 		this._updateFiles();
 	}
-	_handleModeChange(e) {
-		this._mode = e.target.options[e.target.selectedIndex].value;
-	}
-	_handleOverlayChange(e) {
-		this._overlay = e.target.checked;
+	_handleSettingChange(e) {
+		this[`_${e.detail.name}`] = e.detail.value;
 	}
 	_renderFile(file) {
 		const renderBrowserCell = (b) => {
@@ -217,25 +218,6 @@ class App extends LitElement {
 			</fieldset>
 		`;
 
-	}
-	_renderTest(file, test) {
-		return html`
-			<h2>${test.name} (${(test.results.length - test.numFailed)}/${test.results.length} passed)</h2>
-			<div>
-				<label>Mode:
-					<select @change="${this._handleModeChange}">
-						<option value="sideBySide" ?selected="${this._mode === 'sideBySide'}">Side-by-side</option>
-						<option value="oneUpOriginal" ?selected="${this._mode === 'oneUpOriginal'}">One-up (original)</option>
-						<option value="oneUpNew" ?selected="${this._mode === 'oneUpNew'}">One-up (new)</option>
-					</select>
-				</label>
-				<label><input type="checkbox" ?checked="${this._overlay}" @change="${this._handleOverlayChange}">Show overlay</label>
-			</div>
-			${test.results.map(r => html`<d2l-vdiff-report-test-result browser="${r.name}" mode="${this._mode}" file="${file.name}" ?show-overlay="${this._overlay}" test="${test.name}"></d2l-vdiff-report-test-result>`)}
-			<div style="margin-top: 20px;">
-				<button @click="${this._goHome}">Back</button>
-			</div>
-		`;
 	}
 	_renderTestResultRow(file, test) {
 		const results = data.browsers.map(b => {

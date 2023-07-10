@@ -1,31 +1,33 @@
 import { css, html, LitElement, nothing } from 'lit';
+import { FULL_MODE, LAYOUTS } from './common.js';
 import data from './data.js';
 
 class TestResult extends LitElement {
 	static properties = {
 		browser: { type: String },
-		mode: { type: String },
+		fullMode: { attribute: 'full-mode', type: String },
+		layout: { type: String },
 		file: { type: String },
 		showOverlay: { attribute: 'show-overlay', type: Boolean },
 		test: { type: String },
 	};
 	static styles = [css`
-		.side-by-side {
+		.split {
 			flex-direction: row;
 			flex-wrap: nowrap;
 			display: flex;
 			gap: 10px;
 		}
-		.side-by-side > div {
+		.split > div {
 			flex: 0 1 auto;
 		}
 		img {
 			max-width: 100%;
 		}
 		.diff-container {
-			background: repeating-conic-gradient(#cccccc 0% 25%, #ffffff 0% 50%) 50% / 20px 20px;
+			background: repeating-conic-gradient(#cdd5dc 0% 25%, #ffffff 0% 50%) 50% / 20px 20px;
 			background-position: 0 0;
-			border: 1px solid #cccccc;
+			border: 1px solid #cdd5dc;
 			display: inline-block;
 			line-height: 0;
 		}
@@ -37,9 +39,10 @@ class TestResult extends LitElement {
 			position: absolute;
 			top: 0;
 			left: 0;
+			z-index: 1;
 		}
 		.no-changes {
-			border: 1px solid #cccccc;
+			border: 1px solid #cdd5dc;
 			padding: 20px;
 		}
 	`];
@@ -87,18 +90,18 @@ class TestResult extends LitElement {
 		const overlay = (this.showOverlay && !resultData.passed) ?
 			html`<div class="overlay"><img src="../${resultData.info.diff}" loading="lazy" alt=""></div>` : nothing;
 
-		if (this.mode === 'sideBySide') {
+		if (this.layout === LAYOUTS.SPLIT.value) {
 			const g = html`<div class="diff-container">${goldenImage}</div>`;
 			return html`
-				<div class="side-by-side">
+				<div class="split">
 					${ resultData.passed ? noChanges : g }
 					<div class="diff-container overlay-container">${newImage}${overlay}</div>
 				</div>`;
-		} else {
+		} else if (this.layout === LAYOUTS.FULL.value) {
 			return html`
 				<div>
 					<div class="diff-container overlay-container">
-						${(this.mode === 'oneUpOriginal') ? goldenImage : newImage}
+						${(this.fullMode === FULL_MODE.GOLDEN.value) ? goldenImage : newImage}
 						${overlay}
 					</div>
 				</div>`;
