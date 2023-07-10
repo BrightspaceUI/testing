@@ -10,8 +10,11 @@
     "test": "npm run lint && npm run test:server && npm run test:browser",
     "test:browser": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
     "test:server": "mocha ./test/server/**/*.test.js",
-    "test:vdiff": "web-test-runner --config ./test/browser/wtr-vdiff.config.js --group vdiff",
+    "test:vdiff": "d2l-test --config ./test/browser/d2l-test.config.js --group vdiff",
     "test:vdiff:golden": "npm run test:vdiff -- --golden"
+  },
+  "bin": {
+    "d2l-test": "./bin/test.js"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",

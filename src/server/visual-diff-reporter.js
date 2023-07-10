@@ -112,7 +112,7 @@ export function visualDiffReporter({ reportResults = true } = {}) {
 			cpSync(inputDir, tempDir, { force: true, recursive: true });
 			writeFileSync(join(tempDir, 'data.js'), `export default ${json};`);
 
-			execSync(`rollup -c ${join(__dirname, './rollup.config.js')}`);
+			execSync(`npx rollup -c ${join(__dirname, './rollup.config.js')}`, { stdio: 'pipe' });
 
 			rmSync(tempDir, { recursive: true });
 
