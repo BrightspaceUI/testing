@@ -150,13 +150,13 @@ class App extends LitElement {
 		this._updateSearchParams({ file: undefined, test: undefined });
 	}
 	_handleFilterBrowserChange(e) {
-		const browsers = [...this._filterBrowsers];
-		const index = browsers.indexOf(e.target.value);
-		if (!e.target.checked && index > -1) {
-			browsers.splice(index, 1);
-		} else if (e.target.checked && index === -1) {
-			browsers.push(e.target.value);
-		}
+		const browsers = data.browsers.map(b => b.name).filter(b => {
+			if (b === e.target.value) {
+				return e.target.checked;
+			} else {
+				return this._filterBrowsers.includes(b);
+			}
+		});
 		this._updateSearchParams({ browsers: browsers.join(',') });
 	}
 	_handleFilterStatusChange(e) {
