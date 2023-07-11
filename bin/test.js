@@ -6,19 +6,19 @@ import { WTRConfig } from '../src/server/wtr-config.js';
 
 const optionDefinitions = [
 	// @web/test-runner options
-	{ name: 'config', type: String },
 	{ name: 'files', type: String, multiple: true },
 	{ name: 'group', type: String, defaultOption: true },
 	{ name: 'manual', type: Boolean },
 	{ name: 'watch', type: Boolean },
 	// custom options
 	{ name: 'chrome', type: Boolean },
+	{ name: 'config', alias: 'c', type: String }, // disabled for wtr
 	{ name: 'filter', alias: 'f', type: String, multiple: true },
 	{ name: 'firefox', type: Boolean },
 	{ name: 'golden', type: Boolean },
 	{ name: 'grep', alias: 'g', type: String },
 	{ name: 'safari', type: Boolean },
-	{ name: 'timeout', type: Number },
+	{ name: 'timeout', alias: 't', type: Number },
 ];
 
 const cliArgs = commandLineArgs(optionDefinitions, { partial: true });
