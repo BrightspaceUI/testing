@@ -38,7 +38,7 @@ const testConfig = await readConfig('d2l-test.config', cliArgs.config).catch(err
 //const DISALLOWED_ARGS = ['browsers', 'playwright', '_unknown'];
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
 const ALLOWED_BROWSERS = ['chrome', 'firefox', 'safari'];
-const BROWSER_MAP = { chrome: 'chromium', safari: 'webkit' };
+const BROWSER_MAP = { chrome: 'chromium', firefox: 'firefox', safari: 'webkit' };
 
 export class WTRConfig {
 
@@ -48,7 +48,7 @@ export class WTRConfig {
 	constructor(cliArgs) {
 		this.#cliArgs = cliArgs || {};
 		this.#cliArgs.group ??= 'unit';
-		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs?.[b]).map(b => BROWSER_MAP[b] || b);
+		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs?.[b]);
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
 	}
 
@@ -218,7 +218,7 @@ export class WTRConfig {
 
 		return browsers.map((b) => playwrightLauncher({
 			concurrency: b === 'firefox' ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
-			product: b,
+			product: BROWSER_MAP[b],
 			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' })
 		}));
 	}
