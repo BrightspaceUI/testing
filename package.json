@@ -27,8 +27,7 @@
     "sinon": "^15"
   },
   "exports": {
-    ".": "./src/browser/index.js",
-    "./wtr-config.js": "./src/server/index.js"
+    ".": "./src/browser/index.js"
   },
   "files": [
     "/src"
