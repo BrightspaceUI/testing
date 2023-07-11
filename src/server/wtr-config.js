@@ -1,8 +1,8 @@
 import { defaultReporter } from '@web/test-runner';
-import { headedMode } from '../src/server/headed-mode-plugin.js';
+import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
-import { visualDiff } from '../src/server/visual-diff-plugin.js';
-import { visualDiffReporter } from '../src/server/visual-diff-reporter.js';
+import { visualDiff } from './visual-diff-plugin.js';
+import { visualDiffReporter } from './visual-diff-reporter.js';
 
 //const DISALLOWED_ARGS = ['browsers', 'playwright', '_unknown'];
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
