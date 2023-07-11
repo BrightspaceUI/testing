@@ -165,7 +165,7 @@ export class WTRConfig {
 		timeout,
 		...passthroughConfig
 	} = {}) {
-		const { files, filter, golden, grep, group, manual, playwright, watch } = this.#cliArgs;
+		const { files, filter, golden, grep, group, manual, watch } = this.#cliArgs;
 
 		delete passthroughConfig.browsers;
 
@@ -224,20 +224,6 @@ export class WTRConfig {
 	}
 
 }
-
-/*
-function createConfig(...args) {
-	const wtrConfig = new WTRConfig(cliArgs);
-	return wtrConfig.create(...args);
-}
-*/
-
-/*
-export function getBrowsers(browsers) {
-	const wtrConfig = new WTRConfig(cliArgs);
-	return wtrConfig.getBrowsers(browsers);
-}
-*/
 
 const wtrConfig = new WTRConfig(cliArgs);
 const config = wtrConfig.create(testConfig);
