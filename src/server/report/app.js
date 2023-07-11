@@ -41,6 +41,7 @@ class App extends LitElement {
 		table {
 			background-color: #ffffff;
 			border-collapse: collapse;
+			width: 100%;
 		}
 		td, th {
 			border: 1px solid #dfe6ef;
@@ -228,15 +229,18 @@ class App extends LitElement {
 			`;
 		};
 
+		const browserFilter = data.browsers.length > 1 ? html`
+			<fieldset>
+				<legend>Browsers</legend>
+				${ data.browsers.map(b => renderBrowser(b))}
+			</fieldset>` : nothing;
+
 		return html`
 			<fieldset>
 				<legend>Test Status</legend>
 				${statusFilters.map(f => renderStatusFilter(f))}
 			</fieldset>
-			<fieldset>
-				<legend>Browsers</legend>
-				${ data.browsers.map(b => renderBrowser(b))}
-			</fieldset>
+			${browserFilter}
 		`;
 
 	}

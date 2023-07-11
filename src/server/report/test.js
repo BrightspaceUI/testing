@@ -203,6 +203,7 @@ class Test extends LitElement {
 
 		const selectedBrowser = this._getSelectedBrowser(browsers, testData);
 		const selectedResult = testData.results.find(r => r.name === selectedBrowser.name);
+		const tabButtons = browsers.length > 1 ? this._renderTabButtons(browsers, selectedBrowser, testData) : nothing;
 
 		return html`
 			<div class="header">
@@ -220,7 +221,7 @@ class Test extends LitElement {
 					<label class="settings-box"><input type="checkbox" ?checked="${this.showOverlay}" @change="${this._handleOverlayChange}">Overlay Difference</label>
 					${fullMode}
 				</div>
-				${this._renderTabButtons(browsers, selectedBrowser, testData)}
+				${tabButtons}
 			</div>
 			${this._renderTabPanels(browsers, selectedBrowser, fileData, testData)}
 			${this._renderFooter(selectedBrowser, selectedResult)}
