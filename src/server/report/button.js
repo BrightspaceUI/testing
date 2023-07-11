@@ -23,7 +23,7 @@ class Button extends LitElement {
 			user-select: none;
 		}
 		button:hover,
-		button:focus-visible {
+		button:focus {
 			background-color: #007bff;
 			color: #ffffff;
 		}
