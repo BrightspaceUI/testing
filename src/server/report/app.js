@@ -80,7 +80,6 @@ class App extends LitElement {
 		this._fullMode = FULL_MODE.GOLDEN.value;
 		this._layout = LAYOUTS.SPLIT.value;
 		this._overlay = true;
-		this._updateFiles();
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -98,6 +97,13 @@ class App extends LitElement {
 				this._filterFile = undefined;
 				this._filterTest = undefined;
 			}
+			if (searchParams.has('status')) {
+				this._filterStatus = searchParams.get('status');
+			}
+			if (searchParams.has('browsers')) {
+				this._filterBrowsers = searchParams.get('browsers').split(',');
+			}
+			this._updateFiles();
 		});
 		page();
 	}
@@ -141,23 +147,27 @@ class App extends LitElement {
 		`;
 	}
 	_goHome() {
-		page(this._root);
+		this._updateSearchParams({ file: undefined, test: undefined });
 	}
 	_handleFilterBrowserChange(e) {
-		const index = this._filterBrowsers.indexOf(e.target.value);
-		if (!e.target.checked && index > -1) {
-			this._filterBrowsers.splice(index, 1);
-		} else if (e.target.checked && index === -1) {
-			this._filterBrowsers.push(e.target.value);
-		}
-		this._updateFiles();
+		const browsers = data.browsers.map(b => b.name).filter(b => {
+			if (b === e.target.value) {
+				return e.target.checked;
+			} else {
+				return this._filterBrowsers.includes(b);
+			}
+		});
+		this._updateSearchParams({ browsers: browsers.join(',') });
 	}
 	_handleFilterStatusChange(e) {
-		this._filterStatus = e.target.value;
-		this._updateFiles();
+		this._updateSearchParams({ status: e.target.value });
 	}
 	_handleSettingChange(e) {
 		this[`_${e.detail.name}`] = e.detail.value;
+	}
+	_handleTestClick(e) {
+		this._updateSearchParams({ file: e.target.dataset.file, test: e.target.dataset.test });
+		return false;
 	}
 	_renderFile(file) {
 		const renderBrowserCell = (b) => {
@@ -227,15 +237,21 @@ class App extends LitElement {
 			const text = passed ? 'passed' : 'failed';
 			return html`<td class="${text}">${text}</td>`;
 		});
+		const searchParams = new URLSearchParams(window.location.search);
+		searchParams.set('file', file.name);
+		searchParams.set('test', test.name);
 		return html`
 			<tr>
-				<th style="text-align: left;"><a href="./?file=${encodeURIComponent(file.name)}&test=${encodeURIComponent(test.name)}">${test.name}</a></th>
+				<th style="text-align: left;"><a href="${this._root}?${searchParams.toString()}" @click="${this._handleTestClick}" data-file="${file.name}" data-test="${test.name}">${test.name}</a></th>
 				${results}
 			</tr>
 		`;
 	}
 	_updateFiles() {
+
 		const files = [];
+		let foundFilterTest = false;
+
 		data.files.forEach(f => {
 			const tests = [];
 			f.tests.forEach(t => {
@@ -247,13 +263,33 @@ class App extends LitElement {
 				});
 				if (results.length > 0) {
 					tests.push({ ...t, results });
+					if (t.name === this._filterTest) {
+						foundFilterTest = true;
+					}
 				}
 			});
 			if (tests.length > 0) {
 				files.push({ ...f, tests });
 			}
 		});
+
+		if (this._filterTest !== undefined && !foundFilterTest) {
+			this._updateSearchParams({ file: undefined, test: undefined });
+			return;
+		}
 		this._files = files;
+
+	}
+	_updateSearchParams(params) {
+		const searchParams = new URLSearchParams(window.location.search);
+		for (const name in params) {
+			if (params[name] === undefined) {
+				searchParams.delete(name);
+			} else {
+				searchParams.set(name, params[name]);
+			}
+		}
+		page.redirect(`${this._root}?${searchParams.toString()}`);
 	}
 }
 customElements.define('d2l-vdiff-report-app', App);
