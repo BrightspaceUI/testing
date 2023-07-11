@@ -10,10 +10,10 @@ import { visualDiffReporter } from '../src/server/visual-diff-reporter.js';
 
 const optionDefinitions = [
 	// @web/test-runner options
+	{ name: 'config', type: String },
 	{ name: 'files', type: String, multiple: true },
 	{ name: 'group', type: String, defaultOption: true },
 	{ name: 'manual', type: Boolean },
-	{ name: 'config', type: String },
 	{ name: 'watch', type: Boolean },
 	// custom options
 	{ name: 'chrome', type: Boolean },
@@ -21,8 +21,8 @@ const optionDefinitions = [
 	{ name: 'firefox', type: Boolean },
 	{ name: 'golden', type: Boolean },
 	{ name: 'grep', alias: 'g', type: String },
-	{ name: 'timeout', type: Number },
 	{ name: 'safari', type: Boolean },
+	{ name: 'timeout', type: Number },
 ];
 
 const cliArgs = commandLineArgs(optionDefinitions, { partial: true });
@@ -228,9 +228,16 @@ export class WTRConfig {
 const wtrConfig = new WTRConfig(cliArgs);
 const config = wtrConfig.create(testConfig);
 
+const argv = [
+	'--group', cliArgs.group,
+	...(cliArgs._unknown || [])
+];
+// copy cli-only wtr options back to argv to be processed
+cliArgs.watch && argv.push('--watch');
+cliArgs.manual && argv.push('--manual');
+
 await startTestRunner({
-	readCliArgs: true,
-	argv: [ '--group', cliArgs.group, ...(cliArgs._unknown || []) ],
-	readFileConfig: false,
-	config
+	argv,
+	config,
+	readFileConfig: false
 });
