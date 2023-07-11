@@ -12,6 +12,10 @@ class TestResult extends LitElement {
 		test: { type: String },
 	};
 	static styles = [css`
+		:host {
+			display: block;
+			padding: 20px;
+		}
 		.split {
 			flex-direction: row;
 			flex-wrap: nowrap;
@@ -39,7 +43,6 @@ class TestResult extends LitElement {
 			position: absolute;
 			top: 0;
 			left: 0;
-			z-index: 1;
 		}
 		.no-changes {
 			border: 1px solid #cdd5dc;
@@ -48,11 +51,10 @@ class TestResult extends LitElement {
 	`];
 	render() {
 
-		const { browserData, fileData, resultData, testData } = this._fetchData();
-		if (!browserData || !fileData || !resultData || !testData) return nothing;
+		const resultData = this._fetchData();
+		if (!resultData) return nothing;
 
 		return html`
-			<h3>${resultData.name} v${browserData.version} (${resultData.duration}ms)</h3>
 			${this._renderBody(resultData)}
 		`;
 
@@ -71,7 +73,7 @@ class TestResult extends LitElement {
 		const browserData = data.browsers.find(b => b.name === this.browser);
 		if (!browserData) return {};
 
-		return { browserData, fileData, resultData, testData };
+		return resultData;
 
 	}
 	_renderBody(resultData) {
