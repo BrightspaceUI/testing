@@ -337,8 +337,10 @@ class Test extends LitElement {
 					tabindex="${selected ? '0' : '-1'}"
 					type="button"
 					@click="${onClick()}">
-						<span>${browser} <span class="${classMap(statusClass)}">(${status})</span></span>
-						${selected ? html`<div class="tab-selected-indicator"></div>` : nothing}
+						<span>
+							${browser} <span class="${classMap(statusClass)}">(${status})</span>
+						</span>${selected ? html`
+						<div class="tab-selected-indicator"></div>` : nothing}
 				</button>`;
 		};
 
