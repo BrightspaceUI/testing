@@ -1,7 +1,7 @@
 import './button.js';
 import { css, html, LitElement, nothing } from 'lit';
 import { FULL_MODE, getId, LAYOUTS } from './common.js';
-import { ICON_BROWSERS, ICON_HOME } from './icons.js';
+import { ICON_BROWSERS, ICON_HOME, ICON_TADA } from './icons.js';
 import { classMap } from 'lit/directives/class-map.js';
 import data from './data.js';
 
@@ -228,12 +228,10 @@ class Test extends LitElement {
 		.result-part-info {
 			align-items: center;
 			display: flex;
-			gap: 5px;
 		}
 		.result-part-info-spacer,
 		.result-part-info-size {
 			flex: 1 0 0%;
-			text-align: right;
 		}
 		.result-part-info-name {
 			flex: 0 0 auto;
@@ -243,11 +241,20 @@ class Test extends LitElement {
 		.result-part-info-size {
 			color: #90989d;
 			font-size: 0.8rem;
-			padding: 5px;
 		}
 		.result-no-changes {
-			border: 1px solid #cdd5dc;
+			align-items: center;
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
 			padding: 20px;
+			min-width: 210px;
+		}
+		.result-no-changes > p {
+			color: #6e7477;
+			font-size: 1.1rem;
+			font-weight: bold;
+			margin: 0;
 		}
 	`];
 	constructor() {
@@ -429,8 +436,11 @@ class Test extends LitElement {
 
 		const renderPart = (label, partInfo, noChanges, overlay) => {
 			const img = noChanges ? html`
-				<div class="result-no-changes">No changes</div>
-			` : html`<img src="../${partInfo.path}" loading="lazy" alt="">`;
+				<div class="result-no-changes">
+					${ICON_TADA}
+					<p>Hooray! No changes here.</p>
+				</div>
+			` : html`<div class="result-diff-container"><img src="../${partInfo.path}" loading="lazy" alt="">${overlay}</div>`;
 			return html`
 				<div class="result-part">
 					<div class="result-part-info">
@@ -438,9 +448,7 @@ class Test extends LitElement {
 						<div class="result-part-info-name">${label}</div>
 						<div class="result-part-info-size">(${partInfo.width} x ${partInfo.height})</div>
 					</div>
-					<div class="result-diff-container">
-						${img}${overlay}
-					</div>
+					${img}
 				</div>
 			`;
 		};
@@ -451,9 +459,9 @@ class Test extends LitElement {
 		if (this.layout === LAYOUTS.SPLIT.value) {
 			return html`
 				<div class="result-split">
-					${ renderPart('golden', resultData.info.golden, resultData.passed, undefined) }
+					${ renderPart('golden', resultData.info.golden, false, undefined) }
 					<div class="result-split-divider"></div>
-					${ renderPart('new', resultData.info.new, false, overlay) }
+					${ renderPart('new', resultData.info.new, resultData.passed, overlay) }
 				</div>`;
 		} else if (this.layout === LAYOUTS.FULL.value) {
 			if (this.fullMode === FULL_MODE.GOLDEN.value) {
