@@ -87,6 +87,21 @@ export class WTRConfig {
 		};
 	}
 
+	#filterFiles(files) {
+		return this.#cliArgs.filter.map(filterStr => {
+			// replace everything after the last forward slash
+			return files.map(f => f.replace(/[^/]*$/, fileGlob => {
+				// create a new glob for each wildcard
+				const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
+					const arr = fileGlob.split('');
+					arr.splice(index, 1, filterStr);
+					return arr.join('');
+				});
+				return `+(${fileGlobs.join('|') || fileGlob})`;
+			}));
+		}).flat();
+	}
+
 	#getMochaConfig(timeoutConfig) {
 		const {
 			timeout = timeoutConfig,
@@ -107,26 +122,13 @@ export class WTRConfig {
 	}
 
 	#getPattern(type) {
-		const pattern = [].concat(this.#cliArgs.files || this.pattern(type));
+		const files = this.#cliArgs.files || [ this.pattern(type) ];
 
-		// replace filename wildcards with all filter strings
-		// e.g. If filter is ['button', 'list*'], pattern './test/*.test.*' becomes:
-		// [ './test/+(button.test.*|*.test.button)', './test/+(list*.test.*|*.test.list*)' ]
 		if (this.#cliArgs.filter) {
-			return this.#cliArgs.filter.map(filterStr => {
-				// replace everything after the last forward slash
-				return pattern.map(p => p.replace(/[^/]*$/, fileGlob => {
-					// create a new glob for each wildcard
-					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
-						const arr = fileGlob.split('');
-						arr.splice(index, 1, filterStr);
-						return arr.join('');
-					});
-					return `+(${fileGlobs.join('|') || fileGlob})`;
-				}));
-			}).flat();
+			return this.#filterFiles(files);
 		}
-		return pattern;
+
+		return files;
 	}
 
 	create({
@@ -146,6 +148,12 @@ export class WTRConfig {
 			...this.#getMochaConfig(timeout),
 			...passthroughConfig
 		};
+
+		if (filter) {
+			config.groups.forEach(group => {
+				group.files = this.#filterFiles([ group.files ].flat());
+			});
+		}
 
 		if (group === 'unit') {
 			config.groups.push({
