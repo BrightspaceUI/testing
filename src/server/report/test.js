@@ -242,19 +242,10 @@ class Test extends LitElement {
 		return { browsers, fileData, testData };
 
 	}
-	_getSelectedBrowser(browsers, testData) {
-		let selectedBrowserIndex = this._selectedBrowserIndex;
-		if (selectedBrowserIndex > browsers.length - 1) {
-			selectedBrowserIndex = -1;
-		}
-		if (selectedBrowserIndex < 0) {
-			selectedBrowserIndex = browsers.findIndex(b => testData.results.find(r => r.name === b.name && !r.passed));
-		}
-		if (selectedBrowserIndex < 0) {
-			selectedBrowserIndex = 0;
-		}
-		const selectedBrowser = browsers[selectedBrowserIndex];
-		return selectedBrowser;
+	_getSelectedBrowser(browsers, { results }) {
+		return browsers[this._selectedBrowserIndex] ||
+			browsers.find(b => results.find(r => r.name === b.name && !r.passed)) ||
+			browsers[0];
 	}
 	_handleBackClick() {
 		this._triggerNavigation('home');
