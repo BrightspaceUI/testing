@@ -110,8 +110,8 @@ export class WTRConfig {
 		const pattern = [].concat(this.#cliArgs.files || this.pattern(type));
 
 		// replace filename wildcards with all filter strings
-		// e.g. If filter is ['button', 'list'], pattern './test/*.test.*' becomes:
-		// [ './test/+(*button*.test.*|*.test.*button*)', './test/+(*list*.test.*|*.test.*list*)' ]
+		// e.g. If filter is ['button', 'list*'], pattern './test/*.test.*' becomes:
+		// [ './test/+(button.test.*|*.test.button)', './test/+(list*.test.*|*.test.list*)' ]
 		if (this.#cliArgs.filter) {
 			return this.#cliArgs.filter.map(filterStr => {
 				// replace everything after the last forward slash
