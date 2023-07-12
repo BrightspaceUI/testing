@@ -4,7 +4,6 @@ import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
 
-//const DISALLOWED_ARGS = ['browsers', 'playwright', '_unknown'];
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
 const ALLOWED_BROWSERS = ['chrome', 'firefox', 'safari'];
 const BROWSER_MAP = { chrome: 'chromium', firefox: 'firefox', safari: 'webkit' };
