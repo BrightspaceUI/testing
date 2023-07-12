@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { ConfigLoaderError, readConfig } from '@web/config-loader';
 import commandLineArgs from 'command-line-args';
+import commandLineUsage from 'command-line-usage';
+import process from 'node:process';
 import { startTestRunner } from '@web/test-runner';
 import { WTRConfig } from '../src/server/wtr-config.js';
 
@@ -19,11 +21,31 @@ const optionDefinitions = [
 	{ name: 'firefox', type: Boolean },
 	{ name: 'golden', type: Boolean },
 	{ name: 'grep', alias: 'g', type: String },
+	{ name: 'help', alias: 'h', type: Boolean },
 	{ name: 'safari', type: Boolean },
 	{ name: 'timeout', alias: 't', type: Number },
 ];
 
 const cliArgs = commandLineArgs(optionDefinitions, { partial: true });
+
+if (cliArgs.help) {
+	const help = commandLineUsage([
+		{
+			header: 'D2L Test',
+			content: 'Test runner for D2L components and applications'
+		},
+		{
+			header: 'Usage',
+			content: 'd2l-test <group> [options]',
+		},
+		{
+			header: 'Options',
+			optionList: optionDefinitions
+		}
+	]);
+	process.stdout.write(help);
+	process.exit();
+}
 
 cliArgs._unknown = cliArgs._unknown?.filter(o => !DISALLOWED_OPTIONS.includes(o));
 
