@@ -1,7 +1,9 @@
 import './button.js';
 import { css, html, LitElement, nothing } from 'lit';
-import { FULL_MODE, getId, LAYOUTS } from './common.js';
+import { FULL_MODE, LAYOUTS } from './common.js';
 import { ICON_BROWSERS, ICON_HOME, ICON_TADA } from './icons.js';
+import { RADIO_STYLE, renderRadio } from './radio.js';
+import { renderTabButtons, renderTabPanel, TAB_STATUS_TYPE, TAB_STYLE } from './tabs.js';
 import { classMap } from 'lit/directives/class-map.js';
 import data from './data.js';
 
@@ -15,7 +17,7 @@ class Test extends LitElement {
 		test: { type: String },
 		_selectedBrowserIndex: { state: true }
 	};
-	static styles = [css`
+	static styles = [RADIO_STYLE, TAB_STYLE, css`
 		:host {
 			display: grid;
 			grid-template-rows: auto 1fr auto;
@@ -88,92 +90,6 @@ class Test extends LitElement {
 			line-height: 24px;
 			padding: 10px;
 			user-select: none;
-		}
-		.pill-box {
-			border-radius: 5px;
-			display: flex;
-			flex-wrap: nowrap;
-		}
-		.pill input[type="radio"] {
-			position: absolute;
-			opacity: 0;
-			pointer-events: none;
-		}
-		.pill label {
-			align-items: center;
-			background-color: #ffffff;
-			border-block-end-style: solid;
-			border-block-start-style: solid;
-			border-inline-start-style: solid;
-			border-color: #cdd5dc;
-			border-width: 1px;
-			cursor: pointer;
-			display: flex;
-			gap: 5px;
-			line-height: 24px;
-			padding: 10px;
-			position: relative;
-			user-select: none;
-		}
-		.pill:first-child label {
-			border-start-start-radius: 5px;
-			border-end-start-radius: 5px;
-		}
-		.pill:last-child label {
-			border-end-end-radius: 5px;
-			border-inline-end-style: solid;
-			border-start-end-radius: 5px;
-		}
-		.pill input[type="radio"]:checked + label {
-			background-color: #007bff;
-			color: white;
-		}
-		.pill input[type="radio"]:focus-visible + label {
-			z-index: 1;
-			border-color: #007bff;
-			box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #007bff;
-		}
-		[role="tablist"] {
-			align-items: stretch;
-			border-top: 1px solid #cdd5dc;
-			display: flex;
-			flex: 0 0 auto;
-			flex-wrap: nowrap;
-		}
-		[role="tab"] {
-			background: none;
-			border: none;
-			border-right: 1px solid #cdd5dc;
-			cursor: pointer;
-			flex: 1 0 auto;
-			margin: 0;
-			outline: none;
-			padding: 10px 15px;
-			position: relative;
-			user-select: none;
-		}
-		[role="tab"]:last-child {
-			border-right: none;
-		}
-		[role="tab"] > span {
-			display: inline-block;
-			padding: 5px;
-		}
-		[role="tab"]:focus-visible > span {
-			border: 2px solid #007bff;
-			border-radius: 3px;
-			padding: 3px;
-		}
-		[role="tab"]:hover > span {
-			color: #007bff;
-		}
-		.tab-selected-indicator {
-			border-block-start: 4px solid #007bff;
-			border-start-start-radius: 4px;
-			border-start-end-radius: 4px;
-			bottom: 0;
-			position: absolute;
-			width: calc(100% - 30px);
 		}
 		.pass {
 			color: #46a661;
@@ -269,12 +185,28 @@ class Test extends LitElement {
 
 		let fullMode = nothing;
 		if (this.layout === LAYOUTS.FULL.value) {
-			fullMode = this._renderPillbox('fullMode', this.fullMode, [FULL_MODE.GOLDEN, FULL_MODE.NEW]);
+			fullMode = renderRadio(
+				'fullMode',
+				this.fullMode,
+				(val) => this._triggerChange('fullMode', val),
+				[FULL_MODE.GOLDEN, FULL_MODE.NEW]
+			);
 		}
 
 		const selectedBrowser = this._getSelectedBrowser(browsers, testData);
 		const selectedResult = testData.results.find(r => r.name === selectedBrowser.name);
-		const tabButtons = browsers.length > 1 ? this._renderTabButtons(browsers, selectedBrowser, testData) : nothing;
+
+		const tabs = browsers.map((b) => {
+			const result = testData.results.find(r => r.name === b.name);
+			return {
+				content: this._renderTestResults(result),
+				label: b.name,
+				id: b.name.toLowerCase(),
+				selected: b.name === selectedBrowser.name,
+				status: result.passed ? 'passed' : 'failed',
+				statusType: result.passed ? TAB_STATUS_TYPE.NORMAL : TAB_STATUS_TYPE.ERROR
+			};
+		});
 
 		return html`
 			<div class="header">
@@ -288,13 +220,13 @@ class Test extends LitElement {
 					</div>
 				</div>
 				<div class="settings">
-					${this._renderPillbox('layout', this.layout, [LAYOUTS.FULL, LAYOUTS.SPLIT])}
+					${renderRadio('layout', this.layout, (val) => this._triggerChange('layout', val), [LAYOUTS.FULL, LAYOUTS.SPLIT])}
 					<label class="settings-box"><input type="checkbox" ?checked="${this.showOverlay}" @change="${this._handleOverlayChange}">Overlay Difference</label>
 					${fullMode}
 				</div>
-				${tabButtons}
+				${this._renderTabButtons(tabs)}
 			</div>
-			${this._renderTabPanels(browsers, selectedBrowser, testData)}
+			${this._renderTabPanels(tabs)}
 			${this._renderFooter(selectedBrowser, selectedResult)}
 		`;
 
@@ -324,9 +256,6 @@ class Test extends LitElement {
 	_handleOverlayChange(e) {
 		this._triggerChange('overlay', e.target.checked);
 	}
-	_handlePillboxChange(e) {
-		this._triggerChange(e.target.name, e.target.value);
-	}
 	_renderFooter(selectedBrowser, selectedResult) {
 		const duration = selectedResult.duration;
 		const durationClass = {
@@ -346,83 +275,20 @@ class Test extends LitElement {
 			</div>
 		`;
 	}
-	_renderPillbox(name, selectedValue, items) {
-		const renderItem = (i) => {
-			const id = getId();
-			return html`
-				<div class="pill">
-					<input type="radio" id="${id}" name="${name}" value="${i.value}" @change="${this._handlePillboxChange}" ?checked="${i.value === selectedValue}">
-					<label for="${id}">${i.icon}${i.label}</label>
-				</div>
-			`;
-		};
-		return html`<div class="pill-box">${items.map(i => renderItem(i))}</div>`;
+	_renderTabButtons(tabs) {
+		if (tabs.length < 2) return nothing;
+		return renderTabButtons('browser results', tabs, index => this._selectedBrowserIndex = index);
 	}
-	_renderTabButtons(browsers, selectedBrowser, testData) {
+	_renderTabPanels(tabs) {
 
-		const onKeyDown = (e) => {
-			let focusOn;
-			switch (e.key) {
-				case 'ArrowRight':
-					focusOn = e.target.nextElementSibling || e.target.parentNode.firstElementChild;
-					break;
-				case 'ArrowLeft':
-					focusOn = e.target.previousElementSibling || e.target.parentNode.lastElementChild;
-					break;
-				case 'Home':
-					focusOn = e.target.parentNode.firstElementChild;
-					break;
-				case 'End':
-					focusOn = e.target.parentNode.lastElementChild;
-					break;
-			}
-			if (focusOn) focusOn.focus();
-		};
+		let panelsContent;
+		if (tabs.length < 2) {
+			panelsContent = tabs.map(t => t.content);
+		} else {
+			panelsContent = tabs.map(t => renderTabPanel(t));
+		}
 
-		const renderTabButton = (browser, index) => {
-			const result = testData.results.find(r => r.name === browser);
-			const selected = (browser === selectedBrowser.name);
-			const status = result.passed ? 'passed' : 'failed';
-			const onClick = () => {
-				return () => this._selectedBrowserIndex = index;
-			};
-			const statusClass = {
-				pass: result.passed,
-				error: !result.passed
-			};
-			return html`
-				<button
-					aria-controls="tabpanel-${browser}"
-					aria-selected="${selected ? 'true' : 'false'}"
-					id="tab-${browser}"
-					role="tab"
-					tabindex="${selected ? '0' : '-1'}"
-					type="button"
-					@click="${onClick()}">
-						<span>
-							${browser} <span class="${classMap(statusClass)}">(${status})</span>
-						</span>${selected ? html`
-						<div class="tab-selected-indicator"></div>` : nothing}
-				</button>`;
-		};
-
-		return html`
-			<div role="tablist" aria-label="browser results" @keydown="${onKeyDown}">
-				${browsers.map((b, i) => renderTabButton(b.name, i))}
-			</div>
-		`;
-	}
-	_renderTabPanels(browsers, selectedBrowser, testData) {
-
-		const renderTabPanel = (browser) => {
-			return html`
-				<div id="tabpanel-${browser}" role="tabpanel" aria-labelledby="tab-${browser}" ?hidden="${browser !== selectedBrowser.name}">
-					${this._renderTestResults(browser, testData)}
-				</div>
-			`;
-		};
-
-		return html`<div class="tab-panels">${browsers.map(b => renderTabPanel(b.name))}</div>`;
+		return html`<div class="tab-panels">${panelsContent}</div>`;
 
 	}
 	_renderTestResult(resultData) {
@@ -472,8 +338,7 @@ class Test extends LitElement {
 		}
 
 	}
-	_renderTestResults(browser, testData) {
-		const result = testData.results.find(r => r.name === browser);
+	_renderTestResults(result) {
 		return html`
 			<div class="result">
 				${this._renderTestResult(result)}
