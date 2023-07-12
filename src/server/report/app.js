@@ -1,7 +1,6 @@
 import './test.js';
 import { css, html, LitElement, nothing } from 'lit';
 import { FILTER_STATUS, FULL_MODE, LAYOUTS } from './common.js';
-import { classMap } from 'lit/directives/class-map.js';
 import data from './data.js';
 import page from 'page';
 
@@ -42,6 +41,7 @@ class App extends LitElement {
 		table {
 			background-color: #ffffff;
 			border-collapse: collapse;
+			width: 100%;
 		}
 		td, th {
 			border: 1px solid #dfe6ef;
@@ -120,10 +120,15 @@ class App extends LitElement {
 				} else {
 					hasPadding = false;
 					view = html`
-						<d2l-vdiff-report-test full-mode="${this._fullMode}" file="${fileData.name}" layout="${this._layout}" ?show-overlay="${this._overlay}" test="${testData.name}" @setting-change="${this._handleSettingChange}"></d2l-vdiff-report-test>
-						<div class="padding">
-							<button @click="${this._goHome}">Back</button>
-						</div>
+						<d2l-vdiff-report-test
+							browsers="${this._filterBrowsers.join(',')}"
+							file="${fileData.name}"
+							full-mode="${this._fullMode}"
+							layout="${this._layout}"
+							@navigation="${this._handleNavigation}"
+							@setting-change="${this._handleSettingChange}"
+							?show-overlay="${this._overlay}"
+							test="${testData.name}"></d2l-vdiff-report-test>
 					`;
 				}
 			}
@@ -134,6 +139,9 @@ class App extends LitElement {
 				view = this._files.map(f => this._renderFile(f));
 			}
 		}
+		if (hasPadding) {
+			view = html`<div class="padding">${view}</div>`;
+		}
 		return html`
 			<div class="container">
 				<aside>
@@ -142,12 +150,9 @@ class App extends LitElement {
 						${this._renderFilters()}
 					</div>
 				</aside>
-				<main><div class="${classMap({ padding: hasPadding })}">${view}</div></main>
+				<main>${view}</main>
 			</div>
 		`;
-	}
-	_goHome() {
-		this._updateSearchParams({ file: undefined, test: undefined });
 	}
 	_handleFilterBrowserChange(e) {
 		const browsers = data.browsers.map(b => b.name).filter(b => {
@@ -161,6 +166,13 @@ class App extends LitElement {
 	}
 	_handleFilterStatusChange(e) {
 		this._updateSearchParams({ status: e.target.value });
+	}
+	_handleNavigation(e) {
+		switch (e.detail.location) {
+			case 'home':
+				this._updateSearchParams({ file: undefined, test: undefined });
+				break;
+		}
 	}
 	_handleSettingChange(e) {
 		this[`_${e.detail.name}`] = e.detail.value;
@@ -217,15 +229,18 @@ class App extends LitElement {
 			`;
 		};
 
+		const browserFilter = data.browsers.length > 1 ? html`
+			<fieldset>
+				<legend>Browsers</legend>
+				${ data.browsers.map(b => renderBrowser(b))}
+			</fieldset>` : nothing;
+
 		return html`
 			<fieldset>
 				<legend>Test Status</legend>
 				${statusFilters.map(f => renderStatusFilter(f))}
 			</fieldset>
-			<fieldset>
-				<legend>Browsers</legend>
-				${ data.browsers.map(b => renderBrowser(b))}
-			</fieldset>
+			${browserFilter}
 		`;
 
 	}
