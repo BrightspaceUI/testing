@@ -1,5 +1,4 @@
 import './button.js';
-import './test-result.js';
 import { css, html, LitElement, nothing } from 'lit';
 import { FULL_MODE, getId, LAYOUTS } from './common.js';
 import { ICON_BROWSERS, ICON_HOME } from './icons.js';
@@ -185,6 +184,71 @@ class Test extends LitElement {
 		.warning {
 			color: #e87511;
 		}
+		.result {
+			padding: 20px;
+		}
+		.result-split {
+			flex-direction: row;
+			flex-wrap: nowrap;
+			display: flex;
+		}
+		.result-split > .result-part {
+			flex: 0 1 auto;
+		}
+		.result-split-divider {
+			border-right: 4px dashed #007bff;
+			flex: 0 0 auto;
+		}
+		.result-part {
+			display: inline-block;
+		}
+		.result-diff-container img {
+			max-width: 100%;
+		}
+		.result-diff-container {
+			background: repeating-conic-gradient(#cdd5dc 0% 25%, #ffffff 0% 50%) 50% / 20px 20px;
+			background-position: 0 0;
+			border: 2px dashed #90989d;
+			display: inline-block;
+			line-height: 0;
+			position: relative;
+		}
+		.result-split > .result-part:first-of-type > .result-diff-container {
+			border-right: none;
+		}
+		.result-split > .result-part:last-of-type > .result-diff-container {
+			border-left: none;
+		}
+		.result-overlay {
+			background: hsla(0,0%,100%,.8);
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+		.result-part-info {
+			align-items: center;
+			display: flex;
+			gap: 5px;
+		}
+		.result-part-info-spacer,
+		.result-part-info-size {
+			flex: 1 0 0%;
+			text-align: right;
+		}
+		.result-part-info-name {
+			flex: 0 0 auto;
+			font-weight: bold;
+			padding: 5px;
+		}
+		.result-part-info-size {
+			color: #90989d;
+			font-size: 0.8rem;
+			padding: 5px;
+		}
+		.result-no-changes {
+			border: 1px solid #cdd5dc;
+			padding: 20px;
+		}
 	`];
 	constructor() {
 		super();
@@ -223,7 +287,7 @@ class Test extends LitElement {
 				</div>
 				${tabButtons}
 			</div>
-			${this._renderTabPanels(browsers, selectedBrowser, fileData, testData)}
+			${this._renderTabPanels(browsers, selectedBrowser, testData)}
 			${this._renderFooter(selectedBrowser, selectedResult)}
 		`;
 
@@ -341,24 +405,72 @@ class Test extends LitElement {
 			</div>
 		`;
 	}
-	_renderTabPanels(browsers, selectedBrowser, fileData, testData) {
+	_renderTabPanels(browsers, selectedBrowser, testData) {
 
 		const renderTabPanel = (browser) => {
 			return html`
 				<div id="tabpanel-${browser}" role="tabpanel" aria-labelledby="tab-${browser}" ?hidden="${browser !== selectedBrowser.name}">
-					<d2l-vdiff-report-test-result
-						browser="${browser}"
-						file="${fileData.name}"
-						full-mode="${this.fullMode}"
-						layout="${this.layout}"
-						?show-overlay="${this.showOverlay}"
-						test="${testData.name}"></d2l-vdiff-report-test-result>
+					${this._renderTestResults(browser, testData)}
 				</div>
 			`;
 		};
 
 		return html`<div class="tab-panels">${browsers.map(b => renderTabPanel(b.name))}</div>`;
 
+	}
+	_renderTestResult(resultData) {
+
+		if (!resultData.passed && resultData.info === undefined) {
+			return html`
+				<p>An error occurred that prevented a visual-diff snapshot from being taken:</p>
+				<pre>${resultData.error}</pre>
+			`;
+		}
+
+		const renderPart = (label, partInfo, noChanges, overlay) => {
+			const img = noChanges ? html`
+				<div class="result-no-changes">No changes</div>
+			` : html`<img src="../${partInfo.path}" loading="lazy" alt="">`;
+			return html`
+				<div class="result-part">
+					<div class="result-part-info">
+						<div class="result-part-info-spacer"></div>
+						<div class="result-part-info-name">${label}</div>
+						<div class="result-part-info-size">(${partInfo.width} x ${partInfo.height})</div>
+					</div>
+					<div class="result-diff-container">
+						${img}${overlay}
+					</div>
+				</div>
+			`;
+		};
+
+		const overlay = (this.showOverlay && !resultData.passed) ?
+			html`<div class="result-overlay"><img src="../${resultData.info.diff}" loading="lazy" alt=""></div>` : nothing;
+
+		if (this.layout === LAYOUTS.SPLIT.value) {
+			return html`
+				<div class="result-split">
+					${ renderPart('golden', resultData.info.golden, resultData.passed, undefined) }
+					<div class="result-split-divider"></div>
+					${ renderPart('new', resultData.info.new, false, overlay) }
+				</div>`;
+		} else if (this.layout === LAYOUTS.FULL.value) {
+			if (this.fullMode === FULL_MODE.GOLDEN.value) {
+				return renderPart('golden', resultData.info.golden, false, overlay);
+			} else {
+				return renderPart('new', resultData.info.new, false, overlay);
+			}
+		}
+
+	}
+	_renderTestResults(browser, testData) {
+		const result = testData.results.find(r => r.name === browser);
+		return html`
+			<div class="result">
+				${this._renderTestResult(result)}
+			</div>
+		`;
 	}
 	_triggerChange(name, value) {
 		this.dispatchEvent(new CustomEvent(
