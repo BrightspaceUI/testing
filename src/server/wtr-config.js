@@ -22,6 +22,7 @@ export class WTRConfig {
 
 	get #defaultConfig() {
 		return {
+			groups: [],
 			nodeResolve: true,
 			testRunnerHtml: testFramework =>
 				`<!DOCTYPE html>
@@ -146,13 +147,12 @@ export class WTRConfig {
 			...passthroughConfig
 		};
 
-		config.groups ??= [];
-		config.groups.push({
-			name: 'unit',
-			files: this.#getPattern('test')
-		});
-
-		if (group === 'vdiff') {
+		if (group === 'unit') {
+			config.groups.push({
+				name: 'unit',
+				files: this.#getPattern('test')
+			});
+		} else if (group === 'vdiff') {
 			config.reporters ??= [ defaultReporter() ];
 			config.reporters.push(visualDiffReporter({ reportResults: !golden }));
 
