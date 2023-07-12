@@ -4,6 +4,8 @@ import commandLineArgs from 'command-line-args';
 import { startTestRunner } from '@web/test-runner';
 import { WTRConfig } from '../src/server/wtr-config.js';
 
+const DISALLOWED_OPTIONS = ['--browsers', '--playwright', '--puppeteer', '--groups'];
+
 const optionDefinitions = [
 	// @web/test-runner options
 	{ name: 'files', type: String, multiple: true },
@@ -22,6 +24,8 @@ const optionDefinitions = [
 ];
 
 const cliArgs = commandLineArgs(optionDefinitions, { partial: true });
+
+cliArgs._unknown = cliArgs._unknown?.filter(o => !DISALLOWED_OPTIONS.includes(o));
 
 const testConfig = await readConfig('d2l-test.config', cliArgs.config).catch(err => {
 	if (err instanceof ConfigLoaderError) {
