@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@open-wc/testing": "^3",
+    "@web/config-loader": "^0.2",
     "@web/test-runner": "^0.16",
     "@web/test-runner-commands": "^0.7",
     "@web/test-runner-playwright": "^0.10",
