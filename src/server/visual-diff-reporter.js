@@ -1,8 +1,8 @@
-import { cpSync, mkdirSync, rmSync, writeFileSync } from 'fs';
-import { dirname, join } from 'path';
+import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { getTestInfo, PATHS } from './visual-diff-plugin.js';
-import { execSync } from 'child_process';
-import { fileURLToPath } from 'url';
+import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
