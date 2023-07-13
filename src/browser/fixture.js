@@ -48,8 +48,13 @@ async function waitForElem(elem, awaitLoadingComplete = true) {
 }
 
 export async function fixture(element, opts = {}) {
+	const pause = window.d2lTestPause;
 	await Promise.all([reset(opts), document.fonts.ready]);
 	const elem = await wcFixture(element);
 	await waitForElem(elem, opts.awaitLoadingComplete);
+	await pause;
+	if (pause) {
+		window.d2lTestPause = new Promise(r => window.d2lTestPauseResolve = r);
+	}
 	return elem;
 }

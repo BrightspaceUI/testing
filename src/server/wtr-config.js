@@ -117,7 +117,7 @@ export class WTRConfig {
 			timeout = timeoutConfig,
 			grep,
 			watch,
-			manual
+			open
 		} = this.#cliArgs;
 
 		if (typeof timeout !== 'undefined' && typeof timeout !== 'number') throw new TypeError('timeout must be a number');
@@ -125,7 +125,7 @@ export class WTRConfig {
 		const config = {};
 
 		if (timeout) config.timeout = String(timeout);
-		if (watch || manual) config.timeout = '0';
+		if (watch || open) config.timeout = '0';
 		if (grep) config.grep = grep;
 
 		return Object.keys(config).length && { testFramework: { config } };
@@ -136,7 +136,7 @@ export class WTRConfig {
 		timeout,
 		...passthroughConfig
 	} = {}) {
-		const { files, filter, golden, grep, group, manual, watch } = this.#cliArgs;
+		const { files, filter, golden, grep, group, open, watch } = this.#cliArgs;
 
 		delete passthroughConfig.browsers;
 
@@ -173,13 +173,13 @@ export class WTRConfig {
 		// convert all browsers to playwright
 		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers));
 
-		if (watch || manual) {
+		if (watch || open) {
 			config.plugins ??= [];
 			const currentPattern = files || config.groups.find(g => g.name === group)?.files;
 
 			config.plugins.push(headedMode({
 				pattern: currentPattern,
-				manual,
+				open,
 				watch
 			}));
 		}
@@ -193,9 +193,14 @@ export class WTRConfig {
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 
 		return browsers.map((b) => playwrightLauncher({
-			concurrency: b === 'firefox' ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
+			concurrency: b === 'firefox' || this.#cliArgs.open ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
 			product: BROWSER_MAP[b],
-			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' })
+			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' }),
+			launchOptions: {
+				headless: !this.#cliArgs.open,
+				devtools: false,
+				slowMo: this.#cliArgs.slowmo || 0
+			}
 		}));
 	}
 
