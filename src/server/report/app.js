@@ -98,7 +98,9 @@ class App extends LitElement {
 				this._filterTest = undefined;
 			}
 			if (searchParams.has('status')) {
-				this._filterStatus = searchParams.get('status');
+				let filterStatus = searchParams.get('status');
+				if (filterStatus === FILTER_STATUS.FAILED && data.numFailed === 0) filterStatus = FILTER_STATUS.ALL;
+				this._filterStatus = filterStatus;
 			}
 			if (searchParams.has('browsers')) {
 				this._filterBrowsers = searchParams.get('browsers').split(',');

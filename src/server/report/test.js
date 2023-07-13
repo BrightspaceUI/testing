@@ -1,8 +1,9 @@
 import './button.js';
 import { css, html, LitElement, nothing } from 'lit';
 import { FULL_MODE, LAYOUTS } from './common.js';
-import { ICON_BROWSERS, ICON_HOME, ICON_TADA } from './icons.js';
+import { ICON_BROWSERS, ICON_HOME } from './icons.js';
 import { RADIO_STYLE, renderRadio } from './radio.js';
+import { renderResult, RESULT_STYLE } from './result.js';
 import { renderTabButtons, renderTabPanel, TAB_STATUS_TYPE, TAB_STYLE } from './tabs.js';
 import { classMap } from 'lit/directives/class-map.js';
 import data from './data.js';
@@ -17,7 +18,7 @@ class Test extends LitElement {
 		test: { type: String },
 		_selectedBrowserIndex: { state: true }
 	};
-	static styles = [RADIO_STYLE, TAB_STYLE, css`
+	static styles = [RADIO_STYLE, RESULT_STYLE, TAB_STYLE, css`
 		:host {
 			display: grid;
 			grid-template-rows: auto 1fr auto;
@@ -100,78 +101,6 @@ class Test extends LitElement {
 		.warning {
 			color: #e87511;
 		}
-		.result {
-			padding: 20px;
-		}
-		.result-split {
-			flex-direction: row;
-			flex-wrap: nowrap;
-			display: flex;
-		}
-		.result-split > .result-part {
-			flex: 0 1 auto;
-		}
-		.result-split-divider {
-			border-right: 4px dashed #007bff;
-			flex: 0 0 auto;
-		}
-		.result-part {
-			display: inline-block;
-		}
-		.result-diff-container img {
-			max-width: 100%;
-		}
-		.result-diff-container {
-			background: repeating-conic-gradient(#cdd5dc 0% 25%, #ffffff 0% 50%) 50% / 20px 20px;
-			background-position: 0 0;
-			border: 2px dashed #90989d;
-			display: inline-block;
-			line-height: 0;
-			position: relative;
-		}
-		.result-split > .result-part:first-of-type > .result-diff-container {
-			border-right: none;
-		}
-		.result-split > .result-part:last-of-type > .result-diff-container {
-			border-left: none;
-		}
-		.result-overlay {
-			background: hsla(0,0%,100%,.8);
-			position: absolute;
-			top: 0;
-			left: 0;
-		}
-		.result-part-info {
-			align-items: center;
-			display: flex;
-		}
-		.result-part-info-spacer,
-		.result-part-info-size {
-			flex: 1 0 0%;
-		}
-		.result-part-info-name {
-			flex: 0 0 auto;
-			font-weight: bold;
-			padding: 5px;
-		}
-		.result-part-info-size {
-			color: #90989d;
-			font-size: 0.8rem;
-		}
-		.result-no-changes {
-			align-items: center;
-			display: flex;
-			flex-direction: column;
-			gap: 20px;
-			padding: 20px;
-			min-width: 210px;
-		}
-		.result-no-changes > p {
-			color: #6e7477;
-			font-size: 1.1rem;
-			font-weight: bold;
-			margin: 0;
-		}
 	`];
 	constructor() {
 		super();
@@ -199,7 +128,7 @@ class Test extends LitElement {
 		const tabs = browsers.map((b) => {
 			const result = testData.results.find(r => r.name === b.name);
 			return {
-				content: this._renderTestResults(result),
+				content: html`<div style="padding: 20px;">${renderResult(result, { fullMode: this.fullMode, layout: this.layout, showOverlay: this.showOverlay })}</div>`,
 				label: b.name,
 				id: b.name.toLowerCase(),
 				selected: b.name === selectedBrowser.name,
@@ -290,60 +219,6 @@ class Test extends LitElement {
 
 		return html`<div class="tab-panels">${panelsContent}</div>`;
 
-	}
-	_renderTestResult(resultData) {
-
-		if (!resultData.passed && resultData.info === undefined) {
-			return html`
-				<p>An error occurred that prevented a visual-diff snapshot from being taken:</p>
-				<pre>${resultData.error}</pre>
-			`;
-		}
-
-		const renderPart = (label, partInfo, noChanges, overlay) => {
-			const img = noChanges ? html`
-				<div class="result-no-changes">
-					${ICON_TADA}
-					<p>Hooray! No changes here.</p>
-				</div>
-			` : html`<div class="result-diff-container"><img src="../${partInfo.path}" loading="lazy" alt="">${overlay}</div>`;
-			return html`
-				<div class="result-part">
-					<div class="result-part-info">
-						<div class="result-part-info-spacer"></div>
-						<div class="result-part-info-name">${label}</div>
-						<div class="result-part-info-size">(${partInfo.width} x ${partInfo.height})</div>
-					</div>
-					${img}
-				</div>
-			`;
-		};
-
-		const overlay = (this.showOverlay && !resultData.passed) ?
-			html`<div class="result-overlay"><img src="../${resultData.info.diff}" loading="lazy" alt=""></div>` : nothing;
-
-		if (this.layout === LAYOUTS.SPLIT.value) {
-			return html`
-				<div class="result-split">
-					${ renderPart('golden', resultData.info.golden, false, undefined) }
-					<div class="result-split-divider"></div>
-					${ renderPart('new', resultData.info.new, resultData.passed, overlay) }
-				</div>`;
-		} else if (this.layout === LAYOUTS.FULL.value) {
-			if (this.fullMode === FULL_MODE.GOLDEN.value) {
-				return renderPart('golden', resultData.info.golden, false, overlay);
-			} else {
-				return renderPart('new', resultData.info.new, false, overlay);
-			}
-		}
-
-	}
-	_renderTestResults(result) {
-		return html`
-			<div class="result">
-				${this._renderTestResult(result)}
-			</div>
-		`;
 	}
 	_triggerChange(name, value) {
 		this.dispatchEvent(new CustomEvent(
