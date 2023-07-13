@@ -33,7 +33,8 @@
     "sinon": "^15"
   },
   "exports": {
-    ".": "./src/browser/index.js"
+    ".": "./src/browser/index.js",
+    "./pause.js": "./src/server/pause.js"
   },
   "files": [
     "/src"

@@ -54,7 +54,7 @@ export async function fixture(element, opts = {}) {
 	await waitForElem(elem, opts.awaitLoadingComplete);
 	await pause;
 	if (pause) {
-		window.d2lTestPause = new Promise(r => window.d2lTestPauseResolve = r);
+		window.d2lTestPause = new Promise(r => window.d2lTestRun = r);
 	}
 	return elem;
 }
