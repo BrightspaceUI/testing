@@ -1,32 +1,12 @@
-import commandLineArgs from 'command-line-args';
 import { defaultReporter } from '@web/test-runner';
 import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
 
-const optionDefinitions = [
-	// @web/test-runner options
-	{ name: 'files', type: String, multiple: true },
-	{ name: 'group', type: String },
-	{ name: 'manual', type: Boolean },
-	{ name: 'playwright', type: Boolean },
-	{ name: 'watch', type: Boolean },
-	// custom options
-	{ name: 'chromium', type: Boolean },
-	{ name: 'filter', alias: 'f', type: String, multiple: true },
-	{ name: 'firefox', type: Boolean },
-	{ name: 'golden', type: Boolean },
-	{ name: 'grep', alias: 'g', type: String },
-	{ name: 'timeout', type: Number },
-	{ name: 'webkit', type: Boolean },
-];
-
-const cliArgs = commandLineArgs(optionDefinitions, { partial: true });
-
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
-const DEFAULT_VDIFF = false;
-const ALLOWED_BROWSERS = ['chromium', 'firefox', 'webkit'];
+const ALLOWED_BROWSERS = ['chrome', 'firefox', 'safari'];
+const BROWSER_MAP = { chrome: 'chromium', firefox: 'firefox', safari: 'webkit' };
 
 export class WTRConfig {
 
@@ -35,13 +15,14 @@ export class WTRConfig {
 
 	constructor(cliArgs) {
 		this.#cliArgs = cliArgs || {};
+		this.#cliArgs.group ??= 'test';
 		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs?.[b]);
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
 	}
 
 	get #defaultConfig() {
 		return {
-			files: this.#getPattern('test'),
+			groups: [],
 			nodeResolve: true,
 			testRunnerHtml: testFramework =>
 				`<!DOCTYPE html>
@@ -60,11 +41,21 @@ export class WTRConfig {
 		};
 	}
 
+	get #pattern() {
+		const files = this.#cliArgs.files || [ this.pattern(this.#cliArgs.group) ];
+
+		if (this.#cliArgs.filter) {
+			return this.#filterFiles(files);
+		}
+
+		return files;
+	}
+
 	get visualDiffGroup() {
 		return {
 			name: 'vdiff',
-			files: this.#getPattern('vdiff'),
-			browsers: this.getBrowsers(['chromium']),
+			files: this.#pattern,
+			browsers: ['chrome'],
 			testRunnerHtml: testFramework =>
 				`<!DOCTYPE html>
 				<html lang="en">
@@ -106,6 +97,21 @@ export class WTRConfig {
 		};
 	}
 
+	#filterFiles(files) {
+		return this.#cliArgs.filter.map(filterStr => {
+			// replace everything after the last forward slash
+			return files.map(f => f.replace(/[^/]*$/, fileGlob => {
+				// create a new glob for each wildcard
+				const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
+					const arr = fileGlob.split('');
+					arr.splice(index, 1, filterStr);
+					return arr.join('');
+				});
+				return `+(${fileGlobs.join('|') || fileGlob})`;
+			}));
+		}).flat();
+	}
+
 	#getMochaConfig(timeoutConfig) {
 		const {
 			timeout = timeoutConfig,
@@ -125,44 +131,15 @@ export class WTRConfig {
 		return Object.keys(config).length && { testFramework: { config } };
 	}
 
-	#getPattern(type) {
-		const pattern = this.#cliArgs.files || this.pattern(type);
-
-		// replace filename wildcards with all filter strings
-		// e.g. If filter is ['button', 'list'], pattern './test/*.test.*' becomes:
-		// [ './test/+(*button*.test.*|*.test.*button*)', './test/+(*list*.test.*|*.test.*list*)' ]
-		if (this.#cliArgs.filter) {
-			return this.#cliArgs.filter.map(filterStr => {
-				// replace everything after the last forward slash
-				return pattern.replace(/[^/]*$/, fileGlob => {
-					// create a new glob for each wildcard
-					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
-						const arr = fileGlob.split('');
-						arr.splice(index, 1, `*${filterStr}*`);
-						return arr.join('');
-					});
-					return `+(${fileGlobs.join('|')})`;
-				});
-			});
-		}
-		return pattern;
-	}
-
 	create({
 		pattern = DEFAULT_PATTERN,
-		vdiff = DEFAULT_VDIFF,
 		timeout,
 		...passthroughConfig
 	} = {}) {
+		const { files, filter, golden, grep, group, manual, watch } = this.#cliArgs;
 
-		const { files, filter, golden, grep, group, manual, playwright, watch } = this.#cliArgs;
-
-		if (!group || group === 'default') {
-			if (playwright) {
-				console.warn('Warning: reducedMotion disabled. Use the unit group to enable reducedMotion.');
-			} else {
-				console.warn('Warning: Running with puppeteer, reducedMotion disabled. Use the unit group to use playwright with reducedMotion enabled');
-			}
+		if (!['test', 'vdiff', ...passthroughConfig.groups.map(g => g.name)].includes(group)) {
+			return {}; // allow wtr to error
 		}
 
 		delete passthroughConfig.browsers;
@@ -176,14 +153,18 @@ export class WTRConfig {
 			...passthroughConfig
 		};
 
-		config.groups ??= [];
-		config.groups.push({
-			name: 'unit',
-			files: this.#getPattern('test'),
-			browsers: this.getBrowsers()
-		});
+		if (filter) {
+			config.groups.forEach(group => {
+				group.files = this.#filterFiles([ group.files ].flat());
+			});
+		}
 
-		if (vdiff) {
+		if (group === 'test') {
+			config.groups.push({
+				name: 'test',
+				files: this.#pattern
+			});
+		} else if (group === 'vdiff') {
 			config.reporters ??= [ defaultReporter() ];
 			config.reporters.push(visualDiffReporter({ reportResults: !golden }));
 
@@ -193,9 +174,12 @@ export class WTRConfig {
 			config.groups.push(this.visualDiffGroup);
 		}
 
+		// convert all browsers to playwright
+		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers));
+
 		if (watch || manual) {
 			config.plugins ??= [];
-			const currentPattern = files || config.groups.find(g => g.name === group)?.files || config.files;
+			const currentPattern = files || config.groups.find(g => g.name === group)?.files;
 
 			config.plugins.push(headedMode({
 				pattern: currentPattern,
@@ -214,19 +198,9 @@ export class WTRConfig {
 
 		return browsers.map((b) => playwrightLauncher({
 			concurrency: b === 'firefox' ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
-			product: b,
+			product: BROWSER_MAP[b],
 			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' })
 		}));
 	}
 
-}
-
-export function createConfig(...args) {
-	const wtrConfig = new WTRConfig(cliArgs);
-	return wtrConfig.create(...args);
-}
-
-export function getBrowsers(browsers) {
-	const wtrConfig = new WTRConfig(cliArgs);
-	return wtrConfig.getBrowsers(browsers);
 }

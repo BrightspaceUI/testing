@@ -1,7 +1,4 @@
 import { argv } from 'node:process';
-import { createConfig } from '../../src/server/wtr-config.js';
-
-const pattern = type => `test/browser/**/*.${type}.js`;
 
 function getGoldenFlag() {
 	return {
@@ -13,8 +10,7 @@ function getGoldenFlag() {
 	};
 }
 
-export default createConfig({
-	pattern,
-	vdiff: true,
+export default {
+	pattern: type => `test/browser/**/*.${type}.js`,
 	plugins: [getGoldenFlag()]
-});
+};
