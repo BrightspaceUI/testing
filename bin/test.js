@@ -14,7 +14,7 @@ const optionDefinitions = [
 		name: 'files',
 		type: String,
 		multiple: true,
-		description: 'Test files to run. Path or glob.\n[Default: ./test/**/*.<type>.js]',
+		description: 'Test files to run. Path or glob.\n[Default: ./test/**/*.<group>.js]',
 		order: 8
 	},
 	{
@@ -22,7 +22,7 @@ const optionDefinitions = [
 		type: String,
 		required: true,
 		defaultOption: true,
-		description: 'Name of the group to run tests for\n[Default: unit]',
+		description: 'Name of the group to run tests for\n[Default: test]',
 		order: 1
 	},
 	{

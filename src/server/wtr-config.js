@@ -15,7 +15,7 @@ export class WTRConfig {
 
 	constructor(cliArgs) {
 		this.#cliArgs = cliArgs || {};
-		this.#cliArgs.group ??= 'unit';
+		this.#cliArgs.group ??= 'test';
 		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs?.[b]);
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
 	}
@@ -41,10 +41,20 @@ export class WTRConfig {
 		};
 	}
 
+	get #pattern() {
+		const files = this.#cliArgs.files || [ this.pattern(this.#cliArgs.group) ];
+
+		if (this.#cliArgs.filter) {
+			return this.#filterFiles(files);
+		}
+
+		return files;
+	}
+
 	get visualDiffGroup() {
 		return {
 			name: 'vdiff',
-			files: this.#getPattern('vdiff'),
+			files: this.#pattern,
 			browsers: ['chrome'],
 			testRunnerHtml: testFramework =>
 				`<!DOCTYPE html>
@@ -121,16 +131,6 @@ export class WTRConfig {
 		return Object.keys(config).length && { testFramework: { config } };
 	}
 
-	#getPattern(type) {
-		const files = this.#cliArgs.files || [ this.pattern(type) ];
-
-		if (this.#cliArgs.filter) {
-			return this.#filterFiles(files);
-		}
-
-		return files;
-	}
-
 	create({
 		pattern = DEFAULT_PATTERN,
 		timeout,
@@ -155,10 +155,10 @@ export class WTRConfig {
 			});
 		}
 
-		if (group === 'unit') {
+		if (group === 'test') {
 			config.groups.push({
-				name: 'unit',
-				files: this.#getPattern('test')
+				name: 'test',
+				files: this.#pattern
 			});
 		} else if (group === 'vdiff') {
 			config.reporters ??= [ defaultReporter() ];
@@ -175,7 +175,7 @@ export class WTRConfig {
 
 		if (watch || manual) {
 			config.plugins ??= [];
-			const currentPattern = files || config.groups.find(g => g.name === group)?.files || config.files;
+			const currentPattern = files || config.groups.find(g => g.name === group)?.files;
 
 			config.plugins.push(headedMode({
 				pattern: currentPattern,
