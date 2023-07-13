@@ -138,6 +138,10 @@ export class WTRConfig {
 	} = {}) {
 		const { files, filter, golden, grep, group, manual, watch } = this.#cliArgs;
 
+		if (!['test', 'vdiff', ...passthroughConfig.groups.map(g => g.name)].includes(group)) {
+			return {}; // allow wtr to error
+		}
+
 		delete passthroughConfig.browsers;
 
 		if (typeof pattern !== 'function') throw new TypeError('pattern must be a function');
