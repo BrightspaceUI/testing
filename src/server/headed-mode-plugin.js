@@ -11,7 +11,7 @@ export function headedMode({ open, watch, pattern }) {
 		async transform(context) {
 			if ((watch || open) && files.includes(context.path.slice(1))) {
 				await delay(0);
-				return `import '@brightspace-ui/testing/pause.js';\ndebugger;\n${context.body}`;
+				return `debugger;\nimport '@brightspace-ui/testing/pause.js';\n${context.body}`;
 			}
 		}
 	};

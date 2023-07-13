@@ -3,11 +3,11 @@ window.d2lTestPause = new Promise(r => window.d2lTestStart = r);
 const controls = `
 	<div style="padding: 1rem; background: #ddd; border-bottom: 1px solid #888; color: #222">
 		<div id="start">
-			<button id="start-button" style="margin-end: 1rem;">Start</button>
+			<button id="start-button" style="margin-inline-end: 1rem;">Start</button>
 			<span>.${window.__WTR_CONFIG__.testFile.split('?')[0]}</span>
 		</div>
 		<div id="run" hidden>
-			<button id="run-button" style="margin-end: 1rem;">Run</button>
+			<button id="run-button" style="margin-inline-end: 1rem;">Run</button>
 			<span id="test-name"></span>
 		</div>
 	</div>
