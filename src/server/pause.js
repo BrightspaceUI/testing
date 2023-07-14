@@ -10,10 +10,10 @@ const controls = `
 		#d2l-test-controls #start,
 		#d2l-test-controls #run {
 			display: flex;
-			gap: 1em;
-			font-size: 18px;
+			gap: .65em;
+			font-size: 20px;
 			font-family: 'Lato', sans-serif;
-			padding: 1em;
+			padding: .85em;
 			background: #fff;
 			color: #222;
 			flex-wrap: wrap;
@@ -22,7 +22,7 @@ const controls = `
 		}
 
 		#d2l-test-controls #start {
-			font-size: 24px;
+			font-size: 22px;
 			height: 600px;
 			flex-direction: column;
 			justify-content: center;
@@ -31,6 +31,7 @@ const controls = `
 		}
 
 		#d2l-test-controls #test-name {
+			font-size: .9em;
 			flex: 1;
 		}
 
@@ -41,11 +42,11 @@ const controls = `
 			border-radius: .3em;
 			border-style: none;
 			font-weight: 700;
-			font-size: .9em;
+			font-size: .7em;
 			margin: 0;
 			min-height: calc(2em + 2px);
 			outline: none;
-			padding: .55em 1.5em;
+			padding: calc(.55em * 1.43) calc(1.5em * 1.43);
 			text-align: center;
 			line-height: 1em;
 			cursor: pointer;
@@ -67,7 +68,8 @@ const controls = `
 			background-color: #e3e9f1;
 		}
 
-		#d2l-test-controls button:focus {
+		#d2l-test-controls button:focus,
+		#d2l-test-controls button:hover		{
 			background-color: #cdd5dc;
 		}
 
@@ -75,7 +77,8 @@ const controls = `
 			box-shadow: 0 0 0 2px #fff, 0 0 0 4px #006fbf;
 		}
 
-		#d2l-test-controls button.primary:focus {
+		#d2l-test-controls button.primary:focus,
+		#d2l-test-controls button.primary:hover {
 			background-color: #004489;
 		}
 
@@ -86,8 +89,8 @@ const controls = `
 	<div id="d2l-test-controls">
 		<div id="start">
 			<span>.${window.__WTR_CONFIG__.testFile.split('?')[0]}</span>
-			<button id="start-button" class="primary">Start</button>
-			<button id="skip-all-button" class="subtle" style="font-size: 0.75em;">Skip</button>
+			<button id="start-button" class="primary" style="margin-top: .65em;">Start</button>
+			<button id="skip-all-button" class="subtle">Skip</button>
 		</div>
 		<div id="run" hidden>
 			<button id="run-button" class="primary">Run</button>
@@ -116,7 +119,7 @@ runBtn.addEventListener('click', run);
 
 const testName = document.querySelector('#test-name');
 
-let currentTest, focusEl;
+let currentTest, focusEl = runBtn;
 beforeEach(async function() { // eslint-disable-line no-undef
 	const fixture = new Promise(r => test.update = r);
 	currentTest = this.currentTest; // eslint-disable-line no-invalid-this
