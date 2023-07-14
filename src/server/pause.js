@@ -99,8 +99,8 @@ const controls = `
 		</div>
 		<div id="run" hidden>
 			<button id="run-button" class="primary">Run</button>
-			<button id="skip-button">Skip</button>
 			<span id="test-name"></span>
+			<button id="skip-button" class="subtle">Skip</button>
 			<button id="run-all-button">Run All</button>
 		</div>
 	</div>
