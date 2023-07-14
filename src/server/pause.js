@@ -100,8 +100,10 @@ const controls = `
 
 document.body.insertAdjacentHTML('beforeBegin', controls);
 
-document.querySelector('#skip-button').addEventListener('click', skip);
 document.querySelector('#skip-all-button').addEventListener('click', skipAll);
+
+const skipBtn = document.querySelector('#skip-button');
+skipBtn.addEventListener('click', skip);
 
 const startBtn = document.querySelector('#start-button');
 startBtn.addEventListener('click', start);
@@ -114,7 +116,7 @@ runBtn.addEventListener('click', run);
 
 const testName = document.querySelector('#test-name');
 
-let currentTest;
+let currentTest, focusEl;
 beforeEach(async function() { // eslint-disable-line no-undef
 	const fixture = new Promise(r => test.update = r);
 	currentTest = this.currentTest; // eslint-disable-line no-invalid-this
@@ -124,7 +126,7 @@ beforeEach(async function() { // eslint-disable-line no-undef
 		testName.innerText = currentTest.fullTitle();
 		if (test.pause) {
 			runBtn.disabled = false;
-			runBtn.focus();
+			focusEl.focus();
 		}
 	});
 });
@@ -136,6 +138,7 @@ function start() {
 }
 
 function run() {
+	focusEl = runBtn;
 	runBtn.disabled = true;
 	test.run();
 }
@@ -148,6 +151,7 @@ function runAll() {
 
 function skip() {
 	run();
+	focusEl = skipBtn;
 	try {
 		currentTest.skip();
 	} catch (e) { null; }
