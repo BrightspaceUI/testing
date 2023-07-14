@@ -3,11 +3,12 @@ test.pause = new Promise(r => test.start = r);
 
 const controls = `
 	<style>
-		[hidden] {
+		#d2l-test-controls [hidden] {
 			display: none !important;
 		}
 
-		#start, #run {
+		#d2l-test-controls #start,
+		#d2l-test-controls #run {
 			display: flex;
 			gap: 1em;
 			font-size: 18px;
@@ -15,13 +16,12 @@ const controls = `
 			padding: 1em;
 			background: #fff;
 			color: #222;
-			margin: calc(-30px + -8px) calc(-30px + -8px) calc(30px + 8px);
 			flex-wrap: wrap;
 			align-items: center;
 			box-shadow: 0 0 5px rgba(0,0,0,.5);
 		}
 
-		#start {
+		#d2l-test-controls #start {
 			font-size: 24px;
 			height: 600px;
 			flex-direction: column;
@@ -30,11 +30,11 @@ const controls = `
 			box-shadow: none;
 		}
 
-		#test-name {
+		#d2l-test-controls #test-name {
 			flex: 1;
 		}
 
-		button {
+		#d2l-test-controls button {
 			font-family: 'Lato', sans-serif;
 			background-color: #e3e9f1;
 			color: #202122;
@@ -48,26 +48,38 @@ const controls = `
 			padding: .55em 1.5em;
 			text-align: center;
 			line-height: 1em;
+			cursor: pointer;
 		}
 
-		button.primary {
+		#d2l-test-controls button.primary {
 			color: #fff;
 			background-color: #006fbf;
 		}
 
-		button:focus {
+		#d2l-test-controls button.subtle {
+			color: #006fbf;
+			background-color: transparent;
+		}
+
+		#d2l-test-controls button.subtle:focus,
+		#d2l-test-controls button.subtle:hover {
+			color: #004489;
+			background-color: #e3e9f1;
+		}
+
+		#d2l-test-controls button:focus {
 			background-color: #cdd5dc;
 		}
 
-		button:focus-visible {
+		#d2l-test-controls button:focus-visible {
 			box-shadow: 0 0 0 2px #fff, 0 0 0 4px #006fbf;
 		}
 
-		button.primary:focus {
+		#d2l-test-controls button.primary:focus {
 			background-color: #004489;
 		}
 
-		button[disabled] {
+		#d2l-test-controls button[disabled] {
 			opacity: 0.5;
 		}
 	</style>
@@ -75,16 +87,21 @@ const controls = `
 		<div id="start">
 			<span>.${window.__WTR_CONFIG__.testFile.split('?')[0]}</span>
 			<button id="start-button" class="primary">Start</button>
+			<button id="skip-all-button" class="subtle" style="font-size: 0.75em;">Skip</button>
 		</div>
 		<div id="run" hidden>
 			<button id="run-button" class="primary">Run</button>
+			<button id="skip-button">Skip</button>
 			<span id="test-name"></span>
 			<button id="run-all-button">Run All</button>
 		</div>
 	</div>
 `;
 
-document.body.insertAdjacentHTML('afterBegin', controls);
+document.body.insertAdjacentHTML('beforeBegin', controls);
+
+document.querySelector('#skip-button').addEventListener('click', skip);
+document.querySelector('#skip-all-button').addEventListener('click', skipAll);
 
 const startBtn = document.querySelector('#start-button');
 startBtn.addEventListener('click', start);
@@ -97,9 +114,11 @@ runBtn.addEventListener('click', run);
 
 const testName = document.querySelector('#test-name');
 
+let currentTest;
 beforeEach(async function() { // eslint-disable-line no-undef
 	const fixture = new Promise(r => test.update = r);
-	const currentTest = this.currentTest; // eslint-disable-line no-invalid-this
+	currentTest = this.currentTest; // eslint-disable-line no-invalid-this
+	if (test.skipAll) this.test.parent.ctx.skip(); // eslint-disable-line no-invalid-this
 	setTimeout(async() => {
 		await fixture;
 		testName.innerText = currentTest.fullTitle();
@@ -125,6 +144,18 @@ function runAll() {
 	runAllBtn.disabled = true;
 	test.pause = null;
 	run();
+}
+
+function skip() {
+	run();
+	try {
+		currentTest.skip();
+	} catch (e) { null; }
+}
+
+function skipAll() {
+	test.skipAll = true;
+	test.start();
 }
 
 await test.pause;
