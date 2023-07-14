@@ -52,10 +52,17 @@ export async function fixture(element, opts = {}) {
 	const elem = await wcFixture(element);
 	await waitForElem(elem, opts.awaitLoadingComplete);
 
-	await window.d2lTestPause;
-	if (window.d2lTestPause) {
-		window.d2lTestPause = new Promise(r => window.d2lTestRun = r);
-	}
-
+	await pause();
 	return elem;
+}
+
+async function pause() {
+	const test = window.d2lTest || {};
+
+	test.update?.();
+
+	if (test.pause) {
+		await test.pause;
+		if (test.pause) test.pause = new Promise(r => test.run = r);
+	}
 }
