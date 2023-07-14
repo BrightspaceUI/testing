@@ -7,6 +7,10 @@ const controls = `
 			display: none !important;
 		}
 
+		[dir="rtl"] #d2l-test-controls #run {
+			flex-direction: row-reverse;
+		}
+
 		#d2l-test-controls #start,
 		#d2l-test-controls #run {
 			display: flex;
@@ -33,6 +37,7 @@ const controls = `
 		#d2l-test-controls #test-name {
 			font-size: .9em;
 			flex: 1;
+			text-align: left;
 		}
 
 		#d2l-test-controls button {
