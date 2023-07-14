@@ -1,16 +1,20 @@
+import { dirname, join } from 'node:path';
 import { globSync } from 'glob';
 
-export function headedMode({ manual, watch, pattern }) {
+export function headedMode({ open, watch, pattern }) {
 
 	const files = globSync(pattern, { ignore: 'node_modules/**', posix: true });
+
+	const delay = ms => ms && new Promise(r => setTimeout(r, ms));
 
 	return {
 		name: 'brightspace-headed-mode',
 		async transform(context) {
-			if ((watch || manual) && files.includes(context.path.slice(1))) {
-				// allow time to open devtools in firefox and webkit
-				watch && await new Promise(r => setTimeout(r, 2000));
-				return `debugger;\n${context.body}`;
+
+			if ((watch || open) && files.includes(context.path.slice(1))) {
+				await delay(0);
+				const pausePath = join(dirname(import.meta.url), 'pause.js').replace('file:', '');
+				return `debugger;\nimport '${pausePath}'\n${context.body}`;
 			}
 		}
 	};
