@@ -30,6 +30,7 @@ export async function focusElem(elem) {
 
 export async function hoverAt(x, y) {
 	await sendMouse({ type: 'move', position: [x, y] });
+	if (window.d2lTest) window.d2lTest.hovering = true;
 }
 
 export async function hoverElem(elem) {

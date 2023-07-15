@@ -3,6 +3,37 @@ test.pause = new Promise(r => test.start = r);
 
 const controls = `
 	<style>
+
+		.screenshot ::-webkit-scrollbar {
+			display: none;
+		}
+
+		.screenshot body {
+			margin: 8px;
+		}
+
+		.screenshot #d2l-test-controls {
+			box-shadow: none;
+			display: none;
+		}
+
+		#d2l-test-controls {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			box-shadow: 0 0 5px rgba(0,0,0,.5);
+			font-size: 20px;
+			font-family: 'Lato', sans-serif;
+			padding: .85em;
+			background: #fff;
+			color: #222;
+		}
+
+		body {
+			margin-top: 70px;
+		}
+
 		#d2l-test-controls [hidden] {
 			display: none !important;
 		}
@@ -15,14 +46,8 @@ const controls = `
 		#d2l-test-controls #run {
 			display: flex;
 			gap: .65em;
-			font-size: 20px;
-			font-family: 'Lato', sans-serif;
-			padding: .85em;
-			background: #fff;
-			color: #222;
 			flex-wrap: wrap;
 			align-items: center;
-			box-shadow: 0 0 5px rgba(0,0,0,.5);
 		}
 
 		#d2l-test-controls #start {
@@ -38,6 +63,9 @@ const controls = `
 			font-size: .9em;
 			flex: 1;
 			text-align: left;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 
 		#d2l-test-controls button {
@@ -106,7 +134,7 @@ const controls = `
 	</div>
 `;
 
-document.body.insertAdjacentHTML('beforeBegin', controls);
+document.body.insertAdjacentHTML('afterBegin', controls);
 
 document.querySelector('#skip-all-button').addEventListener('click', skipAll);
 
@@ -126,6 +154,7 @@ const testName = document.querySelector('#test-name');
 
 let currentTest, focusEl = runBtn;
 beforeEach(async function() { // eslint-disable-line no-undef
+	test.hovering = false;
 	const fixture = new Promise(r => test.update = r);
 	currentTest = this.currentTest; // eslint-disable-line no-invalid-this
 	if (test.skipAll) this.test.parent.ctx.skip(); // eslint-disable-line no-invalid-this
