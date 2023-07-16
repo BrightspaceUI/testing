@@ -1,4 +1,7 @@
-const test = window.d2lTest = {};
+import * as commands from '../browser/commands.js';
+
+const test = window.d2lTest = { commands };
+
 test.pause = new Promise(r => test.start = r);
 
 const controls = `
