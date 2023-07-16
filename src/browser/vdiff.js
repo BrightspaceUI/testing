@@ -16,8 +16,16 @@ mocha.setup({ // eslint-disable-line no-undef
 
 async function ScreenshotAndCompare(opts) {
 
+	await document.fonts.ready; // firefox fonts
+
+	if (opts?.wait) {
+		await nextFrame();
+		await this.elem.updateComplete;
+	}
+
 	if (window.d2lTest) {
 		inlineStyles(this.elem);
+		document.documentElement.classList.add('screenshot');
 	}
 
 	const name = this.test.fullTitle();
@@ -43,7 +51,7 @@ function inlineStyles(elem) {
 	// breaks the hover state. So, copy currently styles inline before screenshot
 	if (window.d2lTest.hovering && window.chrome) {
 		count += 1;
-		document.documentElement.classList.add('screenshot');
+
 		elem.classList.add(`__d2lTestHovering-${count}`);
 
 		[...elem.children, ...elem.shadowRoot?.children ?? []].forEach(child =>	inlineStyles(child));

@@ -4,6 +4,9 @@ test.pause = new Promise(r => test.start = r);
 const controls = `
 	<style>
 
+		html.screenshot * {
+			scrollbar-width: none;
+		}
 		.screenshot ::-webkit-scrollbar {
 			display: none;
 		}
