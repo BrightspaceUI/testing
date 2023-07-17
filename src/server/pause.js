@@ -72,11 +72,16 @@ const controls = `
 			overflow: hidden;
 		}
 
+		#d2l-test-controls #test-name .title-sep {
+			-webkit-user-select: none;
+			user-select: none;
+		}
+
 		#d2l-test-controls #root-name {
 			font-size: .7em;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			color: #999;
+			color: #888;
 			line-height: 1;
 		}
 
@@ -158,6 +163,7 @@ const controls = `
 		}
 
 		#d2l-test-controls #retry-button::after {
+			-webkit-user-select: none;
 			user-select: none;
 			content: '↺';
 			font-family: system-ui;
@@ -241,7 +247,7 @@ beforeEach(async function() {
 		await fixture;
 
 		const titlePath = currentTest.titlePath();
-		testName.innerHTML = testName.title = titlePath.slice(1).join('<span style="user-select: none;"> ></span> ');
+		testName.innerHTML = testName.title = titlePath.slice(1).join('<span class="title-sep"> ></span> ');
 		rootName.innerText = titlePath[0];
 
 		if (test.pause) {
@@ -286,6 +292,7 @@ function skipAll() {
 
 let retryTimeout;
 function showRetry() {
+	if ('retries' in window.__WTR_CONFIG__.testFrameworkConfig) return retryResponded();
 
 	document.querySelector('#retry-cell').insertAdjacentElement('afterBegin', retryBtn);
 	retryBtn.focus();

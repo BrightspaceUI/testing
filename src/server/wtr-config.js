@@ -115,6 +115,7 @@ export class WTRConfig {
 	#getMochaConfig(timeoutConfig) {
 		const {
 			timeout = timeoutConfig,
+			retries,
 			grep,
 			watch,
 			open
@@ -125,6 +126,7 @@ export class WTRConfig {
 		const config = {};
 
 		if (timeout) config.timeout = String(timeout);
+		if (retries > -1) config.retries = Number(retries);
 		if (watch || open) config.timeout = '0';
 		if (grep) config.grep = grep;
 

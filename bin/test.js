@@ -15,7 +15,7 @@ const optionDefinitions = [
 		type: String,
 		multiple: true,
 		description: 'Test files to run. Path or glob.\n[Default: ./test/**/*.<group>.js]',
-		order: 8
+		order: 9
 	},
 	{
 		name: 'open',
@@ -39,7 +39,7 @@ const optionDefinitions = [
 		name: 'watch',
 		type: Boolean,
 		description: 'Reload tests on file changes. Allows debugging in all browsers.',
-		order: 9
+		order: 10
 	},
 
 	// d2l-test options
@@ -54,7 +54,7 @@ const optionDefinitions = [
 		alias: 'c',
 		type: String,
 		description: 'Location to read config file from\n[Default: ./d2l-test.config.js]',
-		order: 9
+		order: 11
 	},
 	{
 		name: 'filter',
@@ -74,7 +74,7 @@ const optionDefinitions = [
 		name: 'golden',
 		type: Boolean,
 		description: 'Generate new golden screenshots',
-		order: 10
+		order: 12
 	},
 	{
 		name: 'grep',
@@ -87,7 +87,13 @@ const optionDefinitions = [
 		name: 'help',
 		type: Boolean,
 		description: 'Print usage information and exit',
-		order: 12
+		order: 13
+	},
+	{
+		name: 'retries',
+		type: Number,
+		description: 'Number of times to retry failed tests\n[Default: 0]',
+		order: 8
 	},
 	{
 		name: 'safari',
