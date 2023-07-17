@@ -5,14 +5,13 @@ let test, soonPromise;
 
 /* eslint-disable no-undef, no-invalid-this */
 chai.Assertion.addMethod('golden', async function(...args) {
-	await soonPromise?.catch(err => {
-		expect.fail(err);
-	});
+	await soonPromise?.catch(err => expect.fail(err));
 	return ScreenshotAndCompare.call({ test, elem: this._obj }, ...args);
 });
 
 chai.Assertion.addChainableMethod('soon',
 	() => { throw new TypeError('"soon" is not a function'); },
+
 	async function() {
 		let resolve, reject;
 		soonPromise = new Promise((res, rej) => {
@@ -72,10 +71,9 @@ async function ScreenshotAndCompare(opts) {
 
 const disallowedProps = ['width', 'inline-size'];
 let count = 0;
-
 function inlineStyles(elem) {
 	// headed chrome takes screenshots by first moving the element, which
-	// breaks the hover state. So, copy currently styles inline before screenshot
+	// breaks the hover state. So, copy current styles inline before screenshot
 	if (window.d2lTest.hovering && window.chrome) {
 		count += 1;
 
@@ -94,12 +92,13 @@ function inlineStyles(elem) {
 			const computedStyle = getComputedStyle(elem, `::${pseudoEl}`);
 			if (computedStyle.content !== 'none') {
 				const sheet = new CSSStyleSheet();
-				[...computedStyle].forEach(prop => {
-					if (!disallowedProps.includes(prop)) {
-						const value = computedStyle.getPropertyValue(prop);
-						sheet.insertRule(`.__d2lTestHovering-${count}::${pseudoEl} { ${prop}: ${value} !important; }`);
-					}
-				});
+
+				const props = [...computedStyle].map(prop => {
+					const value = computedStyle.getPropertyValue(prop);
+					return disallowedProps.includes(prop) ? '' : `${prop}: ${value} !important;`;
+				}).join('');
+
+				sheet.insertRule(`.__d2lTestHovering-${count}::${pseudoEl} {${props}}`);
 				elem.getRootNode().adoptedStyleSheets.push(sheet);
 			}
 		});

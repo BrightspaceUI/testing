@@ -220,8 +220,11 @@ retryBtn.remove();
 /* eslint-disable no-undef, no-invalid-this */
 let currentTest, result, retryResponded, focusEl = runBtn;
 beforeEach(async function() {
+
 	test.hovering = false;
+
 	const fixture = new Promise(r => test.update = r);
+
 	result = new Promise((pass, fail) => {
 		test.pass = pass;
 		test.fail = () => {
@@ -229,13 +232,18 @@ beforeEach(async function() {
 			fail();
 		};
 	});
+
 	currentTest = this.currentTest;
+
 	if (test.skipAll) this.test.parent.ctx.skip();
+
 	setTimeout(async() => {
 		await fixture;
+
 		const titlePath = currentTest.titlePath();
 		testName.innerText = testName.title = titlePath.slice(1).join(' > ');
 		rootName.innerText = titlePath[0];
+
 		if (test.pause) {
 			runBtn.disabled = false;
 			focusEl.focus();
@@ -278,8 +286,10 @@ function skipAll() {
 
 let retryTimeout;
 function showRetry() {
+
 	document.querySelector('#retry-cell').insertAdjacentElement('afterBegin', retryBtn);
 	retryBtn.focus();
+
 	retryTimeout = setTimeout(() => {
 		retryResponded();
 		retryBtn.remove();
@@ -288,6 +298,7 @@ function showRetry() {
 
 function retry() {
 	clearTimeout(retryTimeout);
+
 	retryBtn.remove();
 	currentTest._retries = Math.max(1, currentTest._retries + 1);
 	retryResponded();
