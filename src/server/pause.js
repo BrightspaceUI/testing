@@ -241,7 +241,7 @@ beforeEach(async function() {
 		await fixture;
 
 		const titlePath = currentTest.titlePath();
-		testName.innerText = testName.title = titlePath.slice(1).join(' > ');
+		testName.innerHTML = testName.title = titlePath.slice(1).join('<span style="user-select: none;"> ></span> ');
 		rootName.innerText = titlePath[0];
 
 		if (test.pause) {
