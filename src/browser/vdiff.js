@@ -72,35 +72,35 @@ async function ScreenshotAndCompare(opts) {
 const disallowedProps = ['width', 'inline-size'];
 let count = 0;
 function inlineStyles(elem) {
-	// headed chrome takes screenshots by first moving the element, which
-	// breaks the hover state. So, copy current styles inline before screenshot
-	if (window.d2lTest.hovering && window.chrome) {
-		count += 1;
+	// headed chrome takes screenshots by first moving and locking down the element,
+	// which breaks the hover state. So, copy current styles inline before screenshot
+	if (!window.d2lTest.hovering || !window.chrome) return;
 
-		elem.classList.add(`__d2lTestHovering-${count}`);
+	count += 1;
 
-		[...elem.children, ...elem.shadowRoot?.children ?? []].forEach(child =>	inlineStyles(child));
+	elem.classList.add(`__d2lTestHovering-${count}`);
 
-		const computedStyle = getComputedStyle(elem);
-		[...computedStyle].forEach(prop => {
-			if (!disallowedProps.includes(prop)) {
-				elem.style[prop] = computedStyle.getPropertyValue(prop);
-			}
-		});
+	[...elem.children, ...elem.shadowRoot?.children ?? []].forEach(child =>	inlineStyles(child));
 
-		['before', 'after'].forEach(pseudoEl => {
-			const computedStyle = getComputedStyle(elem, `::${pseudoEl}`);
-			if (computedStyle.content !== 'none') {
-				const sheet = new CSSStyleSheet();
+	const computedStyle = getComputedStyle(elem);
+	[...computedStyle].forEach(prop => {
+		if (!disallowedProps.includes(prop)) {
+			elem.style[prop] = computedStyle.getPropertyValue(prop);
+		}
+	});
 
-				const props = [...computedStyle].map(prop => {
-					const value = computedStyle.getPropertyValue(prop);
-					return disallowedProps.includes(prop) ? '' : `${prop}: ${value} !important;`;
-				}).join('');
+	['before', 'after'].forEach(pseudoEl => {
+		const computedStyle = getComputedStyle(elem, `::${pseudoEl}`);
+		if (computedStyle.content !== 'none') {
+			const sheet = new CSSStyleSheet();
 
-				sheet.insertRule(`.__d2lTestHovering-${count}::${pseudoEl} {${props}}`);
-				elem.getRootNode().adoptedStyleSheets.push(sheet);
-			}
-		});
-	}
+			const props = [...computedStyle].map(prop => {
+				const value = computedStyle.getPropertyValue(prop);
+				return disallowedProps.includes(prop) ? '' : `${prop}: ${value} !important;`;
+			}).join('');
+
+			sheet.insertRule(`.__d2lTestHovering-${count}::${pseudoEl} {${props}}`);
+			elem.getRootNode().adoptedStyleSheets.push(sheet);
+		}
+	});
 }
