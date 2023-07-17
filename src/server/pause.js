@@ -52,7 +52,6 @@ const controls = `
 		#d2l-test-controls #run {
 			display: flex;
 			gap: .65em;
-			flex-wrap: wrap;
 			align-items: center;
 		}
 
@@ -65,11 +64,24 @@ const controls = `
 			box-shadow: none;
 		}
 
-		#d2l-test-controls #test-name {
-			font-size: .9em;
+		#d2l-test-controls #title {
 			flex: 1;
 			text-align: left;
 			white-space: nowrap;
+			margin: 0 0.5em;
+			overflow: hidden;
+		}
+
+		#d2l-test-controls #root-name {
+			font-size: .7em;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			color: #999;
+			line-height: 1;
+		}
+
+		#d2l-test-controls #test-name {
+			font-size: .9em;
 			overflow: hidden;
 			text-overflow: ellipsis;
 		}
@@ -165,7 +177,10 @@ const controls = `
 		</div>
 		<div id="run" hidden>
 			<button id="run-button" class="primary">Run</button>
-			<span id="test-name"></span>
+			<div id="title">
+				<div id="root-name"></div>
+				<div id="test-name"></div>
+			</div>
 			<div id="retry-cell">
 				<button id="retry-button" class="icon" title="Retry">
 					<svg aria-hidden="true" viewBox="0 0 100 100" height="100" width="100">
@@ -196,6 +211,7 @@ const runBtn = document.querySelector('#run-button');
 runBtn.addEventListener('click', run);
 
 const testName = document.querySelector('#test-name');
+const rootName = document.querySelector('#root-name');
 
 const retryBtn = document.querySelector('#retry-button');
 retryBtn.addEventListener('click', retry);
@@ -217,7 +233,9 @@ beforeEach(async function() {
 	if (test.skipAll) this.test.parent.ctx.skip();
 	setTimeout(async() => {
 		await fixture;
-		testName.innerText = currentTest.fullTitle();
+		const titlePath = currentTest.titlePath();
+		testName.innerText = testName.title = titlePath.slice(1).join(' > ');
+		rootName.innerText = titlePath[0];
 		if (test.pause) {
 			runBtn.disabled = false;
 			focusEl.focus();
