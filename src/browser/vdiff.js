@@ -12,28 +12,6 @@ chai.Assertion.addMethod('golden', async function(...args) {
 	return ScreenshotAndCompare.call({ test, elem: this._obj }, ...args);
 });
 
-chai.Assertion.addChainableMethod('soon',
-	() => { throw new TypeError('"soon" is not a function'); },
-
-	async function() {
-		let resolve, reject;
-		soonPromise = new Promise((res, rej) => {
-			resolve = res;
-			reject = rej;
-		});
-
-		try {
-			expect(this._obj).to.be.instanceof(HTMLElement);
-		} catch (e) {
-			reject(e.message);
-		}
-
-		await nextFrame();
-		await this._obj.updateComplete;
-		resolve();
-	}
-);
-
 mocha.setup({
 	rootHooks: {
 		beforeEach() {
