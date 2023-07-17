@@ -1,6 +1,9 @@
 import { chai, expect, nextFrame } from '@open-wc/testing';
 import { executeServerCommand } from '@web/test-runner-commands';
 
+// start loading fonts early
+[...document.fonts].map(font => font.load());
+
 let test, soonPromise;
 
 /* eslint-disable no-undef, no-invalid-this */
@@ -41,8 +44,6 @@ mocha.setup({
 /* eslint-enable */
 
 async function ScreenshotAndCompare(opts) {
-	await document.fonts.ready; // firefox fonts
-
 	if (window.d2lTest) {
 		inlineStyles(this.elem);
 		document.documentElement.classList.add('screenshot');
