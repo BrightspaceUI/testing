@@ -16,17 +16,11 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15",
     "@web/dev-server": "^0.2",
-    "@web/rollup-plugin-html": "^2",
     "chai": "^4",
-    "deepmerge": "^4",
     "eslint": "^8",
     "eslint-config-brightspace": "^0.23",
-    "lit": "^2",
     "mocha": "^10",
-    "page": "^1",
-    "rollup": "^3",
     "sinon": "^15"
   },
   "exports": {
@@ -40,13 +34,18 @@
     "access": "public"
   },
   "dependencies": {
+    "@rollup/plugin-node-resolve": "^15",
     "@open-wc/testing": "^3",
+    "@web/rollup-plugin-html": "^2",
     "@web/test-runner": "^0.16",
     "@web/test-runner-commands": "^0.7",
     "@web/test-runner-playwright": "^0.10",
     "command-line-args": "^5",
     "glob": "^10",
+    "lit": "^2",
+    "page": "^1",
     "pixelmatch": "^5",
-    "pngjs": "^7"
+    "pngjs": "^7",
+    "rollup": "^3"
   }
 }

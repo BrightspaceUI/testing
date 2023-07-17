@@ -1,7 +1,6 @@
 import { access, constants, mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { env } from 'node:process';
-import merge from 'deepmerge';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
@@ -123,7 +122,14 @@ function getTestInfoKey(session, fullTitle) {
 function setTestInfo(session, fullTitle, testInfo) {
 	const key = getTestInfoKey(session, fullTitle);
 	if (testInfoMap.has(key)) {
-		testInfo = merge(testInfoMap.get(key), testInfo);
+		const info = testInfoMap.get(key);
+		if (info.golden || testInfo.golden) {
+			testInfo.golden = { ...info.golden, ...testInfo.golden };
+		}
+		if (info.new || testInfo.new) {
+			testInfo.new = { ...info.new, ...testInfo.new };
+		}
+		testInfo.diff = testInfo.diff || info.diff;
 	}
 	testInfoMap.set(key, testInfo);
 }
