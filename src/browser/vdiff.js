@@ -3,11 +3,12 @@ import { executeServerCommand } from '@web/test-runner-commands';
 
 let test, soonPromise;
 
+/* eslint-disable no-undef, no-invalid-this */
 chai.Assertion.addMethod('golden', async function(...args) {
 	await soonPromise?.catch(err => {
 		expect.fail(err);
 	});
-	return ScreenshotAndCompare.call({ test, elem: this._obj }, ...args); // eslint-disable-line no-invalid-this
+	return ScreenshotAndCompare.call({ test, elem: this._obj }, ...args);
 });
 
 chai.Assertion.addChainableMethod('soon',
@@ -20,24 +21,25 @@ chai.Assertion.addChainableMethod('soon',
 		});
 
 		try {
-			expect(this._obj).to.be.instanceof(HTMLElement); // eslint-disable-line no-invalid-this
+			expect(this._obj).to.be.instanceof(HTMLElement);
 		} catch (e) {
 			reject(e.message);
 		}
 
 		await nextFrame();
-		await this._obj.updateComplete; // eslint-disable-line no-invalid-this
+		await this._obj.updateComplete;
 		resolve();
 	}
 );
 
-mocha.setup({ // eslint-disable-line no-undef
+mocha.setup({
 	rootHooks: {
 		beforeEach() {
 			test = this.currentTest;
 		}
 	}
 });
+/* eslint-enable */
 
 async function ScreenshotAndCompare(opts) {
 	await document.fonts.ready; // firefox fonts

@@ -201,8 +201,9 @@ const retryBtn = document.querySelector('#retry-button');
 retryBtn.addEventListener('click', retry);
 retryBtn.remove();
 
+/* eslint-disable no-undef, no-invalid-this */
 let currentTest, result, retryResponded, focusEl = runBtn;
-beforeEach(async function() { // eslint-disable-line no-undef
+beforeEach(async function() {
 	test.hovering = false;
 	const fixture = new Promise(r => test.update = r);
 	result = new Promise((pass, fail) => {
@@ -212,8 +213,8 @@ beforeEach(async function() { // eslint-disable-line no-undef
 			fail();
 		};
 	});
-	currentTest = this.currentTest; // eslint-disable-line no-invalid-this
-	if (test.skipAll) this.test.parent.ctx.skip(); // eslint-disable-line no-invalid-this
+	currentTest = this.currentTest;
+	if (test.skipAll) this.test.parent.ctx.skip();
 	setTimeout(async() => {
 		await fixture;
 		testName.innerText = currentTest.fullTitle();
@@ -224,6 +225,7 @@ beforeEach(async function() { // eslint-disable-line no-undef
 		}
 	});
 });
+/* eslint-enable */
 
 function start() {
 	document.querySelector('#start').hidden = true;
