@@ -1,11 +1,36 @@
-import { chai, expect } from '@open-wc/testing';
+import { chai, expect, nextFrame } from '@open-wc/testing';
 import { executeServerCommand } from '@web/test-runner-commands';
 
-let test;
+let test, soonPromise;
 
-chai.Assertion.addMethod('golden', function(...args) {
+chai.Assertion.addMethod('golden', async function(...args) {
+	await soonPromise?.catch(err => {
+		expect.fail(err);
+	});
 	return ScreenshotAndCompare.call({ test, elem: this._obj }, ...args); // eslint-disable-line no-invalid-this
 });
+
+chai.Assertion.addChainableMethod('soon',
+	() => { throw new TypeError('"soon" is not a function'); },
+	async function() {
+		let resolve, reject;
+		soonPromise = new Promise((res, rej) => {
+			resolve = res;
+			reject = rej;
+		});
+
+		try {
+			expect(this._obj).to.be.instanceof(HTMLElement); // eslint-disable-line no-invalid-this
+		} catch (e) {
+			reject(e.message);
+		}
+
+		await nextFrame();
+		await this._obj.updateComplete; // eslint-disable-line no-invalid-this
+		resolve();
+	}
+);
+
 mocha.setup({ // eslint-disable-line no-undef
 	rootHooks: {
 		beforeEach() {
@@ -15,13 +40,7 @@ mocha.setup({ // eslint-disable-line no-undef
 });
 
 async function ScreenshotAndCompare(opts) {
-
 	await document.fonts.ready; // firefox fonts
-
-	if (opts?.wait) {
-		await nextFrame();
-		await this.elem.updateComplete;
-	}
 
 	if (window.d2lTest) {
 		inlineStyles(this.elem);
