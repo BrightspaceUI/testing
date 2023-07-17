@@ -58,8 +58,14 @@ async function ScreenshotAndCompare(opts) {
 	if (window.d2lTest) document.documentElement.classList.remove('screenshot');
 
 	if (!result.pass) {
+		if (window.d2lTest?.pause) {
+			window.d2lTest.fail();
+			await window.d2lTest.retryResponse;
+		}
 		expect.fail(result.message);
 	}
+
+	window.d2lTest?.pass();
 }
 
 const disallowedProps = ['width', 'inline-size'];

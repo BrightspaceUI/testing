@@ -121,6 +121,38 @@ const controls = `
 			background-color: #004489;
 		}
 
+		#d2l-test-controls button.icon {
+			border-radius: 50%;
+			padding: 0;
+			width: calc(2em + 2px);
+			position: relative;
+		}
+
+		#d2l-test-controls #retry-button svg {
+			transform: rotate(-90deg);
+			stroke-dasharray: 251; /* (2PI * 40px) */
+			stroke-dashoffset: 0;
+			animation: offsettozero 4s linear forwards;
+			height: 2.5em;
+			width: 2.5em;
+			position: absolute;
+			inset: -0.2em;
+		}
+
+		@keyframes offsettozero {
+			to {
+				stroke-dashoffset: 251;
+			}
+		}
+
+		#d2l-test-controls #retry-button::after {
+			user-select: none;
+			content: '↺';
+			font-family: system-ui;
+			font-weight: bold;
+			font-size: 1.3em;
+		}
+
 		#d2l-test-controls button[disabled] {
 			opacity: 0.5;
 		}
@@ -134,6 +166,13 @@ const controls = `
 		<div id="run" hidden>
 			<button id="run-button" class="primary">Run</button>
 			<span id="test-name"></span>
+			<div id="retry-cell">
+				<button id="retry-button" class="icon" title="Retry">
+					<svg aria-hidden="true" viewBox="0 0 100 100" height="100" width="100">
+						<circle cx="50" cy="50" r="40" stroke="#006fbf" stroke-width="10" fill="none" />
+					</svg>
+				</button>
+			</div>
 			<button id="skip-button" class="subtle">Skip</button>
 			<button id="run-all-button">Run All</button>
 		</div>
@@ -158,10 +197,21 @@ runBtn.addEventListener('click', run);
 
 const testName = document.querySelector('#test-name');
 
-let currentTest, focusEl = runBtn;
+const retryBtn = document.querySelector('#retry-button');
+retryBtn.addEventListener('click', retry);
+retryBtn.remove();
+
+let currentTest, result, retryResponded, focusEl = runBtn;
 beforeEach(async function() { // eslint-disable-line no-undef
 	test.hovering = false;
 	const fixture = new Promise(r => test.update = r);
+	result = new Promise((pass, fail) => {
+		test.pass = pass;
+		test.fail = () => {
+			test.retryResponse = new Promise(r => retryResponded = r);
+			fail();
+		};
+	});
 	currentTest = this.currentTest; // eslint-disable-line no-invalid-this
 	if (test.skipAll) this.test.parent.ctx.skip(); // eslint-disable-line no-invalid-this
 	setTimeout(async() => {
@@ -170,6 +220,7 @@ beforeEach(async function() { // eslint-disable-line no-undef
 		if (test.pause) {
 			runBtn.disabled = false;
 			focusEl.focus();
+			await result.catch(showRetry);
 		}
 	});
 });
@@ -203,6 +254,23 @@ function skip() {
 function skipAll() {
 	test.skipAll = true;
 	test.start();
+}
+
+let retryTimeout;
+function showRetry() {
+	document.querySelector('#retry-cell').insertAdjacentElement('afterBegin', retryBtn);
+	retryBtn.focus();
+	retryTimeout = setTimeout(() => {
+		retryResponded();
+		retryBtn.remove();
+	}, 4000);
+}
+
+function retry() {
+	clearTimeout(retryTimeout);
+	retryBtn.remove();
+	currentTest._retries = Math.max(1, currentTest._retries + 1);
+	retryResponded();
 }
 
 await test.pause;
