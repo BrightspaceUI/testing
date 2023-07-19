@@ -70,7 +70,7 @@ async function getTestRunnerOptions(argv = []) {
 		{
 			name: 'golden',
 			type: Boolean,
-			description: 'Generate new golden screenshots',
+			description: 'Generate new golden screenshots. Ignored unless group is "vdiff"',
 			order: 10
 		},
 		{
