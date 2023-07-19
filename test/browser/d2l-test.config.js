@@ -11,6 +11,6 @@ function getGoldenFlag() {
 }
 
 export default {
-	pattern: () => `test/browser/**/*.vdiff.js`,
+	pattern: () => 'test/browser/**/*.vdiff.js',
 	plugins: [getGoldenFlag()]
 };
