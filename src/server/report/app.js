@@ -381,7 +381,7 @@ class App extends LitElement {
 		const tabs = browsers.map((b) => {
 			const numPassed = browserResults.get(b.name);
 			return {
-				content: renderBrowserResults(b, tests, { fullMode: this._fullMode, layout: this._layout, showOverlay: this._overlay }),
+				content: renderBrowserResults(b, tests, { filterStatus: this._filterStatus, fullMode: this._fullMode, layout: this._layout, showOverlay: this._overlay }),
 				label: b.name,
 				id: b.name.toLowerCase(),
 				selected: b.name === selectedBrowser.name,

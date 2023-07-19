@@ -1,5 +1,5 @@
 import { css, html, nothing } from 'lit';
-import { FULL_MODE, LAYOUTS } from './common.js';
+import { FILTER_STATUS, FULL_MODE, LAYOUTS } from './common.js';
 import { ICON_BROWSERS, ICON_TADA } from './icons.js';
 import { classMap } from 'lit/directives/class-map.js';
 
@@ -171,6 +171,10 @@ export function renderBrowserResults(browser, tests, options) {
 			'pass': duration < 500,
 			'warning': duration >= 500 && duration < 1000
 		};
+		if (resultData.passed && options.filterStatus === FILTER_STATUS.FAILED ||
+			!resultData.passed && options.filterStatus === FILTER_STATUS.PASSED) {
+			return nothing;
+		}
 		return html`
 			<div class="result-container">
 				<div class="result-test-name">
