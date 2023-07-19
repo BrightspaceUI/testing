@@ -46,7 +46,7 @@ describe('runner.getOptions()', () => {
 		expect(opts.argv).to.deep.equal(['--group', 'test']);
 		expect(opts.config.groups[0]).to.deep.include({
 			name: 'test',
-			files: [ 'test/browser/**/+(abc.test.js)' ]
+			files: [ 'test/browser/**/+(abc.vdiff.js)' ]
 		});
 		expect(opts.config.testFramework).to.deep.include({
 			config: { timeout: '123', grep: 'ghi' }
