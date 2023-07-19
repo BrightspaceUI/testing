@@ -7,9 +7,10 @@
   "scripts": {
     "lint": "eslint . --ext .js",
     "start": "web-dev-server --root-dir ./.vdiff --open ./.report/",
-    "test": "npm run lint && npm run test:server && npm run test:browser",
-    "test:browser": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
-    "test:server": "mocha ./test/server/**/*.test.js",
+    "test": "npm run lint && npm run test:bin && npm run test:server && npm run test:browser",
+    "test:bin": "mocha './test/bin/**/*.test.js'",
+    "test:browser": "web-test-runner --files './test/browser/**/*.test.js' --node-resolve --playwright",
+    "test:server": "mocha './test/server/**/*.test.js'",
     "test:vdiff": "d2l-test --config ./test/browser/d2l-test.config.js --group vdiff",
     "test:vdiff:golden": "npm run test:vdiff -- --golden"
   },

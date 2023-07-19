@@ -136,9 +136,11 @@ export class WTRConfig {
 		timeout,
 		...passthroughConfig
 	} = {}) {
-		const { files, filter, golden, grep, group, manual, watch } = this.#cliArgs;
 
-		if (!['test', 'vdiff', ...passthroughConfig.groups.map(g => g.name)].includes(group)) {
+		const { files, filter, golden, grep, group, manual, watch } = this.#cliArgs;
+		const passthroughGroupNames = passthroughConfig.groups?.map(g => g.name) ?? [];
+
+		if (!['test', 'vdiff', ...passthroughGroupNames].includes(group)) {
 			return {}; // allow wtr to error
 		}
 
