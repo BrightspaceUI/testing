@@ -385,7 +385,7 @@ class App extends LitElement {
 				label: b.name,
 				id: b.name.toLowerCase(),
 				selected: b.name === selectedBrowser.name,
-				status: `${numPassed}/${tests.length}`,
+				status: `${numPassed}/${tests.length} passed`,
 				statusType: (numPassed < tests.length) ? TAB_STATUS_TYPE.ERROR : TAB_STATUS_TYPE.NORMAL
 			};
 		});
