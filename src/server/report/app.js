@@ -1,11 +1,11 @@
 import './button.js';
+import { COMMON_STYLE, FILTER_STATUS, FULL_MODE, LAYOUTS, renderEmpty, renderTestStatus } from './common.js';
 import { css, html, LitElement, nothing } from 'lit';
-import { FILTER_STATUS, FULL_MODE, LAYOUTS } from './common.js';
-import { ICON_EMPTY, ICON_HOME } from './icons.js';
 import { RADIO_STYLE, renderRadio } from './radio.js';
 import { renderBrowserResults, RESULT_STYLE } from './result.js';
-import { renderTabButtons, renderTabPanel, TAB_STATUS_TYPE, TAB_STYLE } from './tabs.js';
+import { renderTabButtons, renderTabPanel, TAB_STYLE } from './tabs.js';
 import data from './data.js';
+import { ICON_HOME } from './icons.js';
 import page from 'page';
 
 class App extends LitElement {
@@ -18,7 +18,7 @@ class App extends LitElement {
 		_overlay: { state: true },
 		_selectedBrowserIndex: { state: true }
 	};
-	static styles = [RADIO_STYLE, RESULT_STYLE, TAB_STYLE, css`
+	static styles = [COMMON_STYLE, RADIO_STYLE, RESULT_STYLE, TAB_STYLE, css`
 		.container {
 			display: grid;
 			grid-auto-flow: row;
@@ -73,26 +73,6 @@ class App extends LitElement {
 		}
 		fieldset > legend {
 			font-weight: bold;
-		}
-		.empty {
-			align-items: center;
-			display: flex;
-			flex-direction: column;
-			gap: 20px;
-		}
-		.empty > svg {
-			color: #007bff;
-			height: 100px;
-			width: 100px;
-		}
-		.empty > p {
-			color: #6e7477;
-			font-size: 1.1rem;
-			font-weight: bold;
-			margin: 0;
-		}
-		.padding {
-			padding: 20px;
 		}
 		.test-results {
 			display: grid;
@@ -214,13 +194,6 @@ class App extends LitElement {
 	_handleOverlayChange(e) {
 		this._overlay = e.target.checked;
 	}
-	_renderEmpty() {
-		return html`
-			<div class="empty padding">
-				${ICON_EMPTY}
-				<p>No tests exist for the selected filters.</p>
-			</div>`;
-	}
 	_renderError(message, source) {
 		return html`<div class="padding"><p>${message}: <b>${source}</b>.</p></div>`;
 	}
@@ -243,11 +216,10 @@ class App extends LitElement {
 
 		const renderBrowser = (b) => {
 			const browserData = data.browsers.find(data => data.name === b.name);
-			const result = `${(data.numTests - browserData.numFailed)}/${data.numTests}`;
 			return html`
 				<label>
 					<input type="checkbox" value="${b.name}" ?checked="${this._filterBrowsers.includes(b.name)}" @click="${this._handleFilterBrowserChange}">
-					${b.name} (${result} passed)
+					${b.name} ${renderTestStatus(data.numTests - browserData.numFailed, data.numTests)}
 				</label><br>
 			`;
 		};
@@ -313,7 +285,7 @@ class App extends LitElement {
 		if (this._filterFile === undefined) {
 			let list;
 			if (this._files.length === 0) {
-				return this._renderEmpty();
+				return renderEmpty();
 			} else {
 				list = this._files.map(f => this._renderListFile(f));
 			}
@@ -322,14 +294,14 @@ class App extends LitElement {
 
 		const fileData = this._files.find(f => f.name === this._filterFile);
 		if (!fileData) {
-			return this._renderEmpty();
+			return renderEmpty();
 		}
 
 		const tests = fileData.tests.filter(t => {
 			return this._filterTest === undefined || t.name === this._filterTest;
 		});
 		if (tests.length === 0) {
-			return this._renderEmpty();
+			return renderEmpty();
 		}
 
 		return this._renderTestResults(fileData, tests);
@@ -337,7 +309,10 @@ class App extends LitElement {
 	}
 	_renderTabButtons(tabs) {
 		if (tabs.length < 2) return nothing;
-		return renderTabButtons('browser results', tabs, index => this._selectedBrowserIndex = index);
+		return renderTabButtons('browser results', tabs, index => {
+			this._selectedBrowserIndex = index;
+			this.shadowRoot.querySelector('.tab-panels').scrollTo(0, 0);
+		});
 	}
 	_renderTabPanels(tabs) {
 
@@ -385,8 +360,7 @@ class App extends LitElement {
 				label: b.name,
 				id: b.name.toLowerCase(),
 				selected: b.name === selectedBrowser.name,
-				status: `${numPassed}/${tests.length} passed`,
-				statusType: (numPassed < tests.length) ? TAB_STATUS_TYPE.ERROR : TAB_STATUS_TYPE.NORMAL
+				status: renderTestStatus(numPassed, tests.length)
 			};
 		});
 

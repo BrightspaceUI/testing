@@ -1,7 +1,6 @@
 import { css, html, nothing } from 'lit';
-import { FILTER_STATUS, FULL_MODE, LAYOUTS } from './common.js';
+import { FILTER_STATUS, FULL_MODE, LAYOUTS, renderEmpty, renderStatusText, STATUS_TYPE } from './common.js';
 import { ICON_BROWSERS, ICON_TADA } from './icons.js';
-import { classMap } from 'lit/directives/class-map.js';
 
 export const RESULT_STYLE = css`
 	.result-browser {
@@ -92,6 +91,7 @@ export const RESULT_STYLE = css`
 		margin: 0;
 	}
 	.result-test-name {
+		align-items: center;
 		display: flex;
 		padding-bottom: 10px;
 	}
@@ -101,15 +101,6 @@ export const RESULT_STYLE = css`
 	}
 	.result-duration {
 		flex: 0 0 auto;
-	}
-	.pass {
-		color: #46a661;
-	}
-	.error {
-		color: #cd2026;
-	}
-	.warning {
-		color: #e87511;
 	}
 `;
 
@@ -162,24 +153,27 @@ function renderResult(resultData, options) {
 }
 
 export function renderBrowserResults(browser, tests, options) {
-	const results = tests.map(t => {
+	const filteredTests = tests.filter(t => {
 		const resultData = t.results.find(r => r.name === browser.name);
-		const duration = resultData.duration;
-		const durationClass = {
-			'error': duration >= 1000,
-			'result-duration': true,
-			'pass': duration < 500,
-			'warning': duration >= 500 && duration < 1000
-		};
 		if (resultData.passed && options.filterStatus === FILTER_STATUS.FAILED ||
 			!resultData.passed && options.filterStatus === FILTER_STATUS.PASSED) {
-			return nothing;
+			return false;
+		}
+		return true;
+	});
+	const results = filteredTests.map(t => {
+		const resultData = t.results.find(r => r.name === browser.name);
+		let status = STATUS_TYPE.NORMAL;
+		if (resultData.duration >= 1000) {
+			status = STATUS_TYPE.ERROR;
+		} else if (resultData.duration >= 500) {
+			status = STATUS_TYPE.WARNING;
 		}
 		return html`
 			<div class="result-container">
 				<div class="result-test-name">
 					<h3>${t.name}</h3>
-					<div class="${classMap(durationClass)}">${duration}ms</div>
+					<div class="result-duration">${renderStatusText(`${resultData.duration}ms`, status)}</div>
 				</div>
 				${renderResult(resultData, options)}
 			</div>
@@ -193,6 +187,6 @@ export function renderBrowserResults(browser, tests, options) {
 				<div>version ${browser.version}</div>
 			</div>
 		</div>
-		${results}
+		${filteredTests.length === 0 ? renderEmpty() : results}
 	`;
 }
