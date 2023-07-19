@@ -313,7 +313,7 @@ class App extends LitElement {
 		if (this._filterFile === undefined) {
 			let list;
 			if (this._files.length === 0) {
-				list = html`<p>No tests exist for the selected filters.</p>`;
+				return this._renderEmpty();
 			} else {
 				list = this._files.map(f => this._renderListFile(f));
 			}
