@@ -1,8 +1,28 @@
 import { css, html, nothing } from 'lit';
 import { FULL_MODE, LAYOUTS } from './common.js';
-import { ICON_TADA } from './icons.js';
+import { ICON_BROWSERS, ICON_TADA } from './icons.js';
+import { classMap } from 'lit/directives/class-map.js';
 
 export const RESULT_STYLE = css`
+	.result-browser {
+		align-items: center;
+		border-bottom: 4px solid #e3e9f1;
+		display: flex;
+		gap: 10px;
+	}
+	.result-browser > svg {
+		flex: 0 0 auto;
+		height: 50px;
+		width: 50px;
+	}
+	.result-browser-name {
+		font-size: 1.2rem;
+		font-weight: bold;
+	}
+	.result-container {
+		border-bottom: 4px solid #e3e9f1;
+		padding: 40px 20px;
+	}
 	.result-split {
 		flex-direction: row;
 		flex-wrap: nowrap;
@@ -63,7 +83,6 @@ export const RESULT_STYLE = css`
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
-		padding: 20px;
 		min-width: 210px;
 	}
 	.result-no-changes > p {
@@ -72,9 +91,29 @@ export const RESULT_STYLE = css`
 		font-weight: bold;
 		margin: 0;
 	}
+	.result-test-name {
+		display: flex;
+		padding-bottom: 10px;
+	}
+	.result-test-name > h3 {
+		flex: 1 0 auto;
+		margin: 0;
+	}
+	.result-duration {
+		flex: 0 0 auto;
+	}
+	.pass {
+		color: #46a661;
+	}
+	.error {
+		color: #cd2026;
+	}
+	.warning {
+		color: #e87511;
+	}
 `;
 
-export function renderResult(resultData, options) {
+function renderResult(resultData, options) {
 
 	if (!resultData.passed && resultData.info === undefined) {
 		return html`
@@ -85,7 +124,7 @@ export function renderResult(resultData, options) {
 
 	const renderPart = (label, partInfo, noChanges, overlay) => {
 		const img = noChanges ? html`
-			<div class="result-no-changes">
+			<div class="result-no-changes padding">
 				${ICON_TADA}
 				<p>Hooray! No changes here.</p>
 			</div>
@@ -120,4 +159,36 @@ export function renderResult(resultData, options) {
 		}
 	}
 
+}
+
+export function renderBrowserResults(browser, tests, options) {
+	const results = tests.map(t => {
+		const resultData = t.results.find(r => r.name === browser.name);
+		const duration = resultData.duration;
+		const durationClass = {
+			'error': duration >= 1000,
+			'result-duration': true,
+			'pass': duration < 500,
+			'warning': duration >= 500 && duration < 1000
+		};
+		return html`
+			<div class="result-container">
+				<div class="result-test-name">
+					<h3>${t.name}</h3>
+					<div class="${classMap(durationClass)}">${duration}ms</div>
+				</div>
+				${renderResult(resultData, options)}
+			</div>
+		`;
+	});
+	return html`
+		<div class="result-browser padding">
+			${ICON_BROWSERS[browser.name]}
+			<div>
+				<div class="result-browser-name">${browser.name}</div>
+				<div>version ${browser.version}</div>
+			</div>
+		</div>
+		${results}
+	`;
 }
