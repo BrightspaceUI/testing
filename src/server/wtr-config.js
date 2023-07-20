@@ -201,13 +201,13 @@ export class WTRConfig {
 	}
 
 	getBrowsers(browsers) {
-		browsers = this.#requestedBrowsers || browsers || DEFAULT_BROWSERS;
+		browsers = (this.#requestedBrowsers || browsers || DEFAULT_BROWSERS).map(b => BROWSER_MAP[b] || 'chromium');
 
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 
-		return browsers.map((b) => playwrightLauncher({
+		return [...new Set(browsers)].map((b) => playwrightLauncher({
 			concurrency: b === 'firefox' ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
-			product: BROWSER_MAP[b],
+			product: b,
 			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' })
 		}));
 	}
