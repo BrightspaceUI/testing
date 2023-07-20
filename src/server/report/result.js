@@ -1,6 +1,6 @@
 import { css, html, nothing } from 'lit';
 import { FILTER_STATUS, FULL_MODE, LAYOUTS, renderEmpty, renderStatusText, STATUS_TYPE } from './common.js';
-import { ICON_BROWSERS, ICON_TADA } from './icons.js';
+import { ICON_BROWSERS, ICON_NO_GOLDEN, ICON_TADA } from './icons.js';
 
 export const RESULT_STYLE = css`
 	.result-browser {
@@ -77,18 +77,19 @@ export const RESULT_STYLE = css`
 		color: #90989d;
 		font-size: 0.8rem;
 	}
-	.result-no-changes {
+	.result-graphic {
 		align-items: center;
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
 		min-width: 210px;
 	}
-	.result-no-changes > p {
-		color: #6e7477;
+	.result-graphic > p {
+		color: #90989d;
 		font-size: 1.1rem;
 		font-weight: bold;
 		margin: 0;
+		text-align: center;
 	}
 	.result-test-name {
 		align-items: center;
@@ -113,13 +114,7 @@ function renderResult(resultData, options) {
 		`;
 	}
 
-	const renderPart = (label, partInfo, noChanges, overlay) => {
-		const img = noChanges ? html`
-			<div class="result-no-changes padding">
-				${ICON_TADA}
-				<p>Hooray! No changes here.</p>
-			</div>
-		` : html`<div class="result-diff-container"><img src="../${partInfo.path}" loading="lazy" alt="">${overlay}</div>`;
+	const renderPart = (label, partInfo, overlay) => {
 		return html`
 			<div class="result-part">
 				<div class="result-part-info">
@@ -127,26 +122,35 @@ function renderResult(resultData, options) {
 					<div class="result-part-info-name">${label}</div>
 					<div class="result-part-info-size">(${partInfo.width} x ${partInfo.height})</div>
 				</div>
-				${img}
+				<div class="result-diff-container"><img src="../${partInfo.path}" loading="lazy" alt="">${overlay}</div>
 			</div>
 		`;
 	};
 
-	const overlay = (options.showOverlay && !resultData.passed) ?
+	const goldenExists = (resultData.info.golden !== undefined);
+
+	const overlay = (goldenExists && options.showOverlay && !resultData.passed) ?
 		html`<div class="result-overlay"><img src="../${resultData.info.diff}" loading="lazy" alt=""></div>` : nothing;
 
+	const goldenPart = !goldenExists ?
+		html`<div class="result-graphic padding">${ICON_NO_GOLDEN}<p>No golden exists for this test... yet.</p></div>` :
+		renderPart('golden', resultData.info.golden, options.layout === LAYOUTS.SPLIT.value ? undefined : overlay);
+
 	if (options.layout === LAYOUTS.SPLIT.value) {
+		const newPart = resultData.passed ?
+			html`<div class="result-graphic padding">${ICON_TADA}<p>Hooray! No changes here.</p></div>` :
+			renderPart('new', resultData.info.new, overlay);
 		return html`
 			<div class="result-split">
-				${ renderPart('golden', resultData.info.golden, false, undefined) }
+				${goldenPart}
 				<div class="result-split-divider"></div>
-				${ renderPart('new', resultData.info.new, resultData.passed, overlay) }
+				${newPart}
 			</div>`;
 	} else if (options.layout === LAYOUTS.FULL.value) {
 		if (options.fullMode === FULL_MODE.GOLDEN.value) {
-			return renderPart('golden', resultData.info.golden, false, overlay);
+			return goldenPart;
 		} else {
-			return renderPart('new', resultData.info.new, false, overlay);
+			return renderPart('new', resultData.info.new, overlay);
 		}
 	}
 

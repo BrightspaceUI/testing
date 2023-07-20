@@ -192,37 +192,38 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					path: updateGoldens ? goldenFileName : screenshotFileName
 				});
 
-				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
-				setTestInfo(session, payload.name, {
-					slowDuration: payload.slowDuration,
-					golden: {
-						path: goldenFileName.substring(rootLength)
-					},
-					new: {
-						path: passFileName.substring(rootLength)
-					}
-				});
-
 				if (updateGoldens) {
 					return { pass: true };
 				}
 
+				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
+
+				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
+				setTestInfo(session, payload.name, {
+					slowDuration: payload.slowDuration,
+					new: {
+						height: screenshotImage.height,
+						path: passFileName.substring(rootLength),
+						width: screenshotImage.width
+					}
+				});
+
 				const goldenExists = await checkFileExists(goldenFileName);
 				if (!goldenExists) {
+					setTestInfo(session, payload.name, {
+						new: {
+							path: `${screenshotFile.substring(rootLength)}.png`
+						}
+					});
 					return { pass: false, message: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.' };
 				}
 
-				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
 				const goldenImage = PNG.sync.read(await readFile(goldenFileName));
-
 				setTestInfo(session, payload.name, {
 					golden: {
 						height: goldenImage.height,
+						path: goldenFileName.substring(rootLength),
 						width: goldenImage.width
-					},
-					new: {
-						height: screenshotImage.height,
-						width: screenshotImage.width
 					}
 				});
 
