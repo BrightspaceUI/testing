@@ -153,23 +153,22 @@ function renderResult(resultData, options) {
 }
 
 export function renderBrowserResults(browser, tests, options) {
-	const filteredTests = tests.filter(t => {
+	const results = tests.reduce((acc, t) => {
+
 		const resultData = t.results.find(r => r.name === browser.name);
 		if (resultData.passed && options.filterStatus === FILTER_STATUS.FAILED ||
 			!resultData.passed && options.filterStatus === FILTER_STATUS.PASSED) {
-			return false;
+			return acc;
 		}
-		return true;
-	});
-	const results = filteredTests.map(t => {
-		const resultData = t.results.find(r => r.name === browser.name);
+
 		let status = STATUS_TYPE.NORMAL;
 		if (resultData.duration >= 1000) {
 			status = STATUS_TYPE.ERROR;
 		} else if (resultData.duration >= 500) {
 			status = STATUS_TYPE.WARNING;
 		}
-		return html`
+
+		return acc.push(html`
 			<div class="result-container">
 				<div class="result-test-name">
 					<h3>${t.name}</h3>
@@ -177,8 +176,9 @@ export function renderBrowserResults(browser, tests, options) {
 				</div>
 				${renderResult(resultData, options)}
 			</div>
-		`;
-	});
+		`) && acc;
+
+	}, []);
 	return html`
 		<div class="result-browser padding">
 			${ICON_BROWSERS[browser.name]}
@@ -187,6 +187,6 @@ export function renderBrowserResults(browser, tests, options) {
 				<div>version ${browser.version}</div>
 			</div>
 		</div>
-		${filteredTests.length === 0 ? renderEmpty() : results}
+		${results.length === 0 ? renderEmpty() : results}
 	`;
 }
