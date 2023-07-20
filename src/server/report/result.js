@@ -161,11 +161,11 @@ export function renderBrowserResults(browser, tests, options) {
 			return acc;
 		}
 
-		let status = STATUS_TYPE.NORMAL;
-		if (resultData.duration >= 1000) {
+		let status = STATUS_TYPE.WARNING;
+		if (resultData.duration > resultData.info.slowDuration) {
 			status = STATUS_TYPE.ERROR;
-		} else if (resultData.duration >= 500) {
-			status = STATUS_TYPE.WARNING;
+		} else if (resultData.duration < (resultData.info.slowDuration / 2)) {
+			status = STATUS_TYPE.NORMAL;
 		}
 
 		return acc.push(html`
