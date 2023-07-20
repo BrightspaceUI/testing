@@ -18,10 +18,6 @@ export const RESULT_STYLE = css`
 		font-size: 1.2rem;
 		font-weight: bold;
 	}
-	.result-container {
-		border-bottom: 4px solid #e3e9f1;
-		padding: 40px 20px;
-	}
 	.result-split {
 		flex-direction: row;
 		flex-wrap: nowrap;
@@ -173,7 +169,7 @@ export function renderBrowserResults(browser, tests, options) {
 		}
 
 		return acc.push(html`
-			<div class="result-container">
+			<div class="item-container">
 				<div class="result-test-name">
 					<h3>${t.name}</h3>
 					<div class="result-duration">${renderStatusText(`${resultData.duration}ms`, status)}</div>

@@ -3,6 +3,18 @@ import { ICON_EMPTY, ICON_FULL, ICON_SPLIT } from './icons.js';
 import { classMap } from 'lit/directives/class-map.js';
 
 export const COMMON_STYLE = css`
+	a, a:link, a:visited {
+		color: #007bff;
+	}
+	a:focus, a:hover {
+		color: #004489;
+		text-decoration: underline;
+	}
+	a:focus-visible {
+		border-radius: 3px;
+		outline: 2px solid #007bff;
+		outline-offset: 1px;
+	}
 	.empty {
 		align-items: center;
 		display: flex;
@@ -19,6 +31,16 @@ export const COMMON_STYLE = css`
 		font-size: 1.1rem;
 		font-weight: bold;
 		margin: 0;
+	}
+	h1, h2 {
+		margin: 0;
+	}
+	.item-container {
+		border-bottom: 4px solid #e3e9f1;
+		padding: 40px 20px;
+	}
+	.item-container:last-of-type {
+		border-bottom: none;
 	}
 	.pass {
 		color: #46a661;
