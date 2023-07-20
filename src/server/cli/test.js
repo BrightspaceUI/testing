@@ -29,7 +29,7 @@ async function getTestRunnerOptions(argv = []) {
 		{
 			name: 'manual',
 			type: Boolean,
-			description: 'Starts test runner in manual testing mode. Ignores browser options and prints manual testing URL.\n{underline Not compatible with automated browser interactions}\nConsider using --watch to debug in the browser instead',
+			description: 'Starts test runner in manual testing mode. Ignores browser options and prints manual testing URL.\n{underline Not compatible with automated browser interactions}\nConsider using --watch to debug in the browser instead.',
 			order: 11
 		},
 		{
@@ -70,7 +70,7 @@ async function getTestRunnerOptions(argv = []) {
 		{
 			name: 'golden',
 			type: Boolean,
-			description: 'Generate new golden screenshots. Ignored unless group is "vdiff"',
+			description: 'Generate new golden screenshots. Ignored unless group is "vdiff".',
 			order: 10
 		},
 		{
