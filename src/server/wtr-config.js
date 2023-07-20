@@ -5,8 +5,14 @@ import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
-const ALLOWED_BROWSERS = ['chrome', 'firefox', 'safari'];
-const BROWSER_MAP = { chrome: 'chromium', firefox: 'firefox', safari: 'webkit' };
+const ALLOWED_BROWSERS = ['chrome', 'chromium', 'firefox', 'safari', 'webkit'];
+const BROWSER_MAP = {
+	chrome: 'chromium',
+	chromium: 'chromium',
+	firefox: 'firefox',
+	safari: 'webkit',
+	webkit: 'webkit'
+};
 
 export class WTRConfig {
 

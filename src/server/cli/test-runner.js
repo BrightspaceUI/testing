@@ -41,10 +41,15 @@ async function getTestRunnerOptions(argv = []) {
 
 		// d2l-test-runner options
 		{
-			name: 'chrome',
+			name: 'chromium',
 			type: Boolean,
 			description: 'Run tests in Chromium',
 			order: 2
+		},
+		{
+			name: 'chrome',
+			type: Boolean,
+			longAlias: 'chromium'
 		},
 		{
 			name: 'config',
@@ -88,9 +93,8 @@ async function getTestRunnerOptions(argv = []) {
 		},
 		{
 			name: 'safari',
-			type: Boolean,
-			description: 'Run tests in Webkit',
-			order: 4
+			longAlias: 'webkit',
+			type: Boolean
 		},
 		{
 			name: 'timeout',
@@ -98,6 +102,12 @@ async function getTestRunnerOptions(argv = []) {
 			type: Number,
 			description: 'Test timeout threshold in ms\n[Default: 2000]',
 			order: 5
+		},
+		{
+			name: 'webkit',
+			type: Boolean,
+			description: 'Run tests in Webkit',
+			order: 4
 		},
 	];
 
@@ -116,7 +126,12 @@ async function getTestRunnerOptions(argv = []) {
 			{
 				header: 'Options',
 				optionList: optionDefinitions
-					.map(o => (o.description += '\n') && o)
+					.map(o => {
+						o.description += '\n';
+						const longAlias = optionDefinitions.find(clone => clone !== o && clone.longAlias === o.name)?.name;
+						if (longAlias) o.name += `, --${longAlias}`;
+						return o;
+					})
 					.filter(o => 'order' in o)
 					.sort((a, b) => (a.order > b.order ? 1 : -1))
 			}
