@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { runner } from '../../../src/server/cli/test.js';
+import { runner } from '../../../src/server/cli/test-runner.js';
 
 describe('runner.getOptions()', () => {
 
@@ -38,7 +38,7 @@ describe('runner.getOptions()', () => {
 
 	it('should convert aliases', async() => {
 		const opts = await runner.getOptions([
-			'-c', './test/browser/d2l-test.config.js',
+			'-c', './test/browser/vdiff.config.js',
 			'-f', 'abc',
 			'-g', 'ghi',
 			'-t', 123]

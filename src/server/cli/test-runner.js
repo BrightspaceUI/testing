@@ -10,7 +10,7 @@ async function getTestRunnerOptions(argv = []) {
 	const DISALLOWED_OPTIONS = ['--browsers', '--playwright', '--puppeteer', '--groups'];
 
 	const optionDefinitions = [
-		// @web/test-runner options
+		// web-test-runner options
 		{
 			name: 'files',
 			type: String,
@@ -39,7 +39,7 @@ async function getTestRunnerOptions(argv = []) {
 			order: 9
 		},
 
-		// d2l-test options
+		// d2l-test-runner options
 		{
 			name: 'chrome',
 			type: Boolean,
@@ -50,7 +50,7 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'config',
 			alias: 'c',
 			type: String,
-			description: 'Location to read config file from\n[Default: ./d2l-test.config.js]',
+			description: 'Location to read config file from\n[Default: ./d2l-test-runner.config.js]',
 			order: 9
 		},
 		{
@@ -111,7 +111,7 @@ async function getTestRunnerOptions(argv = []) {
 			},
 			{
 				header: 'Usage',
-				content: 'd2l-test [options]',
+				content: 'd2l-test-runner [options]',
 			},
 			{
 				header: 'Options',
@@ -127,7 +127,7 @@ async function getTestRunnerOptions(argv = []) {
 
 	cliArgs._unknown = cliArgs._unknown?.filter(o => !DISALLOWED_OPTIONS.includes(o));
 
-	const testConfig = await readConfig('d2l-test.config', cliArgs.config).catch(err => {
+	const testConfig = await readConfig('d2l-test-runner.config', cliArgs.config).catch(err => {
 		if (err instanceof ConfigLoaderError) {
 			throw new Error(err.message);
 		} else {

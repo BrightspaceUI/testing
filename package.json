@@ -11,11 +11,11 @@
     "test:bin": "mocha './test/bin/**/*.test.js'",
     "test:browser": "web-test-runner --files './test/browser/**/*.test.js' --node-resolve --playwright",
     "test:server": "mocha './test/server/**/*.test.js'",
-    "test:vdiff": "d2l-test --config ./test/browser/d2l-test.config.js --group vdiff",
+    "test:vdiff": "npx d2l-test-runner--config ./test/browser/d2l-test.config.js --group vdiff",
     "test:vdiff:golden": "npm run test:vdiff -- --golden"
   },
   "bin": {
-    "d2l-test": "./bin/test.js"
+    "d2l-test-runner": "./bin/d2l-test-runner.js"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
