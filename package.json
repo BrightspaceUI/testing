@@ -11,7 +11,7 @@
     "test:bin": "mocha './test/bin/**/*.test.js'",
     "test:browser": "web-test-runner --files './test/browser/**/*.test.js' --node-resolve --playwright",
     "test:server": "mocha './test/server/**/*.test.js'",
-    "test:vdiff": "npx d2l-test-runner--config ./test/browser/d2l-test.config.js --group vdiff",
+    "test:vdiff": "npx d2l-test-runner --config ./test/browser/vdiff.config.js --group vdiff",
     "test:vdiff:golden": "npm run test:vdiff -- --golden"
   },
   "bin": {
