@@ -1,5 +1,4 @@
 import { css, html, nothing } from 'lit';
-import { classMap } from 'lit/directives/class-map.js';
 
 function onKeyDown(e) {
 	let focusOn;
@@ -19,11 +18,6 @@ function onKeyDown(e) {
 	}
 	if (focusOn) focusOn.focus();
 }
-
-export const TAB_STATUS_TYPE = {
-	ERROR: 'error',
-	NORMAL: 'normal'
-};
 
 export const TAB_STYLE = css`
 	[role="tablist"] {
@@ -74,10 +68,6 @@ export function renderTabButtons(label, tabs, onTabClick) {
 
 	const renderTabButton = (tab, index, onTabClick) => {
 		const clickHandler = () => onTabClick(index);
-		const statusClass = {
-			pass: tab.statusType === TAB_STATUS_TYPE.NORMAL,
-			error: tab.statusType === TAB_STATUS_TYPE.ERROR
-		};
 		return html`
 			<button
 				aria-controls="tabpanel-${tab.id}"
@@ -87,9 +77,7 @@ export function renderTabButtons(label, tabs, onTabClick) {
 				tabindex="${tab.selected ? '0' : '-1'}"
 				type="button"
 				@click="${clickHandler}">
-					<span>
-						${tab.label} <span class="${classMap(statusClass)}">(${tab.status})</span>
-					</span>${tab.selected ? html`
+					<span>${tab.label} ${tab.status}</span>${tab.selected ? html`
 					<div class="tab-selected-indicator"></div>` : nothing}
 			</button>`;
 	};

@@ -123,6 +123,7 @@ function setTestInfo(session, fullTitle, testInfo) {
 	const key = getTestInfoKey(session, fullTitle);
 	if (testInfoMap.has(key)) {
 		const info = testInfoMap.get(key);
+		testInfo.slowDuration = info.slowDuration;
 		if (info.golden || testInfo.golden) {
 			testInfo.golden = { ...info.golden, ...testInfo.golden };
 		}
@@ -193,6 +194,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
 				setTestInfo(session, payload.name, {
+					slowDuration: payload.slowDuration,
 					golden: {
 						path: goldenFileName.substring(rootLength)
 					},
