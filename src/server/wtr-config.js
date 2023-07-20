@@ -6,6 +6,7 @@ import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
 const ALLOWED_BROWSERS = ['chrome', 'chromium', 'firefox', 'safari', 'webkit'];
+const DEFAULT_BROWSERS = ['chromium', 'firefox', 'webkit'];
 const BROWSER_MAP = {
 	chrome: 'chromium',
 	chromium: 'chromium',
@@ -200,7 +201,7 @@ export class WTRConfig {
 	}
 
 	getBrowsers(browsers) {
-		browsers = this.#requestedBrowsers || browsers || ALLOWED_BROWSERS;
+		browsers = this.#requestedBrowsers || browsers || DEFAULT_BROWSERS;
 
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 

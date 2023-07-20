@@ -25,12 +25,12 @@ describe('WTRConfig', () => {
 
 		it('should convert passthrough group browsers to playwright', () => {
 			const wtrConfig = new WTRConfig({ group: 'a-group' });
-			const config = wtrConfig.create({ groups: [{ name: 'a-group', browsers: ['chrome', 'firefox', 'safari', 'webkit'] }] });
+			const config = wtrConfig.create({ groups: [{ name: 'a-group', browsers: ['chromium', 'chrome', 'firefox', 'gecko', 'safari', 'webkit'] }] });
 			const group = config.groups[0];
 			expect(config.groups).to.be.an('array').that.has.length(1);
 			expect(group.name).to.equal('a-group');
-			expect(group.browsers).to.be.an('array').that.has.length(4);
-			expect(group.browsers.filter(b => b.name === 'Chromium')).to.have.length(2);
+			expect(group.browsers).to.be.an('array').that.has.length(6);
+			expect(group.browsers.filter(b => b.name === 'Chromium')).to.have.length(3);
 			group.browsers.forEach(b => expect(b.constructor.name).to.equal('PlaywrightLauncher'));
 		});
 
