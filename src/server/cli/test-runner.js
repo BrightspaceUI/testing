@@ -7,7 +7,7 @@ import { WTRConfig } from '../wtr-config.js';
 
 async function getTestRunnerOptions(argv = []) {
 
-	const DISALLOWED_OPTIONS = ['--browsers', '--playwright', '--puppeteer', '--groups'];
+	const DISALLOWED_OPTIONS = ['--browsers', '--playwright', '--puppeteer', '--groups', '--manual'];
 
 	const optionDefinitions = [
 		// web-test-runner options
@@ -25,12 +25,6 @@ async function getTestRunnerOptions(argv = []) {
 			defaultOption: true,
 			description: 'Name of the group to run tests for\n[Default: test]',
 			order: 1
-		},
-		{
-			name: 'manual',
-			type: Boolean,
-			description: 'Starts test runner in manual testing mode. Ignores browser options and prints manual testing URL.\n{underline Not compatible with automated browser interactions}\nConsider using --watch to debug in the browser instead.',
-			order: 11
 		},
 		{
 			name: 'watch',
@@ -159,7 +153,6 @@ async function getTestRunnerOptions(argv = []) {
 	];
 	// copy cli-only wtr options back to argv to be processed
 	cliArgs.watch && argv.push('--watch');
-	cliArgs.manual && argv.push('--manual');
 
 	return {
 		argv,

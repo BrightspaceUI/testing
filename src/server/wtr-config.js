@@ -123,8 +123,7 @@ export class WTRConfig {
 		const {
 			timeout = timeoutConfig,
 			grep,
-			watch,
-			manual
+			watch
 		} = this.#cliArgs;
 
 		if (typeof timeout !== 'undefined' && typeof timeout !== 'number') throw new TypeError('timeout must be a number');
@@ -132,7 +131,7 @@ export class WTRConfig {
 		const config = {};
 
 		if (timeout) config.timeout = String(timeout);
-		if (watch || manual) config.timeout = '0';
+		if (watch) config.timeout = '0';
 		if (grep) config.grep = grep;
 
 		return Object.keys(config).length && { testFramework: { config } };
@@ -144,7 +143,7 @@ export class WTRConfig {
 		...passthroughConfig
 	} = {}) {
 
-		const { files, filter, golden, grep, group, manual, watch } = this.#cliArgs;
+		const { files, filter, golden, grep, group, watch } = this.#cliArgs;
 		const passthroughGroupNames = passthroughConfig.groups?.map(g => g.name) ?? [];
 
 		if (!['test', 'vdiff', ...passthroughGroupNames].includes(group)) {
@@ -186,13 +185,12 @@ export class WTRConfig {
 		// convert all browsers to playwright
 		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers));
 
-		if (watch || manual) {
+		if (watch) {
 			config.plugins ??= [];
 			const currentPattern = files || config.groups.find(g => g.name === group)?.files;
 
 			config.plugins.push(headedMode({
 				pattern: currentPattern,
-				manual,
 				watch
 			}));
 		}
