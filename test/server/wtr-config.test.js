@@ -1,38 +1,9 @@
-import { assert, match, restore, spy, stub } from 'sinon/pkg/sinon-esm.js';
-import { createConfig, getBrowsers, WTRConfig } from '../../src/server/wtr-config.js';
-import { createConfig as createConfigPublic, getBrowsers as getBrowsersPublic } from '../../src/server/index.js';
 import { expect } from 'chai';
+import { WTRConfig } from '../../src/server/wtr-config.js';
 
-describe('createWtrConfig', () => {
+describe('WTRConfig', () => {
 
-	afterEach(() => {
-		restore();
-	});
-
-	describe('createConfig()', () => {
-
-		it('should be exported from index', () => {
-			expect(createConfig).to.equal(createConfigPublic);
-		});
-
-		it('calls WTRConfig.create', () => {
-			const createStub = stub(WTRConfig.prototype, 'create').callsFake(num => num / 2);
-			const res = createConfig(10);
-
-			assert.calledOnce(createStub);
-			assert.calledWith(createStub, 10);
-			expect(res).to.equal(5);
-		});
-	});
-
-	describe('WTRConfig()', () => {
-		it('should not be exported from index', async() => {
-			const res = (await import('../../src/server/index.js')).WTRConfig;
-			expect(res).to.be.undefined;
-		});
-	});
-
-	describe('WTRConfig.create()', () => {
+	describe('create()', () => {
 
 		let config, wtrConfig;
 		before(() => {
@@ -40,27 +11,27 @@ describe('createWtrConfig', () => {
 			config = wtrConfig.create();
 		});
 
-		it('should warn about not using a group', () => {
-			const consoleSpy = spy(console, 'warn');
-			wtrConfig.create();
-			assert.calledOnce(consoleSpy);
-			assert.calledWith(consoleSpy, match('puppeteer'));
-		});
-
-		it('should warn about using the default group', () => {
-			const consoleSpy = spy(console, 'warn');
+		it('should return an empty object given invalid group', () => {
 			const wtrConfig = new WTRConfig({ group: 'default' });
-			wtrConfig.create();
-			assert.calledOnce(consoleSpy);
-			assert.calledWith(consoleSpy, match('puppeteer'));
+			const config = wtrConfig.create();
+			expect(config).to.deep.equal({});
 		});
 
-		it('should warn about not using a group with playwright', () => {
-			const consoleSpy = spy(console, 'warn');
-			const wtrConfig = new WTRConfig({ playwright: true });
-			wtrConfig.create();
-			assert.calledOnce(consoleSpy);
-			assert.calledWith(consoleSpy, match('Warning: reducedMotion disabled.'));
+		it('should remove browsers passthrough config', () => {
+			const config = wtrConfig.create({ browsers: [ 1, 2, 3 ] });
+			expect(config).to.be.an('object');
+			expect(config.browsers).to.be.undefined;
+		});
+
+		it('should convert passthrough group browsers to playwright', () => {
+			const wtrConfig = new WTRConfig({ group: 'a-group' });
+			const config = wtrConfig.create({ groups: [{ name: 'a-group', browsers: ['chromium', 'chrome', 'firefox', 'gecko', 'safari', 'webkit'] }] });
+			const group = config.groups[0];
+			expect(config.groups).to.be.an('array').that.has.length(1);
+			expect(group.name).to.equal('a-group');
+			expect(group.browsers).to.be.an('array').that.has.length(3);
+			expect(group.browsers.filter(b => b.name === 'Chromium')).to.have.length(1);
+			group.browsers.forEach(b => expect(b.constructor.name).to.equal('PlaywrightLauncher'));
 		});
 
 		it('should enable nodeResolve', () => {
@@ -94,17 +65,17 @@ describe('createWtrConfig', () => {
 		});
 
 		it('should set a common default files pattern', () => {
-			expect(config.files).to.equal('./test/**/*.test.js');
+			expect(config.groups[0].files).to.deep.equal(['./test/**/*.test.js']);
 		});
 
 		it('should run a given pattern function to set files', () => {
 			const config = wtrConfig.create({ pattern: type => `./a/b.${type}.js` });
-			expect(config.files).to.equal('./a/b.test.js');
+			expect(config.groups[0].files).to.deep.equal(['./a/b.test.js']);
 		});
 
-		it('should create a unit test group by default', () => {
+		it('should create a "test" group by default', () => {
 			expect(config.groups).to.be.an('array');
-			expect(config.groups.map(g => g.name)).to.have.members(['unit']);
+			expect(config.groups.map(g => g.name)).to.have.members(['test']);
 		});
 
 		it('should not configure vdiff by default', () => {
@@ -113,18 +84,20 @@ describe('createWtrConfig', () => {
 			expect(config.groups.find(g => g.name === 'vdiff')).to.be.undefined;
 		});
 
-		it('should configure vdiff when enabled', () => {
-			const config = wtrConfig.create({ vdiff: true });
-			expect(config.groups).to.be.an('array').that.has.length(2);
+		it('should configure vdiff when group is "vdiff"', () => {
+			const wtrConfig = new WTRConfig({ group: 'vdiff' });
+			const config = wtrConfig.create();
+			expect(config.groups).to.be.an('array').that.has.length(1);
 			expect(config.plugins).to.be.an('array').that.has.length(1);
-			expect(config.groups[1]).to.have.property('name', 'vdiff');
+			expect(config.groups[0]).to.have.property('name', 'vdiff');
 		});
 
 		it('should filter test files using --filter values', () => {
-			const wtrConfig = new WTRConfig({ filter: ['subset', 'subset2'] });
+			const wtrConfig = new WTRConfig({ filter: ['subset', 'subset*'] });
 			const config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.*` });
-			expect(config.files).to.have.length(2);
-			expect(config.files).to.have.members(['./test/**/*/+(*subset*.test.*|*.test.*subset*)', './test/**/*/+(*subset2*.test.*|*.test.*subset2*)']);
+			expect(config.files).to.be.undefined;
+			expect(config.groups[0].files).to.have.length(2);
+			expect(config.groups[0].files).to.have.members(['./test/**/*/+(subset.test.*|*.test.subset)', './test/**/*/+(subset*.test.*|*.test.subset*)']);
 		});
 
 		it('should add --grep value to testFramework config', () => {
@@ -136,22 +109,6 @@ describe('createWtrConfig', () => {
 	});
 
 	describe('getBrowsers()', () => {
-
-		it('should be exported from index', () => {
-			expect(getBrowsers).to.equal(getBrowsersPublic);
-		});
-
-		it('calls WTRConfig.getBrowsers', () => {
-			const getBrowsersStub = stub(WTRConfig.prototype, 'getBrowsers').callsFake(num => num / 2);
-			const res = getBrowsers(10);
-
-			assert.calledOnce(getBrowsersStub);
-			assert.calledWith(getBrowsersStub, 10);
-			expect(res).to.equal(5);
-		});
-	});
-
-	describe('WTRConfig.getBrowsers()', () => {
 
 		let browsers, wtrConfig;
 		before(() => {
@@ -169,14 +126,14 @@ describe('createWtrConfig', () => {
 		});
 
 		it('should use browsers passed as arguments', () => {
-			const browsers = wtrConfig.getBrowsers(['webkit']);
+			const browsers = wtrConfig.getBrowsers(['safari']);
 			expect(browsers).to.have.length(1);
 			expect(browsers[0].name).to.equal('Webkit');
 		});
 
 		it('should only use CLI browsers when provided', () => {
-			const wtrConfig = new WTRConfig({ firefox: true, webkit: true });
-			const browsers = wtrConfig.getBrowsers(['chromium']);
+			const wtrConfig = new WTRConfig({ firefox: true, safari: true });
+			const browsers = wtrConfig.getBrowsers(['chrome']);
 			expect(browsers).to.have.length(2);
 			expect(browsers.map(b => b.name)).to.have.members(['Webkit', 'Firefox']);
 		});

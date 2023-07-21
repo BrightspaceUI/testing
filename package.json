@@ -7,11 +7,15 @@
   "scripts": {
     "lint": "eslint . --ext .js",
     "start": "web-dev-server --root-dir ./.vdiff --open ./.report/",
-    "test": "npm run lint && npm run test:server && npm run test:browser",
-    "test:browser": "web-test-runner --files \"./test/browser/**/*.test.js\" --node-resolve --playwright",
-    "test:server": "mocha ./test/server/**/*.test.js",
-    "test:vdiff": "web-test-runner --config ./test/browser/wtr-vdiff.config.js --group vdiff",
+    "test": "npm run lint && npm run test:bin && npm run test:server && npm run test:browser",
+    "test:bin": "mocha './test/bin/**/*.test.js'",
+    "test:browser": "web-test-runner --files './test/browser/**/*.test.js' --node-resolve --playwright",
+    "test:server": "mocha './test/server/**/*.test.js'",
+    "test:vdiff": "npx d2l-test-runner --config ./test/browser/vdiff.config.js --group vdiff",
     "test:vdiff:golden": "npm run test:vdiff -- --golden"
+  },
+  "bin": {
+    "d2l-test-runner": "./bin/d2l-test-runner.js"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
@@ -24,8 +28,7 @@
     "sinon": "^15"
   },
   "exports": {
-    ".": "./src/browser/index.js",
-    "./wtr-config.js": "./src/server/index.js"
+    ".": "./src/browser/index.js"
   },
   "files": [
     "/src"
@@ -36,11 +39,13 @@
   "dependencies": {
     "@rollup/plugin-node-resolve": "^15",
     "@open-wc/testing": "^3",
+    "@web/config-loader": "^0.2",
     "@web/rollup-plugin-html": "^2",
     "@web/test-runner": "^0.16",
     "@web/test-runner-commands": "^0.7",
     "@web/test-runner-playwright": "^0.10",
     "command-line-args": "^5",
+    "command-line-usage": "^7",
     "glob": "^10",
     "lit": "^2",
     "page": "^1",
