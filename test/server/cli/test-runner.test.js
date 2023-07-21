@@ -25,7 +25,7 @@ describe('runner.getOptions()', () => {
 
 	it('should not forward disallowed or stolen options', async() => {
 		const disallowed = ['--browsers', '--playwright', '--puppeteer', '--groups', '--manual'];
-		const stolen = ['--config'];
+		const stolen = ['--config', '--open'];
 		const opts = await runner.getOptions([ ...disallowed, ...stolen, '--unknown-allowed']);
 		expect(opts.argv).to.deep.equal(['--group', 'test', '--unknown-allowed']);
 	});

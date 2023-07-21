@@ -30,7 +30,7 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'watch',
 			type: Boolean,
 			description: 'Reload tests on file changes. Allows debugging in all browsers.',
-			order: 9
+			order: 10
 		},
 
 		// d2l-test-runner options
@@ -42,8 +42,8 @@ async function getTestRunnerOptions(argv = []) {
 		},
 		{
 			name: 'chrome',
-			type: Boolean,
-			longAlias: 'chromium'
+			longAlias: 'chromium',
+			type: Boolean
 		},
 		{
 			name: 'config',
@@ -70,7 +70,7 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'golden',
 			type: Boolean,
 			description: 'Generate new golden screenshots. Ignored unless group is "vdiff".',
-			order: 10
+			order: 12
 		},
 		{
 			name: 'grep',
@@ -83,7 +83,13 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'help',
 			type: Boolean,
 			description: 'Print usage information and exit',
-			order: 12
+			order: 13
+		},
+		{
+			name: 'open',
+			type: Boolean,
+			description: 'Open the browser in headed mode',
+			order: 11
 		},
 		{
 			name: 'safari',
