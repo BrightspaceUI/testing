@@ -31,6 +31,10 @@ const controls = `
 			align-items: center;
 		}
 
+		[dir="rtl"] #d2l-test-controls #run {
+			flex-direction: row-reverse;
+		}
+
 		#d2l-test-controls #start {
 			font-size: 22px;
 			height: 600px;
@@ -46,6 +50,7 @@ const controls = `
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
+			text-align: left;
 		}
 
 		#d2l-test-controls button {
