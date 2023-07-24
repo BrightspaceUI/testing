@@ -123,6 +123,7 @@ export class WTRConfig {
 		const {
 			timeout = timeoutConfig,
 			grep,
+			open,
 			watch
 		} = this.#cliArgs;
 
@@ -131,7 +132,7 @@ export class WTRConfig {
 		const config = {};
 
 		if (timeout) config.timeout = String(timeout);
-		if (watch) config.timeout = '0';
+		if (open || watch) config.timeout = '0';
 		if (grep) config.grep = grep;
 
 		return Object.keys(config).length && { testFramework: { config } };
@@ -143,7 +144,7 @@ export class WTRConfig {
 		...passthroughConfig
 	} = {}) {
 
-		const { files, filter, golden, grep, group, watch } = this.#cliArgs;
+		const { files, filter, golden, grep, group, open, watch } = this.#cliArgs;
 		const passthroughGroupNames = passthroughConfig.groups?.map(g => g.name) ?? [];
 
 		if (!['test', 'vdiff', ...passthroughGroupNames].includes(group)) {
@@ -185,12 +186,13 @@ export class WTRConfig {
 		// convert all browsers to playwright
 		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers));
 
-		if (watch) {
+		if (open || watch) {
 			config.plugins ??= [];
 			const currentPattern = files || config.groups.find(g => g.name === group)?.files;
 
 			config.plugins.push(headedMode({
 				pattern: currentPattern,
+				open,
 				watch
 			}));
 		}
@@ -204,9 +206,13 @@ export class WTRConfig {
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 
 		return [...new Set(browsers)].map((b) => playwrightLauncher({
-			concurrency: b === 'firefox' ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
+			concurrency: b === 'firefox' || this.#cliArgs.open ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
 			product: b,
-			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' })
+			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' }),
+			launchOptions: {
+				headless: !this.#cliArgs.open,
+				devtools: false
+			}
 		}));
 	}
 

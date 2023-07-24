@@ -56,7 +56,7 @@ describe('WTRConfig', () => {
 		});
 
 		it('should set timeout to 0 and add headedMode plugin when headed', () => {
-			['watch'].forEach(mode => {
+			['open', 'watch'].forEach(mode => {
 				const wtrConfig = new WTRConfig({ timeout: 4000, [mode]: true });
 				const config = wtrConfig.create({ timeout: 3000 });
 				expect(config.plugins).to.have.length(1);
