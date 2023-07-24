@@ -13,8 +13,8 @@ export const ICON_FULL = svg`
 `;
 
 export const ICON_NEXT = svg`
-	<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-		<path fill="currentColor" d="M10.25 22.987l7.99-9c.51-.57.76-1.28.76-1.99s-.25-1.42-.74-1.98c-.01 0-.01-.01-.01-.01l-.02-.02-7.98-8.98c-1.1-1.24-3.002-1.35-4.242-.25-1.24 1.1-1.35 3-.25 4.23l6.23 7.01-6.23 7.01c-1.1 1.24-.99 3.13.25 4.24 1.24 1.1 3.13.98 4.24-.26z"/>
+	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
+		<path fill="currentColor" d="M5.49 15.61a1.5 1.5 0 0 1-.1-2.12L9.47 9 5.39 4.51a1.5 1.5 0 1 1 2.22-2.02L12.62 8A1.474 1.474 0 0 1 13 9a1.524 1.524 0 0 1-.38 1l-5.01 5.51a1.5 1.5 0 0 1-2.12.1z"/>
 	</svg>
 `;
 
@@ -32,8 +32,8 @@ export const ICON_NO_GOLDEN = svg`
 `;
 
 export const ICON_PREV = svg`
-	<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-		<path fill="currentColor" d="M13.75 22.987l-7.99-9c-.51-.57-.76-1.28-.76-1.99s.25-1.42.74-1.98c.01 0 .01-.01.01-.01l.02-.02 7.98-8.98c1.1-1.24 3.002-1.35 4.242-.25 1.24 1.1 1.35 3 .25 4.23l-6.23 7.01 6.23 7.01c1.1 1.24.99 3.13-.25 4.24-1.24 1.1-3.13.98-4.24-.26z"/>
+	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
+		<path fill="currentColor" d="M9.39 15.51 4.38 10A1.524 1.524 0 0 1 4 9a1.474 1.474 0 0 1 .38-1l5.01-5.51a1.5 1.5 0 0 1 2.22 2.02L7.53 9l4.08 4.49a1.5 1.5 0 0 1-2.22 2.02z"/>
 	</svg>
 `;
 
