@@ -70,7 +70,7 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'golden',
 			type: Boolean,
 			description: 'Generate new golden screenshots. Ignored unless group is "vdiff".',
-			order: 12
+			order: 13
 		},
 		{
 			name: 'grep',
@@ -83,7 +83,7 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'help',
 			type: Boolean,
 			description: 'Print usage information and exit',
-			order: 13
+			order: 14
 		},
 		{
 			name: 'open',
@@ -95,6 +95,12 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'safari',
 			longAlias: 'webkit',
 			type: Boolean
+		},
+		{
+			name: 'slowmo',
+			type: Number,
+			description: 'Slows down test operations by the specified number of milliseconds. Useful so that you can see what is going on.',
+			order: 12
 		},
 		{
 			name: 'timeout',

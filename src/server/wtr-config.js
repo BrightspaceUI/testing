@@ -211,7 +211,8 @@ export class WTRConfig {
 			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' }),
 			launchOptions: {
 				headless: !this.#cliArgs.open,
-				devtools: false
+				devtools: false,
+				slowMo: this.#cliArgs.slowmo || 0
 			}
 		}));
 	}
