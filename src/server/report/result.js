@@ -1,6 +1,7 @@
 import { css, html, nothing } from 'lit';
 import { FILTER_STATUS, FULL_MODE, LAYOUTS, renderEmpty, renderStatusText, STATUS_TYPE } from './common.js';
 import { ICON_BROWSERS, ICON_NO_GOLDEN, ICON_TADA } from './icons.js';
+import data from './data.js';
 
 export const RESULT_STYLE = css`
 	.result-browser {
@@ -13,6 +14,9 @@ export const RESULT_STYLE = css`
 		flex: 0 0 auto;
 		height: 50px;
 		width: 50px;
+	}
+	.result-browser-info {
+		flex: 1 1 auto;
 	}
 	.result-browser-name {
 		font-size: 1.2rem;
@@ -101,6 +105,29 @@ export const RESULT_STYLE = css`
 	}
 `;
 
+function renderBrowserInfo(browser) {
+
+	const previousVersion = data.browsers.find(b => b.name === browser.name).previousVersion || 'unknown';
+
+	let browserDiffInfo = nothing;
+	if (previousVersion !== browser.version) {
+		browserDiffInfo = html`
+			<div class="browser-diff">
+				<div class="browser-diff-title">Browser Version Change</div>
+				<div><strong>${previousVersion}</strong> (golden) to <strong>${browser.version}</strong> (new)</div>
+			</div>`;
+	}
+
+	return html`<div class="result-browser padding">
+		${ICON_BROWSERS[browser.name]}
+		<div class="result-browser-info">
+			<div class="result-browser-name">${browser.name}</div>
+			<div>version ${browser.version}</div>
+		</div>
+		${browserDiffInfo}
+	</div>`;
+}
+
 function renderResult(resultData, options) {
 
 	if (!resultData.passed && resultData.info === undefined) {
@@ -180,13 +207,7 @@ export function renderBrowserResults(browser, tests, options) {
 
 	}, []);
 	return html`
-		<div class="result-browser padding">
-			${ICON_BROWSERS[browser.name]}
-			<div>
-				<div class="result-browser-name">${browser.name}</div>
-				<div>version ${browser.version}</div>
-			</div>
-		</div>
+		${renderBrowserInfo(browser)}
 		${results.length === 0 ? renderEmpty() : results}
 	`;
 }

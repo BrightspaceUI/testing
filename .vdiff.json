@@ -1,0 +1,16 @@
+{
+	"browsers": [
+		{
+			"name": "Chromium",
+			"version": 115
+		},
+		{
+			"name": "Firefox",
+			"version": 115
+		},
+		{
+			"name": "Webkit",
+			"version": 17
+		}
+	]
+}
