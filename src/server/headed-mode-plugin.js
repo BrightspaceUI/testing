@@ -1,3 +1,4 @@
+import { dirname, join } from 'node:path';
 import { globSync } from 'glob';
 
 export function headedMode({ open, watch, pattern }) {
@@ -8,7 +9,8 @@ export function headedMode({ open, watch, pattern }) {
 		name: 'brightspace-headed-mode',
 		async transform(context) {
 			if ((watch || open) && files.includes(context.path.slice(1))) {
-				return `debugger;\n${context.body}`;
+				const pausePath = join(dirname(import.meta.url), 'pause.js').replace('file:', '');
+				return `debugger;\nimport '${pausePath}'\n${context.body}`;
 			}
 		}
 	};
