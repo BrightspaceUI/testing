@@ -68,6 +68,7 @@ const controls = `
 		}
 
 		#d2l-test-controls button[disabled] {
+			cursor: default;
 			opacity: 0.5;
 		}
 	</style>
