@@ -117,8 +117,10 @@ const controls = `
 
 document.body.insertAdjacentHTML('afterBegin', controls);
 
-document.querySelector('#skip-button').addEventListener('click', skip);
 document.querySelector('#skip-all-button').addEventListener('click', skipAll);
+
+const skipBtn = document.querySelector('#skip-button');
+skipBtn.addEventListener('click', skip);
 
 const startBtn = document.querySelector('#start-button');
 startBtn.addEventListener('click', start);
@@ -147,6 +149,7 @@ beforeEach(async function() {
 
 		if (test.pause) {
 			runBtn.disabled = false;
+			skipBtn.disabled = false;
 			runBtn.focus();
 		}
 	});
@@ -161,6 +164,7 @@ function start() {
 
 function run() {
 	runBtn.disabled = true;
+	skipBtn.disabled = true;
 	test.run();
 }
 
