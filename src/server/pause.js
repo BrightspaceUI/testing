@@ -51,8 +51,9 @@ const controls = `
 			cursor: pointer;
 		}
 
-		#d2l-test-controls button:focus {
-			background-color: #cdd5dc;
+		#d2l-test-controls button.primary {
+			color: #fff;
+			background-color: #006fbf;
 		}
 
 		#d2l-test-controls button:focus {
