@@ -24,16 +24,16 @@ describe('runner.getOptions()', () => {
 	});
 
 	it('should not forward disallowed or stolen options', async() => {
-		const disallowed = ['--browsers', '--playwright', '--puppeteer', '--groups'];
+		const disallowed = ['--browsers', '--playwright', '--puppeteer', '--groups', '--manual'];
 		const stolen = ['--config'];
 		const opts = await runner.getOptions([ ...disallowed, ...stolen, '--unknown-allowed']);
 		expect(opts.argv).to.deep.equal(['--group', 'test', '--unknown-allowed']);
 	});
 
 	it('should forward borrowed options', async() => {
-		const borrowed = ['--watch', '--manual'];
+		const borrowed = ['--watch'];
 		const opts = await runner.getOptions(borrowed);
-		expect(opts.argv).to.deep.equal(['--group', 'test', '--watch', '--manual']);
+		expect(opts.argv).to.deep.equal(['--group', 'test', '--watch']);
 	});
 
 	it('should convert aliases', async() => {
