@@ -25,7 +25,7 @@ function createData(rootDir, sessions) {
 			browsers.set(browserName, {
 				name: browserName,
 				numFailed: 0,
-				version: parseInt(s.browser.browser.version().substring(0, s.browser.browser.version().indexOf('.'))),
+				version: parseInt(s.browser.browser.version()),
 				previousVersion: prevBrowser?.version
 			});
 		}
