@@ -2,6 +2,7 @@ import { css, html, LitElement } from 'lit';
 
 class Button extends LitElement {
 	static properties = {
+		disabled: { type: Boolean },
 		text: { type: String }
 	};
 	static styles = [css`
@@ -10,7 +11,6 @@ class Button extends LitElement {
 		}
 		button {
 			align-items: center;
-			background-color: #ffffff;
 			border: 1px solid #cdd5dc;
 			border-radius: 5px;
 			cursor: pointer;
@@ -22,6 +22,11 @@ class Button extends LitElement {
 			padding: 10px;
 			user-select: none;
 		}
+		button,
+		button[disabled]:hover {
+			background-color: #ffffff;
+			color: #6e7477;
+		}
 		button:hover,
 		button:focus {
 			background-color: #007bff;
@@ -31,9 +36,17 @@ class Button extends LitElement {
 			border-color: #007bff;
 			box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #007bff;
 		}
+		button[disabled] {
+			cursor: default;
+			opacity: 0.5;
+		}
 	`];
+	constructor() {
+		super();
+		this.disabled = false;
+	}
 	render() {
-		return html`<button type="button"><slot></slot>${this.text}</button>`;
+		return html`<button ?disabled="${this.disabled}" type="button"><slot></slot>${this.text}</button>`;
 	}
 }
 

@@ -1,11 +1,11 @@
 import './button.js';
 import { COMMON_STYLE, FILTER_STATUS, FULL_MODE, LAYOUTS, renderEmpty, renderTestStatus } from './common.js';
 import { css, html, LitElement, nothing } from 'lit';
+import { ICON_NEXT, ICON_PREV } from './icons.js';
 import { RADIO_STYLE, renderRadio } from './radio.js';
 import { renderBrowserResults, RESULT_STYLE } from './result.js';
 import { renderTabButtons, renderTabPanel, TAB_STYLE } from './tabs.js';
 import data from './data.js';
-import { ICON_HOME } from './icons.js';
 import page from 'page';
 
 class App extends LitElement {
@@ -15,33 +15,30 @@ class App extends LitElement {
 		_filterTest: { state: true },
 		_fullMode: { state: true },
 		_layout: { state: true },
-		_overlay: { state: true },
-		_selectedBrowserIndex: { state: true }
+		_overlay: { state: true }
 	};
 	static styles = [COMMON_STYLE, RADIO_STYLE, RESULT_STYLE, TAB_STYLE, css`
-		.container {
+		:host {
 			display: grid;
-			grid-auto-flow: row;
-			grid-template-areas: "sidebar content";
-			grid-template-columns: 300px auto;
+			grid-template-columns: 275px auto;
+			height: 100vh;
+			overflow: hidden;
 		}
 		aside {
 			background-color: #fff;
 			border-right: 1px solid #e6e6e6;
 			box-shadow: 0 0 6px rgba(0,0,0,.07);
-			box-sizing: border-box;
-			grid-area: sidebar;
-			height: 100vh;
-			position: sticky;
-			top: 0;
-			z-index: 10;
-		}
-		aside > div {
-			padding: 10px;
+			padding: 20px;
 		}
 		main {
 			background-color: #fafafa;
-			grid-area: content;
+			overflow-y: scroll;
+		}
+		main > .item-container:first-child {
+			padding-top: 20px;
+		}
+		.list-file-title {
+			padding-bottom: 20px;
 		}
 		table {
 			background-color: #ffffff;
@@ -49,7 +46,7 @@ class App extends LitElement {
 			width: 100%;
 		}
 		td, th {
-			border: 1px solid #dfe6ef;
+			border: 1px solid #cdd5dc;
 			padding: 10px;
 			text-align: center;
 		}
@@ -68,8 +65,8 @@ class App extends LitElement {
 		}
 		fieldset {
 			border: none;
-			margin-inline: 0;
-			padding-inline: 0;
+			margin: 20px 0;
+			padding: 0;
 		}
 		fieldset > legend {
 			font-weight: bold;
@@ -77,40 +74,37 @@ class App extends LitElement {
 		.test-results {
 			display: grid;
 			grid-template-rows: auto 1fr auto;
-			grid-template-areas:
-				'header'
-				'content';
 			height: 100vh;
 		}
 		.header {
 			background-color: #f0f0f0;
 			border-bottom: 1px solid #cdd5dc;
 			box-shadow: 0 0 6px rgba(0,0,0,.07);
-			grid-area: header;
 		}
 		.tab-panels {
-			grid-area: content;
 			overflow: auto;
 		}
 		.title {
 			align-items: center;
 			display: flex;
+			font-size: 1.5rem;
+			gap: 5px;
 			padding: 20px 20px 0 20px;
 		}
 		.title h2 {
-			margin: 0;
-		}
-		.title-info {
-			flex: 1 0 auto;
-		}
-		.title-navigation {
-			flex: 0 0 auto;
+			font-size: inherit;
 		}
 		.settings {
 			align-items: center;
 			display: flex;
 			padding: 20px;
-			gap: 20px;
+			gap: 10px;
+		}
+		.settings > * {
+			flex: 0 0 auto;
+		}
+		.settings > .spacer {
+			flex: 1 1 auto;
 		}
 		.settings-box {
 			background-color: #ffffff;
@@ -145,6 +139,7 @@ class App extends LitElement {
 			} else {
 				this._filterFile = undefined;
 				this._filterTest = undefined;
+				this._selectedBrowserIndex = -1;
 			}
 			if (searchParams.has('status')) {
 				let filterStatus = searchParams.get('status');
@@ -160,19 +155,14 @@ class App extends LitElement {
 	}
 	render() {
 		return html`
-			<div class="container">
-				<aside>
-					<div>
-						<h1>Visual-diff Results</h1>
-						${this._renderFilters()}
-					</div>
-				</aside>
-				<main>${this._renderMainView()}</main>
-			</div>
+			<aside>
+				<div>
+					<h1>Visual-diff Results</h1>
+					${this._renderFilters()}
+				</div>
+			</aside>
+			<main>${this._renderMainView()}</main>
 		`;
-	}
-	_handleBackClick() {
-		this._updateSearchParams({ file: undefined, test: undefined });
 	}
 	_handleFilterBrowserChange(e) {
 		const browsers = data.browsers.map(b => b.name).filter(b => {
@@ -187,12 +177,14 @@ class App extends LitElement {
 	_handleFilterStatusChange(e) {
 		this._updateSearchParams({ status: e.target.value });
 	}
-	_handleListTestClick(e) {
-		this._updateSearchParams({ file: e.target.dataset.file, test: e.target.dataset.test });
-		return false;
+	_handleNextClick() {
+		this._updateSearchParams(this._next);
 	}
 	_handleOverlayChange(e) {
 		this._overlay = e.target.checked;
+	}
+	_handlePrevClick() {
+		this._updateSearchParams(this._prev);
 	}
 	_renderError(message, source) {
 		return html`<div class="padding"><p>${message}: <b>${source}</b>.</p></div>`;
@@ -248,18 +240,22 @@ class App extends LitElement {
 		searchParams.set('file', file.name);
 		searchParams.delete('test');
 		return html`
-			<h2><a href="${this._root}?${searchParams.toString()}" @click="${this._handleListFileClick}" data-file="${file.name}">${file.name}</a></h2>
-			<table>
-				<thead>
-					<tr>
-						<th style="text-align: left;">Test</th>
-						${data.browsers.map(b => renderBrowserCell(b))}
-					</tr>
-				</thead>
-				<tbody>
-					${file.tests.map(t => this._renderListFileTest(file, t))}
-				</tbody>
-			</table>
+			<div class="item-container">
+				<div class="list-file-title">
+					<h2><a href="${this._root}?${searchParams.toString()}">${file.name}</a></h2>
+				</div>
+				<table>
+					<thead>
+						<tr>
+							<th style="text-align: left;">Test</th>
+							${data.browsers.map(b => renderBrowserCell(b))}
+						</tr>
+					</thead>
+					<tbody>
+						${file.tests.map(t => this._renderListFileTest(file, t))}
+					</tbody>
+				</table>
+			</div>
 		`;
 	}
 	_renderListFileTest(file, test) {
@@ -275,7 +271,7 @@ class App extends LitElement {
 		searchParams.set('test', test.name);
 		return html`
 			<tr>
-				<th style="text-align: left;"><a href="${this._root}?${searchParams.toString()}" @click="${this._handleListTestClick}" data-file="${file.name}" data-test="${test.name}">${test.name}</a></th>
+				<th style="text-align: left;"><a href="${this._root}?${searchParams.toString()}">${test.name}</a></th>
 				${results}
 			</tr>
 		`;
@@ -283,13 +279,11 @@ class App extends LitElement {
 	_renderMainView() {
 
 		if (this._filterFile === undefined) {
-			let list;
 			if (this._files.length === 0) {
 				return renderEmpty();
 			} else {
-				list = this._files.map(f => this._renderListFile(f));
+				return this._files.map(f => this._renderListFile(f));
 			}
-			return html`<div class="padding">${list}</div>`;
 		}
 
 		const fileData = this._files.find(f => f.name === this._filterFile);
@@ -312,6 +306,7 @@ class App extends LitElement {
 		return renderTabButtons('browser results', tabs, index => {
 			this._selectedBrowserIndex = index;
 			this.shadowRoot.querySelector('.tab-panels').scrollTo(0, 0);
+			this.requestUpdate();
 		});
 	}
 	_renderTabPanels(tabs) {
@@ -349,9 +344,13 @@ class App extends LitElement {
 			});
 		});
 
-		const selectedBrowser = browsers[this._selectedBrowserIndex] ||
-			browsers.find(b => browserResults.get(b.name) < tests.length) ||
-			browsers[0];
+		if (!browsers[this._selectedBrowserIndex]) {
+			this._selectedBrowserIndex = Math.max(
+				browsers.findIndex((b) => browserResults.get(b.name) < tests.length),
+				0
+			);
+		}
+		const selectedBrowser = browsers[this._selectedBrowserIndex];
 
 		const tabs = browsers.map((b) => {
 			const numPassed = browserResults.get(b.name);
@@ -364,21 +363,25 @@ class App extends LitElement {
 			};
 		});
 
+		const homeSearchParams = new URLSearchParams(window.location.search);
+		homeSearchParams.delete('file');
+		homeSearchParams.delete('test');
+
 		return html`
 			<div class="test-results">
 				<div class="header">
 					<div class="title">
-						<div class="title-info">
-							<h2>${fileData.name}</h2>
-						</div>
-						<div class="title-navigation">
-							<d2l-vdiff-report-button text="Back" @click="${this._handleBackClick}">${ICON_HOME}</d2l-vdiff-report-button>
-						</div>
+						<a href="${this._root}?${homeSearchParams.toString()}">Home</a>
+						<span>&nbsp;&gt;&nbsp;</span>
+						<h2>${fileData.name}</h2>
 					</div>
 					<div class="settings">
 						${renderRadio('layout', this._layout, (val) => this._layout = val, [LAYOUTS.FULL, LAYOUTS.SPLIT])}
 						<label class="settings-box"><input type="checkbox" ?checked="${this._overlay}" @change="${this._handleOverlayChange}">Overlay Difference</label>
 						${fullMode}
+						<div class="spacer"></div>
+						<d2l-vdiff-report-button ?disabled="${this._prev === undefined}" text="Prev" @click="${this._handlePrevClick}">${ICON_PREV}</d2l-vdiff-report-button>
+						<d2l-vdiff-report-button ?disabled="${this._next === undefined}" text="Next" @click="${this._handleNextClick}">${ICON_NEXT}</d2l-vdiff-report-button>
 					</div>
 					${this._renderTabButtons(tabs)}
 				</div>
@@ -391,6 +394,12 @@ class App extends LitElement {
 
 		const files = [];
 		let foundFilterTest = false;
+		let lookingForNextFile = false;
+		let lookingForNextTest = false;
+		let prevFile, prevTest;
+
+		this._next = undefined;
+		this._prev = undefined;
 
 		data.files.forEach(f => {
 			const tests = [];
@@ -403,13 +412,31 @@ class App extends LitElement {
 						!r.passed && this._filterStatus === FILTER_STATUS.FAILED)) numStatusMatch++;
 				});
 				if (numStatusMatch > 0) {
-					tests.push(t);
-					if (t.name === this._filterTest) {
-						foundFilterTest = true;
+					if (lookingForNextTest) {
+						lookingForNextTest = false;
+						this._next = { file: f.name, test: t.name };
 					}
+					if (t.name === this._filterTest && f.name === this._filterFile) {
+						foundFilterTest = true;
+						lookingForNextTest = true;
+						this._prev = prevTest;
+					}
+					prevTest = { file: f.name, test: t.name };
+					tests.push(t);
 				}
 			});
 			if (tests.length > 0) {
+				if (this._filterTest === undefined) {
+					if (lookingForNextFile) {
+						lookingForNextFile = false;
+						this._next = { file: f.name };
+					}
+					if (f.name === this._filterFile) {
+						lookingForNextFile = true;
+						this._prev = prevFile;
+					}
+				}
+				prevFile = { file: f.name };
 				files.push({ ...f, tests });
 			}
 		});
