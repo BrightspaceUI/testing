@@ -9,7 +9,7 @@
     "start": "web-dev-server --root-dir ./.vdiff --open ./.report/",
     "test": "npm run lint && npm run test:bin && npm run test:server && npm run test:browser",
     "test:bin": "mocha './test/bin/**/*.test.js'",
-    "test:browser": "web-test-runner --files './test/browser/**/*.test.js' --node-resolve --playwright",
+    "test:browser": "npx d2l-test-runner --files './test/browser/**/*.test.js'",
     "test:server": "mocha './test/server/**/*.test.js'",
     "test:vdiff": "npx d2l-test-runner --config ./test/browser/vdiff.config.js --group vdiff",
     "test:vdiff:golden": "npm run test:vdiff -- --golden"
