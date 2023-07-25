@@ -7,6 +7,7 @@ const DEFAULT_LANG = 'en',
 
 let currentLang = undefined,
 	currentRtl = false,
+	currentTheme = undefined,
 	currentViewportHeight = 0,
 	currentViewportWidth = 0,
 	shouldResetMouse = false;
@@ -51,6 +52,16 @@ export async function reset(opts) {
 	if (opts.lang !== currentLang) {
 		document.documentElement.setAttribute('lang', opts.lang);
 		currentLang = opts.lang;
+		awaitNextFrame = true;
+	}
+
+	if (opts.theme !== currentTheme) {
+		if (opts.theme === 'dark') {
+			document.body.setAttribute('data-theme', 'dark');
+		} else {
+			document.body.removeAttribute('data-theme');
+		}
+		currentTheme = opts.theme;
 		awaitNextFrame = true;
 	}
 

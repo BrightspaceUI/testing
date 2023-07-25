@@ -95,6 +95,9 @@ export class WTRConfig {
 								line-height: 1.4rem;
 								padding: 30px;
 							}
+							body[data-theme="dark"] {
+								background-color: #000000;
+							}
 						</style>
 					</head>
 					<body>

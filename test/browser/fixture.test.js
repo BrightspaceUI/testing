@@ -157,6 +157,19 @@ describe('fixture', () => {
 			expect(window.innerWidth).to.equal(800);
 		});
 
+		it('should use no theme by default', async() => {
+			await fixture(html`<p>hello</p>`);
+			expect(document.body.hasAttribute('data-theme')).to.be.false;
+		});
+
+		it('should reset theme', async() => {
+			const elem = html`<p>hello</p>`;
+			await fixture(elem, { theme: 'dark' });
+			expect(document.body.getAttribute('data-theme')).to.equal('dark');
+			await fixture(elem);
+			expect(document.body.hasAttribute('data-theme')).to.be.false;
+		});
+
 	});
 
 	describe('waitForElem', () => {
