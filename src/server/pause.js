@@ -43,7 +43,6 @@ const controls = `
 		#d2l-test-controls #run {
 			display: flex;
 			gap: 0.65em;
-			flex-wrap: wrap;
 			align-items: center;
 		}
 
@@ -60,13 +59,26 @@ const controls = `
 			box-shadow: none;
 		}
 
-		#d2l-test-controls #test-name {
-			font-size: 0.9em;
+		#d2l-test-controls #title {
 			flex: 1;
+			text-align: left;
 			white-space: nowrap;
+			margin: 0 0.5em;
+			overflow: hidden;
+		}
+
+		#d2l-test-controls #root-name {
+			font-size: .7em;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			text-align: left;
+			color: #999;
+			line-height: 1;
+		}
+
+		#d2l-test-controls #test-name {
+			font-size: 0.9em;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 
 		#d2l-test-controls button {
@@ -129,7 +141,10 @@ const controls = `
 		</div>
 		<div id="run" hidden>
 			<button id="run-button" class="primary">Run</button>
-			<span id="test-name"></span>
+			<div id="title">
+				<div id="root-name"></div>
+				<div id="test-name"></div>
+			</div>
 			<button id="skip-button" class="subtle">Skip</button>
 			<button id="run-all-button">Run All</button>
 		</div>
@@ -153,6 +168,7 @@ const runBtn = document.querySelector('#run-button');
 runBtn.addEventListener('click', run);
 
 const testName = document.querySelector('#test-name');
+const rootName = document.querySelector('#root-name');
 
 /* eslint-disable no-undef, no-invalid-this */
 let currentTest, focusEl = runBtn;
@@ -166,7 +182,9 @@ beforeEach(async function() {
 	setTimeout(async() => {
 		await fixture;
 
-		testName.innerText = currentTest.fullTitle();
+		const titlePath = currentTest.titlePath();
+		testName.innerText = testName.title = titlePath.slice(1).join(' > ');
+		rootName.innerText = titlePath[0];
 
 		if (test.pause) {
 			runBtn.disabled = false;
