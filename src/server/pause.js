@@ -67,6 +67,11 @@ const controls = `
 			overflow: hidden;
 		}
 
+		#d2l-test-controls #test-name .title-sep {
+			-webkit-user-select: none;
+			user-select: none;
+		}
+
 		#d2l-test-controls #root-name {
 			font-size: .7em;
 			overflow: hidden;
@@ -183,7 +188,7 @@ beforeEach(async function() {
 		await fixture;
 
 		const titlePath = currentTest.titlePath();
-		testName.innerText = testName.title = titlePath.slice(1).join(' > ');
+		testName.innerHTML = testName.title = titlePath.slice(1).join('<span class="title-sep"> ></span> ')
 		rootName.innerText = titlePath[0];
 
 		if (test.pause) {
