@@ -1,6 +1,9 @@
 import { chai, expect } from '@open-wc/testing';
 import { executeServerCommand } from '@web/test-runner-commands';
 
+// start loading fonts early
+[...document.fonts].forEach(font => font.load());
+
 let test;
 
 /* eslint-disable no-undef, no-invalid-this */
