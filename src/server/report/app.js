@@ -49,6 +49,7 @@ class App extends LitElement {
 			border: 1px solid #cdd5dc;
 			padding: 10px;
 			text-align: center;
+			white-space: nowrap;
 		}
 		thead th {
 			background-color: #f5f5f5;
@@ -56,6 +57,8 @@ class App extends LitElement {
 		tbody th {
 			font-weight: normal;
 			text-align: left;
+			width: 100%;
+			white-space: normal;
 		}
 		td.passed {
 			background-color: #efffd9;
