@@ -134,7 +134,7 @@ runBtn.addEventListener('click', run);
 const testName = document.querySelector('#test-name');
 
 /* eslint-disable no-undef, no-invalid-this */
-let currentTest;
+let currentTest, focusEl = runBtn;
 beforeEach(async function() {
 	const fixture = new Promise(r => test.update = r);
 
@@ -150,7 +150,7 @@ beforeEach(async function() {
 		if (test.pause) {
 			runBtn.disabled = false;
 			skipBtn.disabled = false;
-			runBtn.focus();
+			focusEl.focus();
 		}
 	});
 });
@@ -163,6 +163,7 @@ function start() {
 }
 
 function run() {
+	focusEl = runBtn;
 	runBtn.disabled = true;
 	skipBtn.disabled = true;
 	test.run();
@@ -175,6 +176,7 @@ function runAll() {
 }
 
 function skip() {
+	focusEl = skipBtn;
 	run();
 	try {
 		currentTest.skip();
