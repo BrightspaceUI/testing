@@ -41,7 +41,8 @@ describe('runner.getOptions()', () => {
 			'-c', './test/browser/vdiff.config.js',
 			'-f', 'abc',
 			'-g', 'ghi',
-			'-t', 123]
+			'-t', 123,
+			'-s', 456]
 		);
 		expect(opts.argv).to.deep.equal(['--group', 'test']);
 		expect(opts.config.groups[0]).to.deep.include({
@@ -49,7 +50,7 @@ describe('runner.getOptions()', () => {
 			files: [ 'test/browser/**/+(abc.vdiff.js)' ]
 		});
 		expect(opts.config.testFramework).to.deep.include({
-			config: { timeout: '123', grep: 'ghi' }
+			config: { timeout: '123', grep: 'ghi', slow: '456' }
 		});
 	});
 

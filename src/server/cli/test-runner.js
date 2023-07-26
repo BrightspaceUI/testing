@@ -1,9 +1,9 @@
 import { ConfigLoaderError, readConfig } from '@web/config-loader';
+import { DEFAULT_VDIFF_SLOW, WTRConfig } from '../wtr-config.js';
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
 import process from 'node:process';
 import { startTestRunner } from '@web/test-runner';
-import { WTRConfig } from '../wtr-config.js';
 
 async function getTestRunnerOptions(argv = []) {
 
@@ -70,7 +70,7 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'golden',
 			type: Boolean,
 			description: 'Generate new golden screenshots. Ignored unless group is "vdiff".',
-			order: 13
+			order: 14
 		},
 		{
 			name: 'grep',
@@ -83,7 +83,7 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'help',
 			type: Boolean,
 			description: 'Print usage information and exit',
-			order: 14
+			order: 15
 		},
 		{
 			name: 'open',
@@ -95,6 +95,13 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'safari',
 			longAlias: 'webkit',
 			type: Boolean
+		},
+		{
+			name: 'slow',
+			alias: 's',
+			type: Number,
+			description: `Tests whose duration in milliseconds are at most half of this threshold are "fast" and tests which exceed it are "slow"\n[Default: 75 (normal), ${DEFAULT_VDIFF_SLOW} (vdiff)]`,
+			order: 13
 		},
 		{
 			name: 'slowmo',
