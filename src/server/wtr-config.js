@@ -175,7 +175,7 @@ export class WTRConfig {
 			});
 		} else if (group === 'vdiff') {
 			config.reporters ??= [ defaultReporter() ];
-			config.reporters.push(visualDiffReporter({ reportResults: !golden }));
+			config.reporters.push(visualDiffReporter({ updateGoldens: golden }));
 
 			config.plugins ??= [];
 			config.plugins.push(visualDiff({ updateGoldens: golden, runSubset: !!(filter || grep) }));
