@@ -7,13 +7,15 @@ import { PNG } from 'pngjs';
 const isCI = !!env['CI'];
 const DEFAULT_MARGIN = 10;
 const DEFAULT_TOLERANCE = 0; // TODO: Support tolerance override?
+const METADATA_NAME = '.vdiff.json';
+const ROOT_NAME = '.vdiff';
 export const PATHS = {
 	FAIL: 'fail',
 	GOLDEN: 'golden',
 	PASS: 'pass',
-	METADATA: '.vdiff.json',
+	METADATA: isCI ? METADATA_NAME : join(ROOT_NAME, METADATA_NAME),
 	REPORT_ROOT: '.report',
-	VDIFF_ROOT: '.vdiff'
+	VDIFF_ROOT: ROOT_NAME
 };
 
 async function checkFileExists(fileName) {

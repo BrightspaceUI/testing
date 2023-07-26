@@ -1,12 +1,14 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { getTestInfo, PATHS } from './visual-diff-plugin.js';
+import { env } from 'node:process';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const isCI = !!env['CI'];
 
-function createData(rootDir, sessions) {
+function createData(rootDir, updateGoldens, sessions) {
 
 	let metadata = {};
 	const metadataPath = join(rootDir, PATHS.METADATA);
@@ -51,10 +53,12 @@ function createData(rootDir, sessions) {
 		});
 	});
 
-	metadata.browsers = Array.from(browsers.values()).map(b => {
-		return { name: b.name, version: b.version };
-	});
-	writeFileSync(metadataPath, JSON.stringify(metadata, undefined, '\t'));
+	if (isCI || updateGoldens) {
+		metadata.browsers = Array.from(browsers.values()).map(b => {
+			return { name: b.name, version: b.version };
+		});
+		writeFileSync(metadataPath, JSON.stringify(metadata, undefined, '\t'));
+	}
 
 	return { browsers, files, numFailed, numTests };
 
@@ -99,7 +103,7 @@ function flattenResults(session, browserData, fileData) {
 
 }
 
-export function visualDiffReporter({ reportResults = true } = {}) {
+export function visualDiffReporter({ updateGoldens } = {}) {
 	let rootDir;
 	return {
 		start({ config }) {
@@ -108,13 +112,13 @@ export function visualDiffReporter({ reportResults = true } = {}) {
 		},
 		stop({ sessions }) {
 
-			if (!reportResults) return;
-
-			const data = createData(rootDir, sessions);
+			const data = createData(rootDir, updateGoldens, sessions);
 			const json = JSON.stringify(data, (_key, val) => {
 				if (val instanceof Map) return [...val.values()].sort((a, b) => a.name.localeCompare(b.name));
 				return val;
 			}, '\t');
+
+			if (updateGoldens) return;
 
 			const inputDir = join(__dirname, 'report');
 			const reportDir = join(rootDir, PATHS.VDIFF_ROOT, PATHS.REPORT_ROOT);
