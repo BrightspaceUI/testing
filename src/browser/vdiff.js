@@ -3,16 +3,18 @@ import { executeServerCommand } from '@web/test-runner-commands';
 
 let test;
 
+/* eslint-disable no-undef, no-invalid-this */
 chai.Assertion.addMethod('golden', function(...args) {
-	return ScreenshotAndCompare.call({ test, elem: this._obj }, ...args); // eslint-disable-line no-invalid-this
+	return ScreenshotAndCompare.call({ test, elem: this._obj }, ...args);
 });
-mocha.setup({ // eslint-disable-line no-undef
+mocha.setup({
 	rootHooks: {
 		beforeEach() {
 			test = this.currentTest;
 		}
 	}
 });
+/* eslint-enable */
 
 async function ScreenshotAndCompare(opts) {
 	const name = this.test.fullTitle();
