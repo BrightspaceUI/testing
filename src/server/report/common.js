@@ -15,6 +15,24 @@ export const COMMON_STYLE = css`
 		outline: 2px solid #007bff;
 		outline-offset: 1px;
 	}
+	.browser-diff {
+		background-color: #fff9d6;
+		border: 1px solid #ffba59;
+		border-radius: 4px;
+		color: #6e7477;
+		padding: 5px;
+	}
+	.result-browser > .browser-diff {
+		text-align: end;
+	}
+	.browser-diff-title {
+		color: #c47400;
+		font-weight: bold;
+	}
+	.browser-diff ul {
+		margin: 5px 0 0 0;
+		padding-inline-start: 15px;
+	}
 	.empty {
 		align-items: center;
 		display: flex;

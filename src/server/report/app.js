@@ -157,7 +157,7 @@ class App extends LitElement {
 		return html`
 			<aside>
 				<div>
-					<h1>Visual-diff Results</h1>
+					<h1>Visual-Diff Report</h1>
 					${this._renderFilters()}
 				</div>
 			</aside>
@@ -222,12 +222,29 @@ class App extends LitElement {
 				${ data.browsers.map(b => renderBrowser(b))}
 			</fieldset>` : nothing;
 
+		const browserDiffs = data.browsers.reduce((acc, b) => {
+			const previousVersion = b.previousVersion || 'unknown';
+			if (previousVersion === b.version) {
+				return acc;
+			}
+			return acc.push(html`
+				<li>${b.name}: <strong>${previousVersion}</strong> to <strong>${b.version}</strong></li>
+			`) && acc;
+		}, []);
+		const browserDiffInfo = browserDiffs.length > 0 ? html`
+			<div class="browser-diff">
+				<div class="browser-diff-title">Browser Version Changes</div>
+				<ul>${browserDiffs}</ul>
+			</div>
+		` : nothing;
+
 		return html`
 			<fieldset>
 				<legend>Test Status</legend>
 				${statusFilters.map(f => renderStatusFilter(f))}
 			</fieldset>
 			${browserFilter}
+			${browserDiffInfo}
 		`;
 
 	}

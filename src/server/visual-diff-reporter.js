@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { getTestInfo, PATHS } from './visual-diff-plugin.js';
 import { execSync } from 'node:child_process';
@@ -8,6 +8,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function createData(rootDir, sessions) {
 
+	let metadata = {};
+	const metadataPath = join(rootDir, PATHS.METADATA);
+	if (existsSync(metadataPath)) {
+		metadata = JSON.parse(readFileSync(metadataPath));
+	}
+
 	const files = new Map();
 	const browsers = new Map();
 
@@ -15,10 +21,12 @@ function createData(rootDir, sessions) {
 
 		const browserName = s.browser.name;
 		if (!browsers.has(browserName)) {
+			const prevBrowser = metadata.browsers?.find(b => b.name === browserName);
 			browsers.set(browserName, {
 				name: browserName,
 				numFailed: 0,
-				version: s.browser.browser.version().substring(0, s.browser.browser.version().indexOf('.'))
+				version: parseInt(s.browser.browser.version()),
+				previousVersion: prevBrowser?.version
 			});
 		}
 		const browserData = browsers.get(browserName);
@@ -42,6 +50,11 @@ function createData(rootDir, sessions) {
 			}
 		});
 	});
+
+	metadata.browsers = Array.from(browsers.values()).map(b => {
+		return { name: b.name, version: b.version };
+	});
+	writeFileSync(metadataPath, JSON.stringify(metadata, undefined, '\t'));
 
 	return { browsers, files, numFailed, numTests };
 
