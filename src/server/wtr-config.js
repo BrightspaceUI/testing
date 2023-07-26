@@ -14,7 +14,7 @@ const BROWSER_MAP = {
 	safari: 'webkit',
 	webkit: 'webkit'
 };
-const DEFAULT_VDIFF_SLOW = 500;
+export const DEFAULT_VDIFF_SLOW = 500;
 
 export class WTRConfig {
 
