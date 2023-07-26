@@ -64,6 +64,47 @@ describe('WTRConfig', () => {
 			});
 		});
 
+		it('should throw for invalid timeout value', () => {
+			expect(() => wtrConfig.create({ timeout: 'never' }))
+				.to.throw(TypeError, 'timeout must be a number');
+		});
+
+		it('should configure testFramework when provided with a slow value', () => {
+			const config = wtrConfig.create({ slow: 1234 });
+			expect(config.testFramework).to.not.be.undefined;
+			expect(config.testFramework.config).to.not.be.undefined;
+			expect(config.testFramework.config.slow).to.equal('1234');
+		});
+
+		it('should set slow from CLI when provided', () => {
+			const wtrConfig = new WTRConfig({ slow: 1234 });
+			const config = wtrConfig.create({ slow: 5678 });
+			expect(config.testFramework.config.slow).to.equal('1234');
+		});
+
+		it('should default slow to a higher value for vdiff group', () => {
+			const wtrConfig = new WTRConfig({ group: 'vdiff' });
+			const config = wtrConfig.create();
+			expect(config.testFramework.config.slow).to.equal('500');
+		});
+
+		it('should set slow from CLI even for vdiff group', () => {
+			const wtrConfig = new WTRConfig({ group: 'vdiff', slow: 1234 });
+			const config = wtrConfig.create();
+			expect(config.testFramework.config.slow).to.equal('1234');
+		});
+
+		it('should set slow from config even for vdiff group', () => {
+			const wtrConfig = new WTRConfig({ group: 'vdiff' });
+			const config = wtrConfig.create({ slow: 5678 });
+			expect(config.testFramework.config.slow).to.equal('5678');
+		});
+
+		it('should throw for invalid slow value', () => {
+			expect(() => wtrConfig.create({ slow: 'fast' }))
+				.to.throw(TypeError, 'slow must be a number');
+		});
+
 		it('should set a common default files pattern', () => {
 			expect(config.groups[0].files).to.deep.equal(['./test/**/*.test.js']);
 		});

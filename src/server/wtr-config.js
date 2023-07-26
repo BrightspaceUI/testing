@@ -14,6 +14,7 @@ const BROWSER_MAP = {
 	safari: 'webkit',
 	webkit: 'webkit'
 };
+const DEFAULT_VDIFF_SLOW = 500;
 
 export class WTRConfig {
 
@@ -119,27 +120,35 @@ export class WTRConfig {
 		}).flat();
 	}
 
-	#getMochaConfig(timeoutConfig) {
+	#getMochaConfig(group, slowConfig, timeoutConfig) {
 		const {
 			timeout = timeoutConfig,
 			grep,
 			open,
+			slow = slowConfig,
 			watch
 		} = this.#cliArgs;
 
 		if (typeof timeout !== 'undefined' && typeof timeout !== 'number') throw new TypeError('timeout must be a number');
+		if (typeof slow !== 'undefined' && typeof slow !== 'number') throw new TypeError('slow must be a number');
 
 		const config = {};
 
 		if (timeout) config.timeout = String(timeout);
 		if (open || watch) config.timeout = '0';
 		if (grep) config.grep = grep;
+		if (slow) {
+			config.slow = String(slow);
+		} else if (group === 'vdiff') {
+			config.slow = String(DEFAULT_VDIFF_SLOW);
+		}
 
 		return Object.keys(config).length && { testFramework: { config } };
 	}
 
 	create({
 		pattern = DEFAULT_PATTERN,
+		slow,
 		timeout,
 		...passthroughConfig
 	} = {}) {
@@ -158,7 +167,7 @@ export class WTRConfig {
 
 		const config = {
 			...this.#defaultConfig,
-			...this.#getMochaConfig(timeout),
+			...this.#getMochaConfig(group, slow, timeout),
 			...passthroughConfig
 		};
 
