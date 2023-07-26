@@ -3,11 +3,19 @@ test.pause = new Promise(r => test.start = r);
 
 const controls = `
 	<style>
+		.screenshot ::-webkit-scrollbar {
+			display: none;
+		}
+
 		#d2l-test-controls [hidden] {
 			display: none !important;
 		}
 		body {
 			margin-top: 70px;
+		}
+
+		.screenshot body {
+			margin: 8px;
 		}
 
 		#d2l-test-controls {
@@ -21,6 +29,10 @@ const controls = `
 			padding: .85em;
 			background: #fff;
 			color: #222;
+		}
+
+		.screenshot #d2l-test-controls {
+			display: none;
 		}
 
 		#d2l-test-controls #start,
@@ -142,7 +154,7 @@ const testName = document.querySelector('#test-name');
 let currentTest, focusEl = runBtn;
 beforeEach(async function() {
 	const fixture = new Promise(r => test.update = r);
-
+	test.hovering = false;
 	currentTest = this.currentTest;
 
 	if (test.skipAll) this.test.parent.ctx.skip();
