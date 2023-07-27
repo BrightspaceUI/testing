@@ -188,7 +188,7 @@ beforeEach(async function() {
 		await fixture;
 
 		const titlePath = currentTest.titlePath();
-		testName.innerHTML = testName.title = titlePath.slice(1).join('<span class="title-sep"> ></span> ')
+		testName.innerHTML = testName.title = titlePath.slice(1).join('<span class="title-sep"> ></span> ');
 		rootName.innerText = titlePath[0];
 
 		if (test.pause) {
