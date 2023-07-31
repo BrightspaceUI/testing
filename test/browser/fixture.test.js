@@ -141,6 +141,18 @@ describe('fixture', () => {
 			expect(document.documentElement.getAttribute('lang')).to.equal('en');
 		});
 
+		it('should use specified mathjax latex config', async() => {
+			await fixture(html`<p>hello</p>`, { mathjax: { renderLatex: true } });
+			const config = JSON.parse(document.documentElement.dataset.mathjaxContext);
+			expect(config.renderLatex).to.be.true;
+		});
+
+		it('should should reset mathjax latex config', async() => {
+			await fixture(html`<p>hello</p>`, { mathjax: { renderLatex: true } });
+			await fixture(html`<p>hello</p>`);
+			expect(document.documentElement.hasAttribute('data-mathjax-context')).to.be.false;
+		});
+
 		it('should default viewport size to 800x800', async() => {
 			await fixture(html`<p>hello</p>`);
 			expect(window.innerHeight).to.equal(800);
