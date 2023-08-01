@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { join, normalize, parse, sep } from 'path';
+import { join, normalize, parse, sep } from 'node:path';
 import { mkdir, rename, rm } from 'node:fs/promises';
 import commandLineArgs from 'command-line-args';
 import { glob } from 'glob';
@@ -21,9 +21,15 @@ await Promise.all(dirs.map(async dir => {
 		fileCount += 1;
 		const { base: name, dir } = parse(file);
 		const dirName = parse(dir).name;
-		const newName = name.replace(/^d2l-/, '').replace(new RegExp(`^${dirName}-`), '');
-		await mkdir(join(base, normalize(newSuffix), dirName), { recursive: true });
-		return rename(file, join(base, normalize(newSuffix), dirName, newName));
+
+		const newName = name
+			.replace(/^d2l-/, '')
+			.replace(new RegExp(`^${dirName}-`), '');
+
+		const newDir = join(dir.replace(oldSuffix, newSuffix));
+
+		await mkdir(newDir, { recursive: true });
+		return rename(file, join(newDir, newName));
 	}));
 	return rm(normalize(join(dir, '..', '..')), { recursive: true });
 }));
