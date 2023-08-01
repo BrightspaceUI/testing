@@ -147,7 +147,7 @@ describe('fixture', () => {
 			expect(config.renderLatex).to.be.true;
 		});
 
-		it('should should reset mathjax latex config', async() => {
+		it('should reset mathjax latex config', async() => {
 			await fixture(html`<p>hello</p>`, { mathjax: { renderLatex: true } });
 			await fixture(html`<p>hello</p>`);
 			expect(document.documentElement.hasAttribute('data-mathjax-context')).to.be.false;
