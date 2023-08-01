@@ -1,6 +1,6 @@
 #!/usr/bin/env node
+import { appendFile, mkdir, readFile, rename, rm } from 'node:fs/promises';
 import { join, normalize, parse, sep } from 'node:path';
-import { mkdir, rename, rm } from 'node:fs/promises';
 import commandLineArgs from 'command-line-args';
 import { glob } from 'glob';
 import { stdout } from 'node:process';
@@ -10,6 +10,12 @@ const oldSuffix = 'screenshots/ci/golden';
 const newSuffix = 'golden/chromium';
 const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**' });
 let fileCount = 0;
+
+const gitignore = await readFile('.gitignore', { encoding: 'UTF8' }).catch(() => '');
+if (!/\.vdiff\/(\n|$)/.test(gitignore)) {
+	const newline = gitignore.endsWith('\n') ? '' : '\n';
+	await appendFile('.gitignore', `${newline}.vdiff/\n`);
+}
 
 await Promise.all(dirs.map(async dir => {
 	const files = await glob(`${dir.replaceAll(sep, '/')}/*/*.png`);
