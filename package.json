@@ -15,7 +15,8 @@
     "test:vdiff:golden": "npm run test:vdiff -- --golden"
   },
   "bin": {
-    "d2l-test-runner": "./bin/d2l-test-runner.js"
+    "d2l-test-runner": "./bin/d2l-test-runner.js",
+    "migrate-goldens": "./bin/migrate-goldens.js"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
