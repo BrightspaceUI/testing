@@ -3,18 +3,19 @@ import { appendFile, mkdir, readFile, rename, rm } from 'node:fs/promises';
 import { join, normalize, parse, sep } from 'node:path';
 import commandLineArgs from 'command-line-args';
 import { glob } from 'glob';
+import { PATHS } from '../src/server/visual-diff-plugin.js';
 import { stdout } from 'node:process';
 
 const { pattern = './test/**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true });
 const oldSuffix = 'screenshots/ci/golden';
-const newSuffix = 'golden/chromium';
+const newSuffix = `${PATHS.GOLDEN}/chromium`;
 const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**' });
 let fileCount = 0;
 
 const gitignore = await readFile('.gitignore', { encoding: 'UTF8' }).catch(() => '');
-if (!/\.vdiff\/(\n|$)/.test(gitignore)) {
+if (!new RegExp(`${PATHS.VDIFF_ROOT}/(\n|$)`).test(gitignore)) {
 	const newline = gitignore.endsWith('\n') ? '' : '\n';
-	await appendFile('.gitignore', `${newline}.vdiff/\n`);
+	await appendFile('.gitignore', `${newline}${PATHS.VDIFF_ROOT}/\n`);
 }
 
 await Promise.all(dirs.map(async dir => {
