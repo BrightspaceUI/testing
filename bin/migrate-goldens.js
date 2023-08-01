@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { appendFile, mkdir, readFile, rename, rm } from 'node:fs/promises';
-import { join, normalize, parse, sep } from 'node:path';
+import { join, normalize, parse } from 'node:path';
 import commandLineArgs from 'command-line-args';
 import { glob } from 'glob';
 import { PATHS } from '../src/server/visual-diff-plugin.js';
@@ -9,7 +9,7 @@ import { stdout } from 'node:process';
 const { pattern = './test/**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true });
 const oldSuffix = 'screenshots/ci/golden';
 const newSuffix = `${PATHS.GOLDEN}/chromium`;
-const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**' });
+const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**', posix: true });
 let fileCount = 0;
 
 const gitignore = await readFile('.gitignore', { encoding: 'UTF8' }).catch(() => '');
@@ -19,7 +19,7 @@ if (!new RegExp(`${PATHS.VDIFF_ROOT}/(\n|$)`).test(gitignore)) {
 }
 
 await Promise.all(dirs.map(async dir => {
-	const files = await glob(`${dir.replaceAll(sep, '/')}/*/*.png`);
+	const files = await glob(`${dir}/*/*.png`, { posix: true });
 	const base = dir.replace(normalize(oldSuffix), '');
 
 	await mkdir(join(base, normalize(newSuffix)), { recursive: true });
