@@ -67,6 +67,10 @@ async function getTestRunnerOptions(argv = []) {
 			order: 3
 		},
 		{
+			name: 'golden',
+			type: Boolean
+		},
+		{
 			name: 'grep',
 			alias: 'g',
 			type: String,
