@@ -15,8 +15,7 @@
   },
   "bin": {
     "d2l-test-runner": "./bin/d2l-test-runner.js",
-    "d2l-test-vdiff-report": "./bin/d2l-test-vdiff-report.js",
-    "migrate-goldens": "./bin/migrate-goldens.js"
+    "dtr": "./bin/d2l-test-runner.js"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
