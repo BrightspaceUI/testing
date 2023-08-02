@@ -67,12 +67,6 @@ async function getTestRunnerOptions(argv = []) {
 			order: 3
 		},
 		{
-			name: 'golden',
-			type: Boolean,
-			description: 'Generate new golden screenshots. Ignored unless group is "vdiff".',
-			order: 14
-		},
-		{
 			name: 'grep',
 			alias: 'g',
 			type: String,
@@ -83,7 +77,7 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'help',
 			type: Boolean,
 			description: 'Print usage information and exit',
-			order: 15
+			order: 14
 		},
 		{
 			name: 'open',
@@ -134,19 +128,37 @@ async function getTestRunnerOptions(argv = []) {
 			},
 			{
 				header: 'Usage',
-				content: 'd2l-test-runner [options]',
+				content: 'd2l-test-runner [options]\nd2l-test-runner <command> [options]\n',
 			},
 			{
 				header: 'Options',
 				optionList: optionDefinitions
 					.map(o => {
-						o.description += '\n';
 						const longAlias = optionDefinitions.find(clone => clone !== o && clone.longAlias === o.name)?.name;
 						if (longAlias) o.name += `, --${longAlias}`;
 						return o;
 					})
 					.filter(o => 'order' in o)
 					.sort((a, b) => (a.order > b.order ? 1 : -1))
+			},
+			{
+				header: 'Commands',
+				content: [{
+					example: 'vdiff',
+					desc: 'Run tests for the vdiff group'
+				},
+				{
+					example: 'vdiff report',
+					desc: 'Open the latest vdiff report'
+				},
+				{
+					example: 'vdiff golden',
+					desc: 'Generate new golden screenshots'
+				},
+				{
+					example: 'vdiff migrate [directory]',
+					desc: 'Migrate from @brightspace-ui/visual-diff. Restrict which goldens are migrated with a directory glob.'
+				}]
 			}
 		]);
 		process.stdout.write(help);

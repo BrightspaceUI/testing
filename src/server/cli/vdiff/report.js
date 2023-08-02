@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { PATHS } from '../src/server/visual-diff-plugin.js';
+import { PATHS } from '../../visual-diff-plugin.js';
 import { startDevServer } from '@web/dev-server';
 
 await startDevServer({
