@@ -8,7 +8,6 @@ import { stdout } from 'node:process';
 
 const { pattern = './test/**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true });
 const oldSuffix = 'screenshots/ci/golden';
-const newSuffix = `${PATHS.GOLDEN}/chromium`;
 const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**', posix: true });
 let fileCount = 0;
 
@@ -20,9 +19,6 @@ if (!new RegExp(`${PATHS.VDIFF_ROOT}/(\n|$)`).test(gitignore)) {
 
 await Promise.all(dirs.map(async dir => {
 	const files = await glob(`${dir}/*/*.png`, { posix: true });
-	const base = dir.replace(normalize(oldSuffix), '');
-
-	await mkdir(join(base, normalize(newSuffix)), { recursive: true });
 
 	await Promise.all(files.map(async file => {
 		fileCount += 1;
@@ -33,7 +29,7 @@ await Promise.all(dirs.map(async dir => {
 			.replace(/^d2l-/, '')
 			.replace(new RegExp(`^${dirName}-`), '');
 
-		const newDir = join(dir.replace(oldSuffix, newSuffix));
+		const newDir = dir.replace(`${oldSuffix}/${dirName}`, `${PATHS.GOLDEN}/${dirName}/chromium`);
 
 		await mkdir(newDir, { recursive: true });
 		return rename(file, join(newDir, newName));
