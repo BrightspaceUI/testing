@@ -6,8 +6,8 @@ import { glob } from 'glob';
 import { PATHS } from '../../visual-diff-plugin.js';
 import { stdout } from 'node:process';
 
-export async function migrate(argv) {
-	const { pattern = './test/**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true, argv });
+export async function migrate(argv = []) {
+	const { pattern = './**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true, argv });
 	const oldSuffix = 'screenshots/ci/golden';
 	const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**', posix: true });
 	let fileCount = 0;
