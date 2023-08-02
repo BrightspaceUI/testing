@@ -6,16 +6,16 @@
   "repository": "https://github.com/BrightspaceUI/testing.git",
   "scripts": {
     "lint": "eslint . --ext .js",
-    "start": "web-dev-server --root-dir ./.vdiff --open ./.report/",
+    "start": "npx d2l-test-vdiff-report",
     "test": "npm run lint && npm run test:bin && npm run test:server && npm run test:browser",
     "test:bin": "mocha './test/bin/**/*.test.js'",
     "test:browser": "npx d2l-test-runner --files './test/browser/**/*.test.js'",
     "test:server": "mocha './test/server/**/*.test.js'",
-    "test:vdiff": "npx d2l-test-runner --config ./test/browser/vdiff.config.js --group vdiff",
-    "test:vdiff:golden": "npm run test:vdiff -- --golden"
+    "test:vdiff": "npx d2l-test-runner --config ./test/browser/vdiff.config.js --group vdiff"
   },
   "bin": {
     "d2l-test-runner": "./bin/d2l-test-runner.js",
+    "d2l-test-vdiff-report": "./bin/d2l-test-vdiff-report.js",
     "migrate-goldens": "./bin/migrate-goldens.js"
   },
   "author": "D2L Corporation",
