@@ -196,7 +196,7 @@ Note that the call to `clickElem` is not `await`-ed, since by the time it resolv
 
 #### Waiting for a Lit Element to Update
 
-When using Lit-based components, it's common to create a fixture, modify some properties and then want to wait for those changes to be rendered.
+When using Lit-based components, it's common to create a fixture and then modify some of its properties, which usually requires waiting for those changes to be rendered.
 
 This can be accomplished by waiting for [Lit's `updateComplete` lifecycle](https://lit.dev/docs/components/lifecycle/#updatecomplete) Promise to fulfill.
 
