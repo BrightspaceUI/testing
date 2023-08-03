@@ -194,13 +194,6 @@ it('should wait for an event', async() => {
 
 Note that the call to `clickElem` is not `await`-ed, since by the time it resolves the event will have already been dispatched.
 
-An even safer approach would be to wrap that call in a `setTimeout`:
-
-```javascript
-setTimeout(() => clickElem(elem));
-await oneEvent(elem, 'some-event');
-```
-
 #### Waiting for a Lit Element to Update
 
 When using Lit-based components, it's common to create a fixture, modify some properties and then want to wait for those changes to be rendered.
