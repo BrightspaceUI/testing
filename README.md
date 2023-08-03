@@ -304,8 +304,6 @@ it('should use custom element', async() => {
 
 Also known as "visual regression" or "perceptual diff", visual-diff testing involves taking snapshot images of the browser and comparing them against a known golden (or "baseline") image. The images are compared pixel-by-pixel and differences beyond a threshold will fail the test. Our visual diff testing leverages the [pixelmatch](https://github.com/mapbox/pixelmatch) library to perfom its comparison.
 
-Unlike other tests, visual-diff tests must be in a file with the `*.vdiff.js` extension.
-
 Use the asynchronous `.to.be.golden()` Chai assertion to take a visual-diff snapshot and compare it against its golden.
 
 ```javascript
