@@ -65,7 +65,7 @@ it('should work on small viewports', async() => {
 
 #### Configuring the Language or Text Direction
 
-If the component under test have special multi-lingual or bidirectional text behavior, both a `language` and `rtl` (right-to-left) option are available.
+If the component under test has special multi-lingual or bidirectional text behavior, both a `language` and `rtl` (right-to-left) option are available.
 
 ```javascript
 it('should work in French', async() => {
