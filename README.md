@@ -230,7 +230,7 @@ it('should wait', async() => {
 
 #### Waiting For Asynchronous Components
 
-`fixture()` will automatically wait for all nested Lit components to fulfill their `updateComplete` Promise. To tweak when a component's `updateComplete` fulfills, implement the [getUpdateComplete() lifecycle callback](https://lit.dev/docs/components/lifecycle/#getUpdateComplete).
+`fixture()` will automatically wait for all nested Lit components to fulfill their `updateComplete` Promise. To tweak when a component's `updateComplete` fulfills, implement the [`getUpdateComplete()` lifecycle callback](https://lit.dev/docs/components/lifecycle/#getUpdateComplete).
 
 In other scenarios, a component may have an initial loading state (e.g. loading spinner or skeleton) where `updateComplete` has already resolved in addition to another fully loaded state. To signal that `fixture()` should wait for this final state, implement `getLoadingComplete()`. It works the same way as `getUpdateComplete()` by fulfilling its Promise when the component has fully loaded.
 
