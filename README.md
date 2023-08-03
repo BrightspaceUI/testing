@@ -298,7 +298,7 @@ it('should use custom element', async() => {
 });
 ```
 
-> **Important:** `defineCE` is not performant and shouldn't be used outside of tests.
+> **Important:** `defineCE` is not performant and shouldn't be used outside of test files.
 
 ### Visual-Diff Testing
 
