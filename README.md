@@ -106,7 +106,7 @@ it('should be accessible', async() => {
 To hover over or click on a specific element, use `hoverElem(elem)` and `clickElem(elem)`.
 
 ```javascript
-import { clickElem, hoverElem, fixture } from '@brightspace-ui/testing';
+import { clickElem, fixture, hoverElem } from '@brightspace-ui/testing';
 
 it('should hover over element', async() => {
   const elem = await fixture(...);
