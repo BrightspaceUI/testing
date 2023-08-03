@@ -192,7 +192,7 @@ it('should wait for an event', async() => {
 });
 ```
 
-Note that the call to `clickElem` is not `await`-ed, since by the time it resolves the event will likely have already been dispatched.
+Note that the call to `clickElem` is not `await`-ed, since by the time it resolves the event will have already been dispatched.
 
 An even safer approach would be to wrap that call in a `setTimeout`:
 
