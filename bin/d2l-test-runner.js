@@ -4,7 +4,6 @@ import process from 'node:process';
 import { runner } from '../src/server/cli/test-runner.js';
 
 const { argv, stdout } = process;
-
 const cli = commandLineArgs({ name: 'subcommand', defaultOption: true }, { stopAtFirstUnknown: true, argv });
 
 if (cli.subcommand === 'vdiff') {
@@ -17,15 +16,15 @@ if (cli.subcommand === 'vdiff') {
 		stdout.write('\nGenerating vdiff goldens...\n');
 		runTests();
 	} else if (vdiff.subcommand === 'report') {
-		await import('../src/server/cli/vdiff/report.js');
-	}	else if (vdiff.subcommand === 'migrate') {
+		const { report } = await import('../src/server/cli/vdiff/report.js');
+		await report.start();
+	} else if (vdiff.subcommand === 'migrate') {
 		const { migrate } = await import('../src/server/cli/vdiff/migrate.js');
 		await migrate.start(vdiff._unknown);
 	} else {
 		stdout.write(`\nfatal: unknown subcomamnd: ${vdiff.subcommand}\n`);
 	}
-}
-else {
+} else {
 	runTests();
 }
 

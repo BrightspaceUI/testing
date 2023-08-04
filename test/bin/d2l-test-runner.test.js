@@ -1,8 +1,8 @@
 import { assert, restore, stub } from 'sinon';
-import { bail } from '../../src/server/bail.js';
 import { expect } from 'chai';
 import { migrate } from '../../src/server/cli/vdiff/migrate.js';
 import process from 'node:process';
+import { report } from '../../src/server/cli/vdiff/report.js';
 import { runner } from '../../src/server/cli/test-runner.js';
 
 const { argv, stdout } = process;
@@ -13,8 +13,8 @@ const run = async() => {
 
 describe('d2l-test-runner', () => {
 
-	beforeEach(() => {
-		bail.clear();
+	afterEach(() => {
+		restore();
 	});
 
 	it('starts test runner with options', async() => {
@@ -29,20 +29,17 @@ describe('d2l-test-runner', () => {
 		restore();
 	});
 
-	it('runs report.js', async() => {
+	it('starts report server', async() => {
+		const reportStub = stub(report, 'start');
 		const optionsStub = stub(runner, 'getOptions');
 		const startStub = stub(runner, 'start');
 
-		bail.add('report');
 		argv.splice(0, argv.length, 'fake-node', 'fake-test-runner', 'vdiff', 'report');
 		await run();
 
-		expect(bail).to.not.include('report');
-
+		assert.calledOnce(reportStub);
 		assert.notCalled(optionsStub);
 		assert.notCalled(startStub);
-
-		restore();
 	});
 
 	it('generates goldens', async() => {
@@ -57,11 +54,9 @@ describe('d2l-test-runner', () => {
 		assert.calledOnceWithExactly(optionsStub, argv);
 		assert.calledOnce(startStub);
 		assert.calledOnceWithExactly(stdoutStub, '\nGenerating vdiff goldens...\n');
-
-		restore();
 	});
 
-	it('calls migrate()', async() => {
+	it('starts migration', async() => {
 		const migrateStub = stub(migrate, 'start');
 		const optionsStub = stub(runner, 'getOptions');
 		const startStub = stub(runner, 'start');
@@ -72,8 +67,6 @@ describe('d2l-test-runner', () => {
 		assert.calledOnceWithExactly(migrateStub, ['./test/**/dir']);
 		assert.notCalled(optionsStub);
 		assert.notCalled(startStub);
-
-		restore();
 	});
 
 });
