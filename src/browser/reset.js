@@ -14,6 +14,7 @@ let currentLang = undefined,
 	shouldResetMouse = false;
 
 export function requestMouseReset() {
+	console.log('requestMouseReset');
 	shouldResetMouse = true;
 }
 
@@ -34,7 +35,10 @@ export async function reset(opts) {
 
 	if (shouldResetMouse) {
 		shouldResetMouse = false;
+		console.log('resetting mouse');
+		console.time('mouse');
 		await sendMouse({ type: 'move', position: [0, 0] }).catch(() => {});
+		console.timeEnd('mouse');
 	}
 
 	if (document.activeElement !== document.body) {
