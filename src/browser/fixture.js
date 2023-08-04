@@ -1,3 +1,5 @@
+/* eslint no-console: 0 */
+
 import { nextFrame, fixture as wcFixture } from '@open-wc/testing';
 import { reset } from './reset.js';
 
@@ -48,7 +50,9 @@ async function waitForElem(elem, awaitLoadingComplete = true) {
 }
 
 export async function fixture(element, opts = {}) {
+	console.log('before reset');
 	await Promise.all([reset(opts), document.fonts.ready]);
+	console.log('after reset');
 	const elem = await wcFixture(element);
 	await waitForElem(elem, opts.awaitLoadingComplete);
 

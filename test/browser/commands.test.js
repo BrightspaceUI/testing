@@ -1,3 +1,5 @@
+/* eslint no-console: 0 */
+
 import { clickAt, clickElem, expect, fixture, focusElem, hoverAt, hoverElem, sendKeys, sendKeysElem } from '../../src/browser/index.js';
 import { html } from 'lit';
 import { spy } from 'sinon';
@@ -7,7 +9,9 @@ describe('commands', () => {
 	let elem;
 	const input = html`<input type="text">`;
 	beforeEach(async() => {
+		console.log('before fixture');
 		elem = await fixture(input);
+		console.log('after fixture');
 	});
 
 	it('should click on element', async() => {
