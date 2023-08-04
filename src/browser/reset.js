@@ -1,3 +1,5 @@
+/* eslint no-console: 0 */
+
 import { sendMouse, setViewport } from '@web/test-runner-commands';
 import { nextFrame } from '@open-wc/testing';
 
