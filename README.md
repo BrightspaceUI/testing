@@ -23,15 +23,18 @@ Tests can be grouped into suites using `describe` and are defined inside `it` bl
 Results can be verified using either the BDD-style `expect` or TDD-style `assert` syntax (although try not to mix & match).
 
 ```javascript
-import { assert, expect } from '@brightspace-ui/testing';
+import { expect } from '@brightspace-ui/testing';
 
-describe('group of tests', () => {
-  it('should multiply numbers', () => {
-    expect(2 * 4).to.equal(8);
-  });
-  it('should subtract numbers', () => {
-    assert.equal(4 - 2, 2);
-  });
+it('should multiply numbers', () => {
+  expect(2 * 4).to.equal(8);
+});
+```
+
+```javascript
+import { assert } from '@brightspace-ui/testing';
+
+it('should multiply numbers', () => {
+  assert.equal(2 * 4, 8);
 });
 ```
 
@@ -151,7 +154,7 @@ it('should focus on element', async() => {
 });
 ```
 
-To send particular keystrokes to the browser window or a specific element, use `sendKeys(action, keys)` or `sendKeysElem(elem, action, keys)`.
+To send particular keystrokes to the browser window or a specific element, use `sendKeys(action, keys)` or `sendKeysElem(elem, action, keys)`. Note that `sendKeysElem` will focus on the element using the keyboard before sending the keys.
 
 The `action` parameter must be one of:
 
@@ -300,11 +303,11 @@ it('should use custom element', async() => {
 
 > **Important:** `defineCE` is not performant and shouldn't be used outside of test files.
 
-### Visual-Diff Testing
+### Vdiff Testing
 
-Also known as "visual regression" or "perceptual diff", visual-diff testing involves taking snapshot images of the browser and comparing them against a known golden (or "baseline") image. The images are compared pixel-by-pixel and differences beyond a threshold will fail the test. Our visual diff testing leverages the [pixelmatch](https://github.com/mapbox/pixelmatch) library to perfom its comparison.
+Short for "visual diff" and also known as "visual regression" or "perceptual diff", vdiff testing involves taking snapshot images of the browser and comparing them against a known golden (or "baseline") image. The images are compared pixel-by-pixel and differences beyond a threshold will fail the test. Our vdiff testing leverages the [pixelmatch](https://github.com/mapbox/pixelmatch) library to perfom its comparison.
 
-Use the asynchronous `.to.be.golden()` Chai assertion to take a visual-diff snapshot and compare it against its golden.
+Use the asynchronous `.to.be.golden()` Chai assertion to take a vdiff snapshot and compare it against its golden.
 
 ```javascript
 import { fixture, html } from '@brightspace-ui/testing';
@@ -319,7 +322,7 @@ describe('my-elem', () => {
 });
 ```
 
-The filename and location of the resulting image will be based on the suite names and test name. The top-most suite will become a directory, and any remaining suites will be combined with the test name into the file name. In this example, the snapshot would be stored in: `./my-elem/situation1-state1.png`
+The filename and location of the resulting image will be based on the suite names and test name.
 
 #### Configuring the Snapshot Area
 
@@ -367,6 +370,6 @@ npm run test:vdiff
 
 ### Versioning & Releasing
 
-This repo is configured to use the `semantic-release`. Commits prefixed with `fix:` and `feat:` will trigger patch and minor releases when merged to `main`.
+This repo is configured to use `semantic-release`. Commits prefixed with `fix:` and `feat:` will trigger patch and minor releases when merged to `main`.
 
 To learn how to create major releases and release from maintenance branches, refer to the [semantic-release GitHub Action](https://github.com/BrightspaceUI/actions/tree/main/semantic-release) documentation.
