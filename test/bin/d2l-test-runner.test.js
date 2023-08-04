@@ -1,18 +1,72 @@
 import { assert, restore, stub } from 'sinon';
-import { argv } from 'node:process';
+import { expect } from 'chai';
+import { migrate } from '../../src/server/cli/vdiff/migrate.js';
+import process from 'node:process';
+import { report } from '../../src/server/cli/vdiff/report.js';
 import { runner } from '../../src/server/cli/test-runner.js';
 
+const { argv, stdout } = process;
+
+const run = async() => {
+	await import(`../../bin/d2l-test-runner.js?${Math.random()}`);
+};
+
 describe('d2l-test-runner', () => {
+
+	afterEach(() => {
+		restore();
+	});
 
 	it('starts test runner with options', async() => {
 		const opts = { my: 'options' };
 		const optionsStub = stub(runner, 'getOptions').returns(opts);
 		const startStub = stub(runner, 'start');
-		await import('../../bin/d2l-test-runner.js');
+		await run();
 
 		assert.calledOnceWithExactly(optionsStub, argv);
 		assert.calledOnceWithExactly(startStub, opts);
 
 		restore();
 	});
+
+	it('starts report server', async() => {
+		const reportStub = stub(report, 'start');
+		const optionsStub = stub(runner, 'getOptions');
+		const startStub = stub(runner, 'start');
+
+		argv.splice(0, argv.length, 'fake-node', 'fake-test-runner', 'vdiff', 'report');
+		await run();
+
+		assert.calledOnce(reportStub);
+		assert.notCalled(optionsStub);
+		assert.notCalled(startStub);
+	});
+
+	it('generates goldens', async() => {
+		const optionsStub = stub(runner, 'getOptions');
+		const startStub = stub(runner, 'start');
+		const stdoutStub = stub(stdout, 'write');
+
+		argv.splice(0, argv.length, 'fake-node', 'fake-test-runner', 'vdiff', 'golden');
+		await run();
+
+		expect(argv).to.deep.equal(['fake-node', 'fake-test-runner', 'vdiff', '--golden']);
+		assert.calledOnceWithExactly(optionsStub, argv);
+		assert.calledOnce(startStub);
+		assert.calledOnceWithExactly(stdoutStub, '\nGenerating vdiff goldens...\n');
+	});
+
+	it('starts migration', async() => {
+		const migrateStub = stub(migrate, 'start');
+		const optionsStub = stub(runner, 'getOptions');
+		const startStub = stub(runner, 'start');
+
+		argv.splice(0, argv.length, 'fake-node', 'fake-test-runner', 'vdiff', 'migrate', './test/**/dir');
+		await run();
+
+		assert.calledOnceWithExactly(migrateStub, ['./test/**/dir']);
+		assert.notCalled(optionsStub);
+		assert.notCalled(startStub);
+	});
+
 });
