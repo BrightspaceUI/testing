@@ -20,25 +20,32 @@ Tests leverage the familiar [Mocha](https://mochajs.org/) and [Chai](https://www
 
 Tests can be grouped into suites using `describe` and are defined inside `it` blocks.
 
+```javascript
+describe('group of tests', () => {
+  it('should test something', () => {
+    // ...
+  });
+  it('should test something else', () => {
+    // ...
+  });
+});
+```
+
 Results can be verified using either the BDD-style `expect` or TDD-style `assert` syntax (although try not to mix & match).
 
 ```javascript
 import { expect } from '@brightspace-ui/testing';
 
-describe('group of tests', () => {
-  it('should multiply numbers', () => {
-    expect(2 * 4).to.equal(8);
-  });
+it('should multiply numbers', () => {
+  expect(2 * 4).to.equal(8);
 });
 ```
 
 ```javascript
 import { assert } from '@brightspace-ui/testing';
 
-describe('group of tests', () => {
-  it('should multiply numbers', () => {
-    assert.equal(2 * 4, 8);
-  });
+it('should multiply numbers', () => {
+  assert.equal(2 * 4, 8);
 });
 ```
 
