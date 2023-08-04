@@ -53,10 +53,16 @@ export async function fixture(element, opts = {}) {
 	console.log('before reset');
 	await Promise.all([reset(opts), document.fonts.ready]);
 	console.log('after reset');
+	console.log('before wcFixture');
 	const elem = await wcFixture(element);
+	console.log('after wcFixture');
+	console.log('before waitForElem');
 	await waitForElem(elem, opts.awaitLoadingComplete);
+	console.log('after waitForElem');
 
+	console.log('before pause');
 	await pause();
+	console.log('after pause');
 	return elem;
 }
 
