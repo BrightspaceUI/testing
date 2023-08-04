@@ -25,16 +25,20 @@ Results can be verified using either the BDD-style `expect` or TDD-style `assert
 ```javascript
 import { expect } from '@brightspace-ui/testing';
 
-it('should multiply numbers', () => {
-  expect(2 * 4).to.equal(8);
+describe('group of tests', () => {
+  it('should multiply numbers', () => {
+    expect(2 * 4).to.equal(8);
+  });
 });
 ```
 
 ```javascript
 import { assert } from '@brightspace-ui/testing';
 
-it('should multiply numbers', () => {
-  assert.equal(2 * 4, 8);
+describe('group of tests', () => {
+  it('should multiply numbers', () => {
+    assert.equal(2 * 4, 8);
+  });
 });
 ```
 
