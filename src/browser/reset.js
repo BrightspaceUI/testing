@@ -38,9 +38,9 @@ export async function reset(opts) {
 	if (shouldResetMouse) {
 		shouldResetMouse = false;
 		console.log('resetting mouse');
-		console.time('mouse');
+		const start = new Date().getTime();
 		await sendMouse({ type: 'move', position: [0, 0] }).catch(() => {});
-		console.timeEnd('mouse');
+		console.log('took', new Date().getTime() - start);
 	}
 
 	if (document.activeElement !== document.body) {
