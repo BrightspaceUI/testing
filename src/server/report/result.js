@@ -48,10 +48,13 @@ export const RESULT_STYLE = css`
 		line-height: 0;
 		position: relative;
 	}
-	.result-split > .result-part:first-of-type > .result-diff-container {
+	.result-split > .result-part:first-of-type > .result-part-wrapper {
+		text-align: right;
+	}
+	.result-split > .result-part:first-of-type > div > .result-diff-container {
 		border-right: none;
 	}
-	.result-split > .result-part:last-of-type > .result-diff-container {
+	.result-split > .result-part:last-of-type > div> .result-diff-container {
 		border-left: none;
 	}
 	.result-overlay {
@@ -63,6 +66,8 @@ export const RESULT_STYLE = css`
 	.result-part-info {
 		align-items: center;
 		display: flex;
+		gap: 5px;
+		padding: 5px;
 	}
 	.result-part-info-spacer,
 	.result-part-info-size {
@@ -71,11 +76,11 @@ export const RESULT_STYLE = css`
 	.result-part-info-name {
 		flex: 0 0 auto;
 		font-weight: bold;
-		padding: 5px;
 	}
 	.result-part-info-size {
 		color: #90989d;
 		font-size: 0.8rem;
+		white-space: nowrap;
 	}
 	.result-graphic {
 		align-items: center;
@@ -145,7 +150,9 @@ function renderResult(resultData, options) {
 					<div class="result-part-info-name">${label}</div>
 					<div class="result-part-info-size">(${partInfo.width} x ${partInfo.height})</div>
 				</div>
-				<div class="result-diff-container"><img src="../${partInfo.path}" loading="lazy" alt="">${overlay}</div>
+				<div class="result-part-wrapper">
+					<div class="result-diff-container"><img src="../${partInfo.path}" loading="lazy" alt="">${overlay}</div>
+				</div>
 			</div>
 		`;
 	};
