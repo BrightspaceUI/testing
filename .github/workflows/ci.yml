@@ -12,9 +12,7 @@ jobs:
           node-version-file: .nvmrc
           cache: 'npm'
       - name: Install dependencies
-        run: |
-          npm ci
-          npx playwright install-deps
+        run: npm ci
       - name: Lint (JavaScript)
         run: npm run lint
       - name: Unit Tests (Browser)
