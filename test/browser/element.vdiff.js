@@ -56,7 +56,7 @@ describe('element-matches', () => {
 
 	it('full page', async() => {
 		await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { viewport: { width: 500, height: 500 } });
-		await expect(document.body).to.be.golden();
+		await expect(document).to.be.golden();
 	});
 });
 

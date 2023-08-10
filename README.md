@@ -335,6 +335,21 @@ describe('my-elem', () => {
 
 The filename and location of the resulting image will be based on the suite names and test name.
 
+Sometimes you might be writing tests to verify a component's position within the whole viewport. For snapshots of the whole page, set up your components and pass `document` to the assertion:
+
+```javascript
+import { fixture, html } from '@brightspace-ui/testing';
+
+describe('my-elem', () => {
+  describe('situation1', () => {
+    it('state1', async() => {
+      await fixture(html`<my-dialog opened></my-dialog>`);
+      await expect(document).to.be.golden();
+    });
+  });
+});
+```
+
 #### Configuring the Snapshot Area
 
 By default, the snapshot area will be a rectangle around the source element plus a `10px` buffer margin on each side. To use a different margin, pass it as an option:
