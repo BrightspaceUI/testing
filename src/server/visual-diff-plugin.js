@@ -182,18 +182,23 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				}
 
 				const opts = { margin: DEFAULT_MARGIN, ...payload.opts };
-
-				const page = session.browser.getPage(session.id);
-				await page.screenshot({
+				const screenshotOpts = {
 					animations: 'disabled',
-					clip: {
+					path: updateGoldens ? goldenFileName : screenshotFileName
+				};
+				if (!payload.rect) {
+					screenshotOpts.fullPage = true;
+				} else {
+					screenshotOpts.clip = {
 						x: payload.rect.x - opts.margin,
 						y: payload.rect.y - opts.margin,
 						width: payload.rect.width + (opts.margin * 2),
 						height: payload.rect.height + (opts.margin * 2)
-					},
-					path: updateGoldens ? goldenFileName : screenshotFileName
-				});
+					};
+				}
+
+				const page = session.browser.getPage(session.id);
+				await page.screenshot(screenshotOpts);
 
 				if (updateGoldens) {
 					return { pass: true };

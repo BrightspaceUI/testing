@@ -27,7 +27,7 @@ async function ScreenshotAndCompare(opts) {
 	}
 
 	const name = this.test.fullTitle();
-	const rect = this.elem.getBoundingClientRect();
+	const rect = this.elem === document.body ? null : this.elem.getBoundingClientRect();
 	const slowDuration = this.test.slow();
 	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, rect, slowDuration, opts });
 	if (result.resizeRequired) {

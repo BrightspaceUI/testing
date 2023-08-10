@@ -53,6 +53,11 @@ describe('element-matches', () => {
 			await expect(elem).to.be.golden();
 		});
 	});
+
+	it('full page', async() => {
+		await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { viewport: { width: 500, height: 500 } });
+		await expect(document.body).to.be.golden();
+	});
 });
 
 describe('element-different', () => {
