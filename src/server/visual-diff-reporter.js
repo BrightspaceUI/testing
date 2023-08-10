@@ -78,17 +78,22 @@ function flattenResults(session, browserData, fileData) {
 				});
 			}
 			const testData = fileData.tests.get(testName);
-			if (!t.passed) {
-				browserData.numFailed++;
-				testData.numFailed++;
+
+			// tests missing info were skipped via grep, so exclude them
+			const info = getTestInfo(session, testKey);
+			if (info) {
+				if (!t.passed) {
+					browserData.numFailed++;
+					testData.numFailed++;
+				}
+				testData.results.push({
+					name: browserData.name,
+					duration: t.duration,
+					error: t.error?.message,
+					passed: t.passed,
+					info: info
+				});
 			}
-			testData.results.push({
-				name: browserData.name,
-				duration: t.duration,
-				error: t.error?.message,
-				passed: t.passed,
-				info: getTestInfo(session, testKey)
-			});
 		});
 	}
 

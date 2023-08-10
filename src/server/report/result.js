@@ -135,13 +135,6 @@ function renderBrowserInfo(browser) {
 
 function renderResult(resultData, options) {
 
-	if (!resultData.passed && resultData.info === undefined) {
-		return html`
-			<p>An error occurred that prevented a visual-diff snapshot from being taken:</p>
-			<pre>${resultData.error}</pre>
-		`;
-	}
-
 	const renderPart = (label, partInfo, overlay) => {
 		return html`
 			<div class="result-part">
