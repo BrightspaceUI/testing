@@ -351,7 +351,7 @@ TODO: note about leveraging @web/test-runner
 
 TODO
 
-## Developing & Contributing
+## Developing and Contributing
 
 After cloning the repo, run `npm install` to install its dependencies.
 
@@ -363,7 +363,7 @@ To run the full suite of tests:
 npm test
 ```
 
-Alternately, tests can be selectively run:
+Alternatively, tests can be selectively run:
 
 ```shell
 # binary unit tests
@@ -379,7 +379,7 @@ npm run test:server
 npm run test:vdiff
 ```
 
-### Versioning & Releasing
+### Versioning and Releasing
 
 This repo is configured to use `semantic-release`. Commits prefixed with `fix:` and `feat:` will trigger patch and minor releases when merged to `main`.
 
