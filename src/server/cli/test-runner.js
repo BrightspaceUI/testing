@@ -2,6 +2,7 @@ import { ConfigLoaderError, readConfig } from '@web/config-loader';
 import { DEFAULT_VDIFF_SLOW, WTRConfig } from '../wtr-config.js';
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
+import { execSync } from 'node:child_process';
 import process from 'node:process';
 import { startTestRunner } from '@web/test-runner';
 
@@ -196,7 +197,12 @@ async function getTestRunnerOptions(argv = []) {
 	};
 }
 
+function installDeps() {
+	execSync('npx playwright install-deps', { stdio: 'pipe' });
+}
+
 export const runner = {
 	getOptions: getTestRunnerOptions,
+	install: installDeps,
 	start: startTestRunner
 };

@@ -21,10 +21,12 @@ describe('d2l-test-runner', () => {
 		const opts = { my: 'options' };
 		const optionsStub = stub(runner, 'getOptions').returns(opts);
 		const startStub = stub(runner, 'start');
+		const installStub = stub(runner, 'install');
 		await run();
 
 		assert.calledOnceWithExactly(optionsStub, argv);
 		assert.calledOnceWithExactly(startStub, opts);
+		assert.calledOnce(installStub);
 
 		restore();
 	});
@@ -33,6 +35,7 @@ describe('d2l-test-runner', () => {
 		const reportStub = stub(report, 'start');
 		const optionsStub = stub(runner, 'getOptions');
 		const startStub = stub(runner, 'start');
+		const installStub = stub(runner, 'install');
 
 		argv.splice(0, argv.length, 'fake-node', 'fake-test-runner', 'vdiff', 'report');
 		await run();
@@ -40,11 +43,13 @@ describe('d2l-test-runner', () => {
 		assert.calledOnce(reportStub);
 		assert.notCalled(optionsStub);
 		assert.notCalled(startStub);
+		assert.notCalled(installStub);
 	});
 
 	it('generates goldens', async() => {
 		const optionsStub = stub(runner, 'getOptions');
 		const startStub = stub(runner, 'start');
+		const installStub = stub(runner, 'install');
 		const stdoutStub = stub(stdout, 'write');
 
 		argv.splice(0, argv.length, 'fake-node', 'fake-test-runner', 'vdiff', 'golden');
@@ -53,6 +58,7 @@ describe('d2l-test-runner', () => {
 		expect(argv).to.deep.equal(['fake-node', 'fake-test-runner', 'vdiff', '--golden']);
 		assert.calledOnceWithExactly(optionsStub, argv);
 		assert.calledOnce(startStub);
+		assert.calledOnce(installStub);
 		assert.calledOnceWithExactly(stdoutStub, '\nGenerating vdiff goldens...\n');
 	});
 
@@ -60,6 +66,7 @@ describe('d2l-test-runner', () => {
 		const migrateStub = stub(migrate, 'start');
 		const optionsStub = stub(runner, 'getOptions');
 		const startStub = stub(runner, 'start');
+		const installStub = stub(runner, 'install');
 
 		argv.splice(0, argv.length, 'fake-node', 'fake-test-runner', 'vdiff', 'migrate', './test/**/dir');
 		await run();
@@ -67,6 +74,7 @@ describe('d2l-test-runner', () => {
 		assert.calledOnceWithExactly(migrateStub, ['./test/**/dir']);
 		assert.notCalled(optionsStub);
 		assert.notCalled(startStub);
+		assert.notCalled(installStub);
 	});
 
 });

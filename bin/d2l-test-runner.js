@@ -29,6 +29,7 @@ if (cli.subcommand === 'vdiff') {
 }
 
 async function runTests() {
+	runner.install();
 	const options = await runner.getOptions(argv);
 	await runner.start(options);
 }
