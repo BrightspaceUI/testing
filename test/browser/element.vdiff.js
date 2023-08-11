@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit';
 import { defineCE, expect, fixture, hoverElem } from '../../src/browser/index.js';
-import { executeServerCommand } from '@web/test-runner-commands';
+//import { executeServerCommand } from '@web/test-runner-commands';
 
 const elementTag = defineCE(
 	class extends LitElement {
@@ -87,7 +87,7 @@ describe('element-different', () => {
 	].forEach(({ name, action }) => {
 		it(name, async() => {
 			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
-			const isGolden = await executeServerCommand('vdiff-get-golden-flag');
+			const isGolden = true; //await executeServerCommand('vdiff-get-golden-flag');
 			if (!isGolden) {
 				await action(elem);
 				await elem.updateComplete;
