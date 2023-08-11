@@ -195,11 +195,14 @@ export function renderBrowserResults(browser, tests, options) {
 			return acc;
 		}
 
-		let status = STATUS_TYPE.WARNING;
-		if (resultData.duration > resultData.info.slowDuration) {
-			status = STATUS_TYPE.ERROR;
-		} else if (resultData.duration < (resultData.info.slowDuration / 2)) {
-			status = STATUS_TYPE.NORMAL;
+		let status = STATUS_TYPE.NORMAL;
+		if (resultData.info) {
+			status = STATUS_TYPE.WARNING;
+			if (resultData.duration > resultData.info.slowDuration) {
+				status = STATUS_TYPE.ERROR;
+			} else if (resultData.duration < (resultData.info.slowDuration / 2)) {
+				status = STATUS_TYPE.NORMAL;
+			}
 		}
 
 		return acc.push(html`

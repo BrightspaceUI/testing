@@ -70,6 +70,11 @@ function flattenResults(session, browserData, fileData) {
 		tests.forEach(t => {
 			const testName = `${prefix}${t.name}`;
 			const testKey = testName.replaceAll(' > ', ' ');
+			const info = getTestInfo(session, testKey);
+
+			// tests missing info but with no error were skipped via grep, so exclude them
+			if (!info && !t.error) return;
+
 			if (!fileData.tests.has(testName)) {
 				fileData.tests.set(testName, {
 					name: testName,
@@ -87,7 +92,7 @@ function flattenResults(session, browserData, fileData) {
 				duration: t.duration,
 				error: t.error?.message,
 				passed: t.passed,
-				info: getTestInfo(session, testKey)
+				info: info
 			});
 		});
 	}
