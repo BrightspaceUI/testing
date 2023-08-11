@@ -11,7 +11,7 @@
     "test:bin": "mocha './test/bin/**/*.test.js'",
     "test:browser": "npx d2l-test-runner --files './test/browser/**/*.test.js'",
     "test:server": "mocha './test/server/**/*.test.js'",
-    "test:vdiff": "npx d2l-test-runner --config ./test/browser/vdiff.config.js --group vdiff"
+    "test:vdiff": "npx d2l-test-runner vdiff --config ./test/browser/vdiff.config.js"
   },
   "bin": {
     "d2l-test-runner": "./bin/d2l-test-runner.js",
