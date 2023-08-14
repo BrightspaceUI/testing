@@ -93,8 +93,7 @@ describe('element-different', () => {
 				await elem.updateComplete;
 			}
 
-			await expect(elem).to.be.golden();
-			/*let fail = false;
+			let fail = false;
 			try {
 				await expect(elem).to.be.golden();
 			} catch (ex) {
@@ -103,7 +102,7 @@ describe('element-different', () => {
 
 			if (!isGolden) {
 				expect(fail, 'current and golden images to be different').equal(true);
-			}*/
+			}
 		});
 	});
 });
