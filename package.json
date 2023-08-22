@@ -20,7 +20,6 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@web/dev-server": "^0.2",
     "chai": "^4",
     "eslint": "^8",
     "eslint-config-brightspace": "^0.23",
@@ -40,6 +39,7 @@
     "@rollup/plugin-node-resolve": "^15",
     "@open-wc/testing": "^3",
     "@web/config-loader": "^0.2",
+    "@web/dev-server": "^0.2",
     "@web/rollup-plugin-html": "^2",
     "@web/test-runner": "^0.16",
     "@web/test-runner-commands": "^0.7",
