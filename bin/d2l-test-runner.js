@@ -2,6 +2,7 @@
 import commandLineArgs from 'command-line-args';
 import process from 'node:process';
 import { runner } from '../src/server/cli/test-runner.js';
+import { execSync } from 'node:child_process';
 
 const { argv, stdout } = process;
 const cli = commandLineArgs({ name: 'subcommand', defaultOption: true }, { stopAtFirstUnknown: true, argv });
@@ -21,6 +22,13 @@ if (cli.subcommand === 'vdiff') {
 	} else if (vdiff.subcommand === 'migrate') {
 		const { migrate } = await import('../src/server/cli/vdiff/migrate.js');
 		await migrate.start(vdiff._unknown);
+	} else if (vdiff.subcomamnd === 'migrate-local') {
+
+		execSync('npm install @brightspace-ui/visual-diff@14  --no-save');
+		execSync('npx mocha \'./**/*.visual-diff.js\' -t 10000 --golden');
+
+		const { migrate } = await import('../src/server/cli/vdiff/migrate.js');
+		await migrate.start(vdiff._unknown, true);
 	} else {
 		stdout.write(`\nfatal: unknown subcomamnd: ${vdiff.subcommand}\n`);
 	}

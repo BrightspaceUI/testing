@@ -6,9 +6,9 @@ import { glob } from 'glob';
 import { PATHS } from '../../visual-diff-plugin.js';
 import { stdout } from 'node:process';
 
-async function start(argv = []) {
+async function start(argv = [], local = false) {
 	const { pattern = './**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true, argv });
-	const oldSuffix = 'screenshots/ci/golden';
+	const oldSuffix = local ? 'screenshots/golden' : 'screenshots/ci/golden';
 	const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**', posix: true });
 	let fileCount = 0;
 
