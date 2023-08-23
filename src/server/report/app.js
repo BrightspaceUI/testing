@@ -182,12 +182,14 @@ class App extends LitElement {
 	}
 	_handleNextClick() {
 		this._updateSearchParams(this._next);
+		this._scrollToTop();
 	}
 	_handleOverlayChange(e) {
 		this._overlay = e.target.checked;
 	}
 	_handlePrevClick() {
 		this._updateSearchParams(this._prev);
+		this._scrollToTop();
 	}
 	_renderError(message, source) {
 		return html`<div class="padding"><p>${message}: <b>${source}</b>.</p></div>`;
@@ -325,7 +327,7 @@ class App extends LitElement {
 		if (tabs.length < 2) return nothing;
 		return renderTabButtons('browser results', tabs, index => {
 			this._selectedBrowserIndex = index;
-			this.shadowRoot.querySelector('.tab-panels').scrollTo(0, 0);
+			this._scrollToTop();
 			this.requestUpdate();
 		});
 	}
@@ -409,6 +411,9 @@ class App extends LitElement {
 			</div>
 		`;
 
+	}
+	_scrollToTop() {
+		this.shadowRoot.querySelector('.tab-panels').scrollTo(0, 0);
 	}
 	_updateFiles() {
 
