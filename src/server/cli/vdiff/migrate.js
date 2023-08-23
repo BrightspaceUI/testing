@@ -30,7 +30,9 @@ async function start(argv = [], local = false) {
 				.replace(/^d2l-/, '')
 				.replace(new RegExp(`^${dirName}-`), '');
 
-			const newDir = dir.replace(`${oldSuffix}/${dirName}`, `${PATHS.GOLDEN}/${dirName}/chromium`);
+			const newDir = local ?
+				`${PATHS.VDIFF_ROOT}/${dir.replace(`${oldSuffix}/${dirName}`, `${dirName}/${PATHS.GOLDEN}/chromium`)}` :
+				dir.replace(`${oldSuffix}/${dirName}`, `${PATHS.GOLDEN}/${dirName}/chromium`);
 
 			await mkdir(newDir, { recursive: true });
 			return rename(file, join(newDir, newName));
