@@ -22,7 +22,7 @@ if (cli.subcommand === 'vdiff') {
 	} else if (vdiff.subcommand === 'migrate') {
 		const { migrate } = await import('../src/server/cli/vdiff/migrate.js');
 		await migrate.start(vdiff._unknown);
-	} else if (vdiff.subcomamnd === 'migrate-local') {
+	} else if (vdiff.subcommand === 'migrate-local') {
 
 		execSync('npm install @brightspace-ui/visual-diff@14  --no-save');
 		execSync('npx mocha \'./**/*.visual-diff.js\' -t 10000 --golden');
@@ -30,7 +30,7 @@ if (cli.subcommand === 'vdiff') {
 		const { migrate } = await import('../src/server/cli/vdiff/migrate.js');
 		await migrate.start(vdiff._unknown, true);
 	} else {
-		stdout.write(`\nfatal: unknown subcomamnd: ${vdiff.subcommand}\n`);
+		stdout.write(`\nfatal: unknown subcommand: ${vdiff.subcommand}\n`);
 	}
 } else {
 	runTests();
