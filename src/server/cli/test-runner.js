@@ -163,6 +163,10 @@ async function getTestRunnerOptions(argv = []) {
 				{
 					example: 'vdiff migrate [directory]',
 					desc: 'Migrate from @brightspace-ui/visual-diff. Restrict which goldens are migrated with a directory glob.'
+				},
+				{
+					example: 'vdiff migrate-local [directory]',
+					desc: 'Generate goldens with @brightspace-ui/visual-diff for local comparison while migrating tests. Restrict which goldens are generated with a directory glob.'
 				}]
 			}
 		]);
