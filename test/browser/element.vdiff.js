@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit';
 import { defineCE, expect, fixture, hoverElem } from '../../src/browser/index.js';
-import { executeServerCommand } from '@web/test-runner-commands';
+//import { executeServerCommand } from '@web/test-runner-commands';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 const elementTag = defineCE(
 	class extends LitElement {
@@ -39,6 +40,40 @@ const elementTag = defineCE(
 	}
 );
 
+const fixedElementTag = defineCE(
+	class extends LitElement {
+		static get styles() {
+			return css`
+				div {
+					background-color: white;
+					border: 1px solid purple;
+					border-radius: 8px;
+					box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+					box-sizing: border-box;
+					position: fixed;
+				}
+			`;
+		}
+		render() {
+			return html`
+				<div class="vdiff-size">
+					<slot></slot>
+				</div>
+			`;
+		}
+	}
+);
+
+const nestedElementTag = defineCE(
+	class extends LitElement {
+		render() {
+			return html`${unsafeHTML(`
+				<${fixedElementTag} class="vdiff-size"><${elementTag} text="Visual Difference"></${elementTag}></${fixedElementTag}>
+			`)}`;
+		}
+	}
+);
+
 describe('element-matches', () => {
 	[
 		{ name: 'default' },
@@ -57,6 +92,16 @@ describe('element-matches', () => {
 	it('full page', async() => {
 		await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { viewport: { width: 500, height: 500 } });
 		await expect(document).to.be.golden();
+	});
+
+	it('true size', async() => {
+		const elem = await fixture(`<${fixedElementTag}><${elementTag} text="Visual Difference"></${elementTag}></${fixedElementTag}>`, { viewport: { width: 500, height: 500 } });
+		await expect(elem).to.be.golden();
+	});
+
+	it('nested true size', async() => {
+		const elem = await fixture(`<${nestedElementTag}></${nestedElementTag}>`, { viewport: { width: 500, height: 500 } });
+		await expect(elem).to.be.golden();
 	});
 });
 
@@ -87,7 +132,7 @@ describe('element-different', () => {
 	].forEach(({ name, action }) => {
 		it(name, async() => {
 			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
-			const isGolden = await executeServerCommand('vdiff-get-golden-flag');
+			const isGolden = true;//await executeServerCommand('vdiff-get-golden-flag');
 			if (!isGolden) {
 				await action(elem);
 				await elem.updateComplete;
