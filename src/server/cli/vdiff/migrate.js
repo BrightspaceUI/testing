@@ -37,7 +37,10 @@ async function start(argv = [], local = false) {
 			await mkdir(newDir, { recursive: true });
 			return rename(file, join(newDir, newName));
 		}));
-		return rm(normalize(join(dir, '..', '..')), { recursive: true });
+
+		if (!local) {
+			return rm(normalize(join(dir, '..', '..')), { recursive: true });
+		}
 	}));
 
 	stdout.write(`\nMigrated ${fileCount} ${fileCount === 1 ? 'golden' : 'goldens'} found in ${dirs.length} test ${dirs.length === 1 ? 'directory' : 'directories'}\n`);

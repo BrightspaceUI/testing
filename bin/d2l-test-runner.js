@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import commandLineArgs from 'command-line-args';
+import { execSync } from 'node:child_process';
 import process from 'node:process';
 import { runner } from '../src/server/cli/test-runner.js';
-import { execSync } from 'node:child_process';
 
 const { argv, stdout } = process;
 const cli = commandLineArgs({ name: 'subcommand', defaultOption: true }, { stopAtFirstUnknown: true, argv });
@@ -24,8 +24,10 @@ if (cli.subcommand === 'vdiff') {
 		await migrate.start(vdiff._unknown);
 	} else if (vdiff.subcommand === 'migrate-local') {
 
+		const { pattern = './**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true, argv: vdiff._unknown || [] });
+
 		execSync('npm install @brightspace-ui/visual-diff@14  --no-save');
-		execSync('npx mocha \'./**/*.visual-diff.js\' -t 10000 --golden');
+		execSync(`npx mocha '${pattern}/*.visual-diff.js' -t 10000 --golden`);
 
 		const { migrate } = await import('../src/server/cli/vdiff/migrate.js');
 		await migrate.start(vdiff._unknown, true);
