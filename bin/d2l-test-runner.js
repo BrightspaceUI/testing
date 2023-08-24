@@ -26,8 +26,11 @@ if (cli.subcommand === 'vdiff') {
 
 		const { pattern = './**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true, argv: vdiff._unknown || [] });
 
+		stdout.write('\nInstalling @brightspace-ui/visual-diff\n');
 		execSync('npm install @brightspace-ui/visual-diff@14  --no-save');
+		stdout.write(`\nRunning existing tests for pattern '${pattern}/*.visual-diff.js'\n`);
 		execSync(`npx mocha '${pattern}/*.visual-diff.js' -t 10000 --golden`);
+		stdout.write('\nTest run complete.\n');
 
 		const { migrate } = await import('../src/server/cli/vdiff/migrate.js');
 		await migrate.start(vdiff._unknown, true);
