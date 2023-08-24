@@ -9,6 +9,8 @@ import { stdout } from 'node:process';
 async function start(argv = [], local = false) {
 	const { pattern = './**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true, argv });
 	const oldSuffix = local ? 'screenshots/golden' : 'screenshots/ci/golden';
+
+	stdout.write(`\nMigrating goldens for pattern '${pattern}/${oldSuffix}'\n`);
 	const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**', posix: true });
 	let fileCount = 0;
 
