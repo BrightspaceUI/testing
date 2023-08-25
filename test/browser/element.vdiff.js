@@ -56,7 +56,7 @@ const fixedElementTag = defineCE(
 		}
 		render() {
 			return html`
-				<div class="vdiff-rect">
+				<div class="vdiff-target">
 					<slot></slot>
 				</div>
 			`;
@@ -68,7 +68,7 @@ const nestedElementTag = defineCE(
 	class extends LitElement {
 		render() {
 			return html`${unsafeHTML(`
-				<${fixedElementTag} class="vdiff-rect"><${elementTag} text="Visual Difference"></${elementTag}></${fixedElementTag}>
+				<${fixedElementTag} class="vdiff-target"><${elementTag} text="Visual Difference"></${elementTag}></${fixedElementTag}>
 			`)}`;
 		}
 	}
