@@ -6,9 +6,11 @@ import { glob } from 'glob';
 import { PATHS } from '../../visual-diff-plugin.js';
 import { stdout } from 'node:process';
 
-async function start(argv = []) {
+async function start(argv = [], local = false) {
 	const { pattern = './**' } = commandLineArgs({ name: 'pattern', type: String, defaultOption: true }, { partial: true, argv });
-	const oldSuffix = 'screenshots/ci/golden';
+	const oldSuffix = local ? 'screenshots/golden' : 'screenshots/ci/golden';
+
+	stdout.write(`\nMigrating goldens for pattern '${pattern}/${oldSuffix}'\n`);
 	const dirs = await glob(`${pattern}/${oldSuffix}`, { ignore: 'node_modules/**', posix: true });
 	let fileCount = 0;
 
@@ -30,12 +32,17 @@ async function start(argv = []) {
 				.replace(/^d2l-/, '')
 				.replace(new RegExp(`^${dirName}-`), '');
 
-			const newDir = dir.replace(`${oldSuffix}/${dirName}`, `${PATHS.GOLDEN}/${dirName}/chromium`);
+			const newDir = local ?
+				`${PATHS.VDIFF_ROOT}/${dir.replace(`${oldSuffix}/${dirName}`, `${dirName}/${PATHS.GOLDEN}/chromium`)}` :
+				dir.replace(`${oldSuffix}/${dirName}`, `${PATHS.GOLDEN}/${dirName}/chromium`);
 
 			await mkdir(newDir, { recursive: true });
 			return rename(file, join(newDir, newName));
 		}));
-		return rm(normalize(join(dir, '..', '..')), { recursive: true });
+
+		if (!local) {
+			return rm(normalize(join(dir, '..', '..')), { recursive: true });
+		}
 	}));
 
 	stdout.write(`\nMigrated ${fileCount} ${fileCount === 1 ? 'golden' : 'goldens'} found in ${dirs.length} test ${dirs.length === 1 ? 'directory' : 'directories'}\n`);
