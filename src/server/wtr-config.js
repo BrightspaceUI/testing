@@ -196,6 +196,7 @@ export class WTRConfig {
 		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers));
 
 		if (open || watch) {
+			config.testsFinishTimeout = 15 * 60 * 1000;
 			config.plugins ??= [];
 			const currentPattern = files || config.groups.find(g => g.name === group)?.files;
 

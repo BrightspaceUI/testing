@@ -19,6 +19,13 @@ mocha.setup({
 });
 /* eslint-enable */
 
+function findTarget(elem) {
+	if (!elem.shadowRoot) return elem;
+	const nestedTarget = elem.shadowRoot.querySelector('.vdiff-target');
+	if (!nestedTarget) return elem;
+	return findTarget(nestedTarget);
+}
+
 async function ScreenshotAndCompare(opts) {
 
 	if (window.d2lTest) {
@@ -27,7 +34,11 @@ async function ScreenshotAndCompare(opts) {
 	}
 
 	const name = this.test.fullTitle();
-	const rect = this.elem === document ? null : this.elem.getBoundingClientRect();
+	let rect = null;
+	if (this.elem !== document) {
+		const target = findTarget(this.elem);
+		rect = target.getBoundingClientRect();
+	}
 	const slowDuration = this.test.slow();
 	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, rect, slowDuration, opts });
 	if (result.resizeRequired) {
