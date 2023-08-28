@@ -208,6 +208,8 @@ it('should wait for an event', async() => {
 
 Note that the call to `clickElem` is not `await`-ed, since by the time it resolves the event will have already been dispatched.
 
+If you need to prevent the default behaviour of the event in your test, you can use `oneDefaultPreventedEvent`.
+
 #### Waiting for a Lit Element to Update
 
 When using Lit-based components, it's common to create a fixture and then modify some of its properties, which usually requires waiting for those changes to be rendered.
