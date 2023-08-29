@@ -22,7 +22,7 @@ export async function reset(opts = {}) {
 	const defaultOpts = {
 		lang: DEFAULT_LANG,
 		mathjax: {},
-		rtl: false,
+		rtl: !!opts.lang?.startsWith('ar'),
 		viewport: {
 			height: DEFAULT_VIEWPORT_HEIGHT,
 			width: DEFAULT_VIEWPORT_WIDTH
