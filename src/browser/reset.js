@@ -17,16 +17,21 @@ export function requestMouseReset() {
 	shouldResetMouse = true;
 }
 
-export async function reset(opts) {
+export async function reset(opts = {}) {
 
-	opts = opts || {};
-	opts.lang = opts.lang || DEFAULT_LANG;
-	opts.mathjax = opts.mathjax || {};
+	const defaultOpts = {
+		lang: DEFAULT_LANG,
+		mathjax: {},
+		rtl: !!opts.lang?.startsWith('ar'),
+		viewport: {
+			height: DEFAULT_VIEWPORT_HEIGHT,
+			width: DEFAULT_VIEWPORT_WIDTH
+		}
+	};
+
+	opts = { ...defaultOpts, ...opts };
+	opts.viewport = { ...defaultOpts.viewport, ...opts.viewport };
 	opts.mathjax.renderLatex = (typeof opts.mathjax.renderLatex === 'boolean') ? opts.mathjax.renderLatex : DEFAULT_MATHJAX_RENDER_LATEX;
-	opts.rtl = opts.lang.startsWith('ar') || !!opts.rtl;
-	opts.viewport = opts.viewport || {};
-	opts.viewport.height = opts.viewport.height || DEFAULT_VIEWPORT_HEIGHT;
-	opts.viewport.width = opts.viewport.width || DEFAULT_VIEWPORT_WIDTH;
 
 	let awaitNextFrame = false;
 
