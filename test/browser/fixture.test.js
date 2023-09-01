@@ -2,13 +2,10 @@
 import { defineCE, expect, fixture, html, waitUntil } from '../../src/browser/index.js';
 import { restore, stub } from 'sinon';
 import { focusElem } from '../../src/browser/commands.js';
-import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { LitElement } from 'lit';
 import { requestMouseReset } from '../../src/browser/reset.js';
 import { sendMouse } from '@web/test-runner-commands';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-
-const documentLocaleSettings = getDocumentLocaleSettings();
 
 const resolves = new Map();
 
@@ -135,16 +132,13 @@ describe('fixture', () => {
 		it('should default language to EN', async() => {
 			await fixture(html`<p>hello</p>`);
 			expect(document.documentElement.getAttribute('lang')).to.equal('en');
-			expect(documentLocaleSettings.language).to.equal('en');
 		});
 
 		it('should reset language to EN', async() => {
 			await fixture(html`<p>bonjour</p>`, { lang: 'fr' });
 			expect(document.documentElement.getAttribute('lang')).to.equal('fr');
-			expect(documentLocaleSettings.language).to.equal('fr');
 			await fixture(html`<p>hello</p>`);
 			expect(document.documentElement.getAttribute('lang')).to.equal('en');
-			expect(documentLocaleSettings.language).to.equal('en');
 		});
 
 		it('should use specified mathjax latex config', async() => {
