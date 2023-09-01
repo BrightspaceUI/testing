@@ -1,4 +1,5 @@
 import { sendMouse, setViewport } from '@web/test-runner-commands';
+import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { nextFrame } from '@open-wc/testing';
 
 const DEFAULT_LANG = 'en',
@@ -6,7 +7,9 @@ const DEFAULT_LANG = 'en',
 	DEFAULT_VIEWPORT_HEIGHT = 800,
 	DEFAULT_VIEWPORT_WIDTH = 800;
 
-let currentLang = undefined,
+const documentLocaleSettings = getDocumentLocaleSettings();
+
+let
 	currentMathjaxRenderLatex = DEFAULT_MATHJAX_RENDER_LATEX,
 	currentRtl = false,
 	currentViewportHeight = 0,
@@ -57,9 +60,9 @@ export async function reset(opts = {}) {
 		currentRtl = opts.rtl;
 	}
 
-	if (opts.lang !== currentLang) {
-		document.documentElement.setAttribute('lang', opts.lang);
-		currentLang = opts.lang;
+	opts.lang ??= '';
+	if (documentLocaleSettings.lamguage !== opts.lang) {
+		document.documentElement.lang = opts.lang;
 		awaitNextFrame = true;
 	}
 
