@@ -36,6 +36,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@brightspace-ui/intl": "^3",
     "@open-wc/testing": "^3",
     "@rollup/plugin-node-resolve": "^15",
     "@web/config-loader": "^0.2",

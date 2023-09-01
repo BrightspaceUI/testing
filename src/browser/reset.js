@@ -1,10 +1,13 @@
 import { sendMouse, setViewport } from '@web/test-runner-commands';
+import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { nextFrame } from '@open-wc/testing';
 
 const DEFAULT_LANG = 'en',
 	DEFAULT_MATHJAX_RENDER_LATEX = false,
 	DEFAULT_VIEWPORT_HEIGHT = 800,
 	DEFAULT_VIEWPORT_WIDTH = 800;
+
+const documentLocaleSettings = getDocumentLocaleSettings();
 
 let
 	currentMathjaxRenderLatex = DEFAULT_MATHJAX_RENDER_LATEX,
@@ -57,7 +60,8 @@ export async function reset(opts = {}) {
 		currentRtl = opts.rtl;
 	}
 
-	if (document.documentElement.lang !== opts.lang) {
+	opts.lang ??= '';
+	if (documentLocaleSettings.lamguage !== opts.lang) {
 		document.documentElement.lang = opts.lang;
 		awaitNextFrame = true;
 	}
