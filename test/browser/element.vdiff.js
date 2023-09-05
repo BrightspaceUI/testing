@@ -1,4 +1,4 @@
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, nothing } from 'lit';
 import { defineCE, expect, fixture, hoverElem } from '../../src/browser/index.js';
 import { executeServerCommand } from '@web/test-runner-commands';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
@@ -40,8 +40,30 @@ const elementTag = defineCE(
 	}
 );
 
+const absoluteElementTag = defineCE(
+	class extends LitElement {
+		static get styles() {
+			return css`
+				div {
+					border: 1px solid blue;
+					position: absolute;
+					bottom: 250px;
+				}
+			`;
+		}
+		render() {
+			return html`
+				<div class="vdiff-target">Absolutely Positioned</div>
+			`;
+		}
+	}
+);
+
 const fixedElementTag = defineCE(
 	class extends LitElement {
+		static get properties() {
+			return { multipleTargets: { type: Boolean, attribute: 'multiple-targets' } };
+		}
 		static get styles() {
 			return css`
 				div {
@@ -59,6 +81,9 @@ const fixedElementTag = defineCE(
 				<div class="vdiff-target">
 					<slot></slot>
 				</div>
+				${this.multipleTargets ? unsafeHTML(`
+					<${absoluteElementTag} class="vdiff-target"></${absoluteElementTag}>
+				`) : nothing}
 			`;
 		}
 	}
@@ -69,6 +94,7 @@ const nestedElementTag = defineCE(
 		render() {
 			return html`${unsafeHTML(`
 				<${fixedElementTag} class="vdiff-target"><${elementTag} text="Visual Difference"></${elementTag}></${fixedElementTag}>
+				<slot></slot>
 			`)}`;
 		}
 	}
@@ -101,6 +127,16 @@ describe('element-matches', () => {
 
 	it('nested true size', async() => {
 		const elem = await fixture(`<${nestedElementTag}></${nestedElementTag}>`, { viewport: { width: 500, height: 500 } });
+		await expect(elem).to.be.golden();
+	});
+
+	it('multiple targets', async() => {
+		const elem = await fixture(`<${fixedElementTag} multiple-targets><${elementTag} text="Visual Difference"></${fixedElementTag}>`, { viewport: { width: 500, height: 500 } });
+		await expect(elem).to.be.golden();
+	});
+
+	it('multiple to include', async() => {
+		const elem = await fixture(`<${nestedElementTag}><${absoluteElementTag} class="vdiff-include"></${absoluteElementTag}></${nestedElementTag}>`, { viewport: { width: 500, height: 500 } });
 		await expect(elem).to.be.golden();
 	});
 });
