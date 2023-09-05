@@ -19,11 +19,29 @@ mocha.setup({
 });
 /* eslint-enable */
 
-function findTarget(elem) {
-	if (!elem.shadowRoot) return elem;
-	const nestedTarget = elem.shadowRoot.querySelector('.vdiff-target');
-	if (!nestedTarget) return elem;
-	return findTarget(nestedTarget);
+function findTargets(elem) {
+	if (!elem.shadowRoot) return [elem];
+	const nestedTargets = elem.shadowRoot.querySelectorAll('.vdiff-target');
+	if (nestedTargets.length === 0) return [elem];
+	return Array.from(nestedTargets).reduce((acc, target) => [...acc, ...findTargets(target)], []);
+}
+
+function findLargestRect(elems) {
+	let largestRect = { left: Number.MAX_SAFE_INTEGER, top: Number.MAX_SAFE_INTEGER, right: 0, bottom: 0 };
+	elems.forEach(elem => {
+		const targets = findTargets(elem);
+		targets.forEach(target => {
+			const targetRect = target.getBoundingClientRect();
+			largestRect = {
+				left: Math.floor(Math.min(largestRect.left, targetRect.left)),
+				top: Math.floor(Math.min(largestRect.top, targetRect.top)),
+				right: Math.ceil(Math.max(largestRect.right, targetRect.right)),
+				bottom: Math.ceil(Math.max(largestRect.bottom, targetRect.bottom))
+			};
+		});
+	});
+
+	return { x: largestRect.left, y: largestRect.top, width: largestRect.right - largestRect.left, height: largestRect.bottom - largestRect.top };
 }
 
 async function ScreenshotAndCompare(opts) {
@@ -36,8 +54,8 @@ async function ScreenshotAndCompare(opts) {
 	const name = this.test.fullTitle();
 	let rect = null;
 	if (this.elem !== document) {
-		const target = findTarget(this.elem);
-		rect = target.getBoundingClientRect();
+		const elemsToInclude = [this.elem, ...this.elem.querySelectorAll('.vdiff-include')];
+		rect = findLargestRect(elemsToInclude);
 	}
 	const slowDuration = this.test.slow();
 	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, rect, slowDuration, opts });
