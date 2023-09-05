@@ -32,12 +32,14 @@ function findLargestRect(elems) {
 		const targets = findTargets(elem);
 		targets.forEach(target => {
 			const targetRect = target.getBoundingClientRect();
-			largestRect = {
-				left: Math.floor(Math.min(largestRect.left, targetRect.left)),
-				top: Math.floor(Math.min(largestRect.top, targetRect.top)),
-				right: Math.ceil(Math.max(largestRect.right, targetRect.right)),
-				bottom: Math.ceil(Math.max(largestRect.bottom, targetRect.bottom))
-			};
+			if (targetRect.width !== 0 && targetRect.height !== 0) {
+				largestRect = {
+					left: Math.floor(Math.min(largestRect.left, targetRect.left)),
+					top: Math.floor(Math.min(largestRect.top, targetRect.top)),
+					right: Math.ceil(Math.max(largestRect.right, targetRect.right)),
+					bottom: Math.ceil(Math.max(largestRect.bottom, targetRect.bottom))
+				};
+			}
 		});
 	});
 
