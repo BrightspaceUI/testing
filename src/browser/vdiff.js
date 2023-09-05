@@ -23,7 +23,7 @@ function findTargets(elem) {
 	if (!elem.shadowRoot) return [elem];
 	const nestedTargets = elem.shadowRoot.querySelectorAll('.vdiff-target');
 	if (nestedTargets.length === 0) return [elem];
-	return Array.from(nestedTargets).reduce((acc, target) => [...acc, ...findTargets(target)], []);
+	return Array.from(nestedTargets).reduce((acc, target) => [...acc, ...findTargets(target)], [elem]);
 }
 
 function findLargestRect(elems) {
