@@ -320,9 +320,9 @@ Use the `d2l-test-runner` binary to execute a set of tests and report their resu
 
 ### CLI and Configuration
 
-`d2l-test-runner` can be configured using CLI flags or an optional configuration file.
+`d2l-test-runner` can be configured using CLI arguments or an optional configuration file.
 
-#### Options
+#### CLI Arguments
 
 | Name | Type | Default | Description |
 | :--- | :---: | :---: | :--- |
@@ -343,15 +343,26 @@ Use the `d2l-test-runner` binary to execute a set of tests and report their resu
 For example, to run all tests in the default `'test'` group in Firefox and with a `3s` timeout:
 
 ```bash
-d2l-test-runner --firefox --timeout=3000
+d2l-test-runner --firefox --timeout 3000
 ```
 
-A `d2l-test-runner.config.js` file in the current working directory (or the path from the `config` CLI flag) can also be used to configure `d2l-test-runner`.
+#### Configuration File
+
+A `d2l-test-runner.config.js` file in the current working directory (or the value from the `config` CLI flag) can also be used to configure a subset of options.
 
 ```javascript
 export default {
-  firefox: true,
+  slow: 100,
+  slowmo: 50,
   timeout: 3000
+};
+```
+
+For projects where tests are outside of the default `'./test/'` location, it may be useful to override the default pattern provider.
+
+```javascript
+export default {
+  pattern: type => `./custom/**/*.${type}.js`
 };
 ```
 
@@ -364,6 +375,18 @@ The group name appears in the default `files` pattern (`'./test/**/*.<group>.js'
 To run tests which match the pattern `'./test/**/*.mygroup.js'`:
 ```bash
 d2l-test-runner --group mygroup
+```
+
+The configuration file can also be used to set up custom groups:
+
+```javascript
+export default {
+  groups: [{
+    name: 'safari-only',
+    files: './custom/*.safari.js'
+    browsers: ['safari']
+  }]
+};
 ```
 
 ### Running a Subset of Tests
@@ -391,10 +414,10 @@ For example, `d2l-test-runner --grep foo` will run any test whose test suite(s) 
 When tests don't go as expected, the next step is usually to debug them using the browser's built-in developer tools.
 
 There are two options for debugging:
-* `watch`: after running `d2l-test-runner --watch`, choose "D" (debug in the browser) and select which test file to launch
-* `open`: is a shortcut for `watch` that opens a browser window for each file sequentially. For large projects, use it in combination with `filter` to limit which file(s) are opened. For example: `d2l-test-runner --filter foo --watch`.
+* `watch`: after running `d2l-test-runner --watch`, choose "D" (debug in the browser) and select which test file to launch. The browser will stay open and reload whenever code changes occur.
+* `open`: opens a browser window for each file sequentially and closes the window when the tests complete. For large projects, use it in combination with `filter` to limit which files are opened. For example: `d2l-test-runner --filter foo --open`.
 
-With both `watch` and `open`, the browser debugger will be paused at the top of the file under test, which provides an opportunity to attach breakpoints if desired. A toolbar at the top of the screen then allows for each individual test to be skipped or run, as well as a "run all" option.
+With both `watch` and `open`, before starting the tests there is a chance to open the browser developer tools (if they don't open automatically). After starting, the browser debugger will be paused at the top of the file under test, providing an opportunity to attach breakpoints if desired. A toolbar at the top of the screen allows for each individual test to be skipped or run, as well as a "run all" option.
 
 ## Vdiff Testing
 
@@ -435,21 +458,6 @@ To capture the entire viewport, pass `document` as the target element to the ass
 await expect(document).to.be.golden();
 ```
 
-#### Changing the Vdiff Target
-
-If the target element doesn't accurately represent the area to be captured, the `vdiff-target` CSS class can be applied to the element that does.
-
-In the following example, the initial target element's area will not contain the nested element. By adding the `vdiff-target` CSS class to the nested element, it becomes the new vdiff target.
-
-```javascript
-const elem = await fixture(html`
-  <span>
-    <div class="vdiff-target" style="height: 50px; width: 30px;">hello</div>
-  </span>
-`);
-await expect(elem).to.be.golden();
-```
-
 #### Including Other Elements
 
 Elements using `absolute` or `fixed` positioning (like dropdowns or tooltips) may overflow the target element's capture area. To include them, apply the `vdiff-include` CSS class.
@@ -464,6 +472,27 @@ const elem = await fixture(html`
   </span>
 `);
 await expect(elem).to.be.golden();
+```
+
+#### Changing the Vdiff Target
+
+When writing custom elements, sometimes the host element's boundaries don't fully encapsulate the target area that vdiff should capture. In these scenarios, the `vdiff-target` CSS class can be applied to additional elements which should be included whenever the host element is captured.
+
+In the following example, the absolutely positioned `<div>` will overflow the host element's boundaries and wouldn't normally be captured by vdiff. However, by adding the `vdiff-target` CSS class to the `<div>`, it gets added to the capture area.
+
+```javascript
+import { defineCE, fixture, html } from '@brightspace-ui/testing';
+
+const tag = defineCE(
+  class extends LitElement {
+    render() {
+      return html`
+        hello
+        <div class="vdiff-target" style="position: absolute; top: 400px;">there</div>
+      `;
+    }
+  }
+);
 ```
 
 ### Running Vdiff Tests
@@ -511,6 +540,8 @@ d2l-test-runner vdiff report
 ```
 
 The report supports filtering by status and browser, and allows for iteration through test files or tests within a file. It presents either a "full" view for quickly toggling between golden/new or a "split" side-by-side view. The diff changes can be optionally overlaid.
+
+To help surface instances where a browser version change may be responsible for vdiff failures in the report, a `.vdiff.json` tracking file will be committed to the root of the repository.
 
 ### Migrating
 
