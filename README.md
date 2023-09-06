@@ -314,6 +314,72 @@ it('should use custom element', async() => {
 
 > **Important:** `defineCE` is not performant and shouldn't be used outside of test files.
 
+### Vdiff Testing
+
+Short for "visual diff" and also known as "visual regression" or "perceptual diff", vdiff testing involves taking snapshot images of the browser and comparing them against a known golden (or "baseline") image. The images are compared pixel-by-pixel and differences beyond a threshold will fail the test. `@brightspace-ui/testing`'s vdiff leverages the [pixelmatch](https://github.com/mapbox/pixelmatch) library to perfom its comparison.
+
+Use the asynchronous `.to.be.golden()` Chai assertion to take a vdiff snapshot and [compare it against its golden](#generating-the-goldens).
+
+```javascript
+import { fixture, html } from '@brightspace-ui/testing';
+
+describe('my-elem', () => {
+  describe('situation1', () => {
+    it('state1', async() => {
+      const elem = await fixture(html`<my-elem></my-elem>`);
+      await expect(elem).to.be.golden();
+    });
+  });
+});
+```
+
+#### Configuring the Snapshot Area
+
+By default, the snapshot area will be a rectangle around the target element plus a `10px` buffer margin on each side. To use a different margin, pass it as an option:
+
+```javascript
+await expect(elem).to.be.golden({ margin: 20 });
+```
+
+##### Capturing the Viewport
+
+To capture the entire viewport, pass `document` as the target element to the assertion:
+
+```javascript
+await expect(document).to.be.golden();
+```
+
+##### Changing the Vdiff Target
+
+If the target element doesn't accurately represent the area to be captured, the `vdiff-target` CSS class can be applied to the element that does.
+
+In the following example, the initial target element's area will not contain the nested element. By adding the `vdiff-target` CSS class to the nested element, it becomes the new vdiff target.
+
+```javascript
+const elem = await fixture(html`
+  <span>
+    <div class="vdiff-target" style="height: 50px; width: 30px;">hello</div>
+  </span>
+`);
+await expect(elem).to.be.golden();
+```
+
+##### Including Other Elements
+
+Elements using `absolute` or `fixed` positioning (like dropdowns or tooltips) may overflow the target element's capture area. To include them, apply the `vdiff-include` CSS class.
+
+In this example, the tooltip is positioned below the button and would not be captured. By applying `vdiff-include` to one or more elements, the captured area grows to become the rectangle containing the initial target and all additional `vdiff-include` elements.
+
+```javascript
+const elem = await fixture(html`
+  <button style="position: relative;">
+    hello
+    <span class="vdiff-include" style="left: 0; position: absolute; top: 100%;">there</span>
+  </span>
+`);
+await expect(elem).to.be.golden();
+```
+
 ## Running Tests
 
 Use the `d2l-test-runner` binary to execute a set of tests and report their results. It builds upon the robust [@web/test-runner](https://modern-web.dev/docs/test-runner/overview/), while configuring it for Brightspace components and applications.
@@ -359,7 +425,9 @@ export default {
 
 Tests are organized into groups, which can be configured and run together.
 
-The group name appears in the default `files` pattern (`'./test/**/*.<group>.js'`), making it typical for test files to have the group name as part of their extension. For example, the default group is `'test'` so all test files named `*.test.js` will belong to it by default. Similarly, the `vdiff` group contains files named `*.vdiff.js`.
+The group name appears in the default `files` pattern (`'./test/**/*.<group>.js'`), making it typical for test files to have the group name as part of their extension.
+
+For example, the default group is `'test'` so all test files named `*.test.js` will belong to it by default.
 
 To run tests which match the pattern `'./test/**/*.mygroup.js'`:
 ```bash
@@ -368,23 +436,23 @@ d2l-test-runner --group mygroup
 
 ### Running a Subset of Tests
 
-While writing or debugging tests, it can be desirable to focus the runner on a subset of tests.
+While writing or debugging tests, it can be useful to focus the runner on a subset of tests.
 
-### By File Name
+#### By File Name
 
 Use the `filter` option to filter by file name. It replaces any wildcards in the file name portion of the `files` pattern with the provided [glob](https://en.wikipedia.org/wiki/Glob_(programming)).
 
 For example, with the `'test'` group and default pattern `'./test/**/*.<group>.js'`, passing `d2l-test-runner --filter foo` will run tests which match `'./test/**/foo.test.js'`.
 
-Wildcards can still be used but need to be escaped. So `d2l-test-runner --filter foo\*` will run tests which match `'./test/**/foo*.test.js'`.
+Wildcards can still be used but must be escaped. Therefore `d2l-test-runner --filter foo\*` will run tests which match `'./test/**/foo*.test.js'`.
 
-### By Test Name
+#### By Test Name
 
 Use the `grep` option to filter by test name. Only tests whose names match the provided string or regular expression will be run, regardless of file name.
 
 For example, `d2l-test-runner --grep foo` will run any test whose test suite(s) or name contains "foo".
 
-> **Note:** unfortunately, tests which do not match the grep value will be reported as failed instead of skipped.
+> **Note:** Unfortunately, tests which do not match the grep value will be reported as failed instead of skipped.
 
 ### Debugging Tests
 
@@ -395,76 +463,6 @@ There are two options for debugging:
 * `open`: is a shortcut for `watch` that opens a browser window for each file sequentially. For large projects, use it in combination with `filter` to limit which file(s) are opened. For example: `d2l-test-runner --filter foo --watch`.
 
 With both `watch` and `open`, the browser debugger will be paused at the top of the file under test, which provides an opportunity to attach breakpoints if desired. A toolbar at the top of the screen then allows for each individual test to be skipped or run, as well as a "run all" option.
-
-## Vdiff Testing
-
-Short for "visual diff" and also known as "visual regression" or "perceptual diff", vdiff testing involves taking snapshot images of the browser and comparing them against a known golden (or "baseline") image. The images are compared pixel-by-pixel and differences beyond a threshold will fail the test. `@brightspace-ui/testing`'s vdiff leverages the [pixelmatch](https://github.com/mapbox/pixelmatch) library to perfom its comparison.
-
-### Writing Vdiff Tests
-
-Vdiff tests are written [just like other tests](#writing-tests), and the same utilities (`focusElem`, `oneEvent`, etc.) and `fixture` configuration options (viewport, language) are available.
-
-Use the asynchronous `.to.be.golden()` Chai assertion to take a vdiff snapshot and [compare it against its golden](#generating-the-goldens).
-
-```javascript
-import { fixture, html } from '@brightspace-ui/testing';
-
-describe('my-elem', () => {
-  describe('situation1', () => {
-    it('state1', async() => {
-      const elem = await fixture(html`<my-elem></my-elem>`);
-      await expect(elem).to.be.golden();
-    });
-  });
-});
-```
-
-### Configuring the Snapshot Area
-
-By default, the snapshot area will be a rectangle around the target element plus a `10px` buffer margin on each side. To use a different margin, pass it as an option:
-
-```javascript
-await expect(elem).to.be.golden({ margin: 20 });
-```
-
-#### Capturing the Viewport
-
-To capture the entire viewport, pass `document` as the target element to the assertion:
-
-```javascript
-await expect(document).to.be.golden();
-```
-
-#### Changing the Vdiff Target
-
-If the target element doesn't accurately represent the area to be captured, the `vdiff-target` CSS class can be applied to the element that does.
-
-In the following example, the initial target element's area will not contain the nested element. By adding the `vdiff-target` CSS class to the nested element, it becomes the new vdiff target.
-
-```javascript
-const elem = await fixture(html`
-  <span>
-    <div class="vdiff-target" style="height: 50px; width: 30px;">hello</div>
-  </span>
-`);
-await expect(elem).to.be.golden();
-```
-
-#### Including Other Elements
-
-Elements using `absolute` or `fixed` positioning (like dropdowns or tooltips) may overflow the target element's capture area. To include them, apply the `vdiff-include` CSS class.
-
-In this example, the tooltip is positioned below the button and would not be captured. By applying `vdiff-include` to one or more elements, the captured area becomes the rectangle containing the initial target and all additional `vdiff-include` elements.
-
-```javascript
-const elem = await fixture(html`
-  <button style="position: relative;">
-    hello
-    <span class="vdiff-include" style="left: 0; position: absolute; top: 100%;">there</span>
-  </span>
-`);
-await expect(elem).to.be.golden();
-```
 
 ### Running Vdiff Tests
 
@@ -482,7 +480,7 @@ d2l-test-runner vdiff --chrome --firefox --safari
 
 [CLI arguments or configuration file](#cli-and-configuration) options can be used to filter/grep (`d2l-test-runner vdiff --filter foo`), debug (`d2l-test-runner vdiff --watch`), and so on.
 
-### Continuous Integration
+#### Continuous Integration
 
 Vdiff testing becomes especially powerful when it can run as part of your repo's continuous integration process.
 
@@ -490,7 +488,7 @@ For repositories using GitHub Actions, the [vdiff GitHub Action](https://github.
 
 Refer to the [vdiff GitHub Action](https://github.com/BrightspaceUI/actions/tree/main/vdiff) documentation for more details and setup instructions.
 
-### Generating the Goldens
+#### Generating the Goldens
 
 To ensure a consistent environment, goldens checked into source control should be generated by [continuous integration](#continuous-integration). 
 
@@ -500,7 +498,7 @@ However, it can be helpful during development to generate a local version of the
 d2l-test-runner vdiff golden
 ```
 
-### Reports
+#### Reports
 
 When a vdiff test fails, an assertion failure stating that a certain number of pixels is different than the golden isn't especially helpful. To help visualize changes and aid in determining whether failures are expected, a HTML report is generated.
 
@@ -512,7 +510,7 @@ d2l-test-runner vdiff report
 
 The report supports filtering by status and browser, and allows for iteration through test files or tests within a file. It presents either a "full" view for quickly toggling between golden/new or a "split" side-by-side view. The diff changes can be optionally overlaid.
 
-### Migrating
+#### Migrating
 
 TODO:
 - Migration commands
