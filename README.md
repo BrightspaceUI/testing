@@ -4,8 +4,6 @@
 
 Testing utilities which are specifically designed and configured for Brightspace UI components and applications.
 
-## Installation
-
 Install from NPM:
 
 ```shell
@@ -99,7 +97,7 @@ it('should work in RTL', async() => {
 
 If `lang` is set to Arabic (`ar`), the right-to-left option will automatically be enabled.
 
-> **Note:** it's not recommended to use `language` configuration with visual-diff to solely test the correctness of translations. The [messageformat-validator](https://github.com/bearfriend/messageformat-validator) is a more efficient way to test translations.
+> **Note:** it's not recommended to use `language` configuration with [vdiff](#vdiff-testing) to solely test the correctness of translations. The [messageformat-validator](https://github.com/bearfriend/messageformat-validator) is a more efficient way to test translations.
 
 ### Accessibility Testing with aXe
 
@@ -208,7 +206,7 @@ it('should wait for an event', async() => {
 
 Note that the call to `clickElem` is not `await`-ed, since by the time it resolves the event will have already been dispatched.
 
-If you need to prevent the default behaviour of the event in your test, you can use `oneDefaultPreventedEvent`.
+If the test needs to prevent the default behavior of the event, use `oneDefaultPreventedEvent`.
 
 #### Waiting for a Lit Element to Update
 
@@ -239,7 +237,7 @@ it('should wait', async() => {
 
 #### Waiting For Asynchronous Components
 
-`fixture()` will automatically wait for all nested Lit components to fulfill their `updateComplete` Promise. To tweak when a component's `updateComplete` fulfills, implement the [`getUpdateComplete()` lifecycle callback](https://lit.dev/docs/components/lifecycle/#getUpdateComplete).
+`fixture()` will automatically wait for all nested Lit components to fulfill their `updateComplete` Promise. To control when a component's `updateComplete` fulfills, implement the [`getUpdateComplete()` lifecycle callback](https://lit.dev/docs/components/lifecycle/#getUpdateComplete).
 
 In other scenarios, a component may have an initial loading state (e.g. loading spinner or skeleton) where `updateComplete` has already resolved in addition to another fully loaded state. To signal that `fixture()` should wait for this final state, implement `getLoadingComplete()`. It works the same way as `getUpdateComplete()` by fulfilling its Promise when the component has fully loaded.
 
@@ -292,7 +290,7 @@ await waitUntil(() => elem.condition, {
 
 ### Defining a Custom Element for Testing
 
-If a test requires a one-off custom element, define it using `defineCE` and pass the returned tag name in the call to `fixture()`.
+If a test requires a one-off custom element, define it using `defineCE` and pass the returned tag name to `fixture()`.
 
 ```javascript
 import { defineCE, fixture, html } from '@brightspace-ui/testing';
@@ -316,11 +314,120 @@ it('should use custom element', async() => {
 
 > **Important:** `defineCE` is not performant and shouldn't be used outside of test files.
 
-### Vdiff Testing
+## Running Tests
 
-Short for "visual diff" and also known as "visual regression" or "perceptual diff", vdiff testing involves taking snapshot images of the browser and comparing them against a known golden (or "baseline") image. The images are compared pixel-by-pixel and differences beyond a threshold will fail the test. Our vdiff testing leverages the [pixelmatch](https://github.com/mapbox/pixelmatch) library to perfom its comparison.
+Use the `d2l-test-runner` binary to execute a set of tests and report their results. It builds upon the robust [@web/test-runner](https://modern-web.dev/docs/test-runner/overview/), while configuring it for Brightspace components and applications.
 
-Use the asynchronous `.to.be.golden()` Chai assertion to take a vdiff snapshot and compare it against its golden.
+### CLI and Configuration
+
+`d2l-test-runner` can be configured using CLI arguments or an optional configuration file.
+
+#### CLI Arguments
+
+| Name | Type | Default | Description |
+| :--- | :---: | :---: | :--- |
+| group | `String` | `'test'` | Name of the test group to run |
+| chrome | `Boolean` | `true` | Run tests in Chromium |
+| firefox | `Boolean` | `true` | Run tests in Firefox |
+| safari | `Boolean` | `true` | Run tests in Webkit |
+| timeout | `Number` | `2000` | Test timeout threshold in ms |
+| filter | `String` | | Filter test files by replacing wildcards with this glob |
+| grep | `String` | | Only run tests matching this string or regexp |
+| files | `String` | `'./test/**/*.<group>.js'` | Test files to run. Path or glob. |
+| config | `String` | `'./d2l-test-runner.config.js'` | Location of config file |
+| watch | `Boolean` | `false` | Reload tests on file changes. Allows debugging in all browsers. |
+| open | `Boolean` | `false` | Open the browser in headed mode |
+| slowmo | `Number` | | Slows down test operations by the specified number of milliseconds. Useful for debugging. |
+| slow | `Number` | `75` | Tests whose duration in milliseconds are at most half of this threshold are "fast" and tests which exceed it are "slow" |
+
+For example, to run all tests in the default `'test'` group in Firefox and with a `3s` timeout:
+
+```bash
+d2l-test-runner --firefox --timeout 3000
+```
+
+#### Configuration File
+
+A `d2l-test-runner.config.js` file in the current working directory (or the value from the `config` CLI flag) can also be used to configure a subset of options.
+
+```javascript
+export default {
+  slow: 100,
+  slowmo: 50,
+  timeout: 3000
+};
+```
+
+For projects where tests are outside of the default `'./test/'` location, it may be useful to override the default pattern provider.
+
+```javascript
+export default {
+  pattern: type => `./custom/**/*.${type}.js`
+};
+```
+
+### Test Groups
+
+Tests are organized into groups, which can be configured and run together.
+
+The group name appears in the default `files` pattern (`'./test/**/*.<group>.js'`), making it typical for test files to have the group name as part of their extension. For example, the default group is `'test'` so all test files named `*.test.js` will belong to it by default. Similarly, the `vdiff` group contains files named `*.vdiff.js`.
+
+To run tests which match the pattern `'./test/**/*.mygroup.js'`:
+```bash
+d2l-test-runner --group mygroup
+```
+
+The configuration file can also be used to set up custom groups:
+
+```javascript
+export default {
+  groups: [{
+    name: 'safari-only',
+    files: './custom/*.safari.js'
+    browsers: ['safari']
+  }]
+};
+```
+
+### Running a Subset of Tests
+
+While writing or debugging tests, it can be desirable to focus the runner on a subset of tests.
+
+### By File Name
+
+Use the `filter` option to filter by file name. It replaces any wildcards in the file name portion of the `files` pattern with the provided [glob](https://en.wikipedia.org/wiki/Glob_(programming)).
+
+For example, with the `'test'` group and default pattern `'./test/**/*.<group>.js'`, passing `d2l-test-runner --filter foo` will run tests which match `'./test/**/foo.test.js'`.
+
+Wildcards can still be used but need to be escaped. So `d2l-test-runner --filter foo\*` will run tests which match `'./test/**/foo*.test.js'`.
+
+### By Test Name
+
+Use the `grep` option to filter by test name. Only tests whose names match the provided string or regular expression will be run, regardless of file name.
+
+For example, `d2l-test-runner --grep foo` will run any test whose test suite(s) or name contains "foo".
+
+> **Note:** unfortunately, tests which do not match the grep value will be reported as failed instead of skipped.
+
+### Debugging Tests
+
+When tests don't go as expected, the next step is usually to debug them using the browser's built-in developer tools.
+
+There are two options for debugging:
+* `watch`: after running `d2l-test-runner --watch`, choose "D" (debug in the browser) and select which test file to launch. The browser will stay open and reload whenever code changes occur.
+* `open`: opens a browser window for each file sequentially and closes the window when the tests complete. For large projects, use it in combination with `filter` to limit which files are opened. For example: `d2l-test-runner --filter foo --open`.
+
+With both `watch` and `open`, before starting the tests there is a chance to open the browser developer tools (if they don't open automatically). After starting, the browser debugger will be paused at the top of the file under test, providing an opportunity to attach breakpoints if desired. A toolbar at the top of the screen allows for each individual test to be skipped or run, as well as a "run all" option.
+
+## Vdiff Testing
+
+Short for "visual diff" and also known as "visual regression" or "perceptual diff", vdiff testing involves taking snapshot images of the browser and comparing them against a known golden (or "baseline") image. The images are compared pixel-by-pixel and differences beyond a threshold will fail the test. `@brightspace-ui/testing`'s vdiff leverages the [pixelmatch](https://github.com/mapbox/pixelmatch) library to perfom its comparison.
+
+### Writing Vdiff Tests
+
+Vdiff tests are written [just like other tests](#writing-tests), and the same utilities (`focusElem`, `oneEvent`, etc.) and `fixture` configuration options (viewport, language) are available.
+
+Use the asynchronous `.to.be.golden()` Chai assertion to take a vdiff snapshot and [compare it against its golden](#generating-the-goldens).
 
 ```javascript
 import { fixture, html } from '@brightspace-ui/testing';
@@ -335,38 +442,112 @@ describe('my-elem', () => {
 });
 ```
 
-The filename and location of the resulting image will be based on the suite names and test name.
+### Configuring the Snapshot Area
 
-Sometimes you might be writing tests to verify a component's position within the whole viewport. For snapshots of the whole page, set up your components and pass `document` to the assertion:
-
-```javascript
-import { fixture, html } from '@brightspace-ui/testing';
-
-describe('my-elem', () => {
-  describe('situation1', () => {
-    it('state1', async() => {
-      await fixture(html`<my-dialog opened></my-dialog>`);
-      await expect(document).to.be.golden();
-    });
-  });
-});
-```
-
-#### Configuring the Snapshot Area
-
-By default, the snapshot area will be a rectangle around the source element plus a `10px` buffer margin on each side. To use a different margin, pass it as an option:
+By default, the snapshot area will be a rectangle around the target element plus a `10px` buffer margin on each side. To use a different margin, pass it as an option:
 
 ```javascript
 await expect(elem).to.be.golden({ margin: 20 });
 ```
 
-## Running Tests
+#### Capturing the Viewport
 
-TODO: note about leveraging @web/test-runner
+To capture the entire viewport, pass `document` as the target element to the assertion:
 
-## Debugging Tests
+```javascript
+await expect(document).to.be.golden();
+```
 
-TODO
+#### Including Other Elements
+
+Elements using `absolute` or `fixed` positioning (like dropdowns or tooltips) may overflow the target element's capture area. To include them, apply the `vdiff-include` CSS class.
+
+In this example, the tooltip is positioned below the button and would not be captured. By applying `vdiff-include` to one or more elements, the captured area becomes the rectangle containing the initial target and all additional `vdiff-include` elements.
+
+```javascript
+const elem = await fixture(html`
+  <button style="position: relative;">
+    hello
+    <span class="vdiff-include" style="left: 0; position: absolute; top: 100%;">there</span>
+  </span>
+`);
+await expect(elem).to.be.golden();
+```
+
+#### Changing the Vdiff Target
+
+When writing custom elements, sometimes the host element's boundaries don't fully encapsulate the target area that vdiff should capture. In these scenarios, the `vdiff-target` CSS class can be applied to additional elements which should be included whenever the host element is captured.
+
+In the following example, the absolutely positioned `<div>` will overflow the host element's boundaries and wouldn't normally be captured by vdiff. However, by adding the `vdiff-target` CSS class to the `<div>`, it gets added to the capture area.
+
+```javascript
+import { defineCE, fixture, html } from '@brightspace-ui/testing';
+
+const tag = defineCE(
+  class extends LitElement {
+    render() {
+      return html`
+        hello
+        <div class="vdiff-target" style="position: absolute; top: 400px;">there</div>
+      `;
+    }
+  }
+);
+```
+
+### Running Vdiff Tests
+
+Vdiff tests must be in files with the `*.vdiff.js` extension. They are run with the special `vdiff` command:
+
+```bash
+d2l-test-runner vdiff
+```
+
+By default vdiff tests will run only in Chrome, but any combination of the three browsers can be used:
+
+```bash
+d2l-test-runner vdiff --chrome --firefox --safari
+```
+
+[CLI arguments or configuration file](#cli-and-configuration) options can be used to filter/grep (`d2l-test-runner vdiff --filter foo`), debug (`d2l-test-runner vdiff --watch`), and so on.
+
+### Continuous Integration
+
+Vdiff testing becomes especially powerful when it can run as part of your repo's continuous integration process.
+
+For repositories using GitHub Actions, the [vdiff GitHub Action](https://github.com/BrightspaceUI/actions/tree/main/vdiff) can be leveraged. It will automatically run vdiff tests and commit goldens to source control. When changes to the goldens are detected, the action will publish a vdiff report and open a pull request to update the goldens.
+
+Refer to the [vdiff GitHub Action](https://github.com/BrightspaceUI/actions/tree/main/vdiff) documentation for more details and setup instructions.
+
+### Generating the Goldens
+
+To ensure a consistent environment, goldens checked into source control should be generated by [continuous integration](#continuous-integration). 
+
+However, it can be helpful during development to generate a local version of the goldens to test and preview changes. This can be done by passing the `golden` sub-command:
+
+```bash
+d2l-test-runner vdiff golden
+```
+
+### Reports
+
+When a vdiff test fails, an assertion failure stating that a certain number of pixels is different than the golden isn't especially helpful. To help visualize changes and aid in determining whether failures are expected, a HTML report is generated.
+
+After running the tests, run the `report` sub-command to view the report:
+
+```bash
+d2l-test-runner vdiff report
+```
+
+The report supports filtering by status and browser, and allows for iteration through test files or tests within a file. It presents either a "full" view for quickly toggling between golden/new or a "split" side-by-side view. The diff changes can be optionally overlaid.
+
+To help surface instances where a browser version change may be responsible for vdiff failures in the report, a `.vdiff.json` tracking file will be committed to the root of the repository.
+
+### Migrating
+
+TODO:
+- Migration commands
+- Migration Guide
 
 ## Developing and Contributing
 
