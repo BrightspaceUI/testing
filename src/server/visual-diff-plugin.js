@@ -246,7 +246,8 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 							diff: `${screenshotFile.substring(rootLength)}-diff.png`,
 							new: {
 								path: `${screenshotFile.substring(rootLength)}.png`
-							}
+							},
+							pixelsDiff
 						});
 						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
 						return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
@@ -297,7 +298,8 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					},
 					new: {
 						path: `${screenshotFile.substring(rootLength)}-resized-screenshot.png`
-					}
+					},
+					pixelsDiff
 				});
 
 				return { pass: false, message: `Images are not the same size. When resized, ${pixelsDiff} pixels are different.` };
