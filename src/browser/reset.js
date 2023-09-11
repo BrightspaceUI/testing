@@ -2,7 +2,8 @@ import { sendMouse, setViewport } from '@web/test-runner-commands';
 import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { nextFrame } from '@open-wc/testing';
 
-const DEFAULT_LANG = 'en',
+const DEFAULT_FULLSCREEN = false,
+	DEFAULT_LANG = 'en',
 	DEFAULT_MATHJAX_RENDER_LATEX = false,
 	DEFAULT_VIEWPORT_HEIGHT = 800,
 	DEFAULT_VIEWPORT_WIDTH = 800;
@@ -10,6 +11,7 @@ const DEFAULT_LANG = 'en',
 const documentLocaleSettings = getDocumentLocaleSettings();
 
 let
+	currentFullscreen = false,
 	currentMathjaxRenderLatex = DEFAULT_MATHJAX_RENDER_LATEX,
 	currentRtl = false,
 	currentViewportHeight = 0,
@@ -29,7 +31,8 @@ export async function reset(opts = {}) {
 		viewport: {
 			height: DEFAULT_VIEWPORT_HEIGHT,
 			width: DEFAULT_VIEWPORT_WIDTH
-		}
+		},
+		fullscreen: DEFAULT_FULLSCREEN
 	};
 
 	opts = { ...defaultOpts, ...opts };
@@ -39,6 +42,17 @@ export async function reset(opts = {}) {
 	let awaitNextFrame = false;
 
 	window.scroll(0, 0);
+
+	if (opts.fullscreen !== currentFullscreen) {
+		if (opts.fullscreen) {
+			document.body.classList.add('fullscreen');
+		}
+		else {
+			document.body.classList.remove('fullscreen');
+		}
+		awaitNextFrame = true;
+		currentFullscreen = opts.fullscreen;
+	}
 
 	if (shouldResetMouse) {
 		shouldResetMouse = false;
