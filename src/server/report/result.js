@@ -99,6 +99,7 @@ export const RESULT_STYLE = css`
 	.result-test-name {
 		align-items: center;
 		display: flex;
+		gap: 10px;
 		padding-bottom: 10px;
 	}
 	.result-test-name > h3 {
@@ -205,10 +206,21 @@ export function renderBrowserResults(browser, tests, options) {
 			}
 		}
 
+		let pixelsDiff = nothing;
+		if (resultData.info?.pixelsDiff > 0) {
+			const pixelsStatus = (resultData.info?.pixelsDiff) < 10 ? STATUS_TYPE.WARNING : STATUS_TYPE.ERROR;
+			pixelsDiff = html`
+				<div class="result-pixels-diff">
+					${renderStatusText(`${resultData.info.pixelsDiff.toLocaleString()}px`, pixelsStatus)}
+				</div>
+			`;
+		}
+
 		return acc.push(html`
 			<div class="item-container">
 				<div class="result-test-name">
 					<h3>${t.name}</h3>
+					${pixelsDiff}
 					<div class="result-duration">${renderStatusText(`${resultData.duration}ms`, status)}</div>
 				</div>
 				${renderResult(resultData, options)}
