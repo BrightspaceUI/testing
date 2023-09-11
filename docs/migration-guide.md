@@ -173,7 +173,7 @@ After:
 
 ## vdiff Tests
 
-Breaking changes were made between the `@brightspace-ui/visual-diff` library to `@brightspace-ui/testing`'s vdiff functionality. These changes will require a migration, some of which can be done automatically but unfortunately some is manual.
+Breaking changes were made between the `@brightspace-ui/visual-diff` library and `@brightspace-ui/testing`'s vdiff functionality. These changes will require a migration, which is unfortunately only partially automated.
 
 Overview of changes:
 
