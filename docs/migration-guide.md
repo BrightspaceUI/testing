@@ -224,7 +224,7 @@ For each test file being migrated:
 6. Remove all the old Puppeteer, browser and VisualDiff setup code
 7. Replace `async function() {` with `async () => {`
 8. Rewrite everything using `page.$eval` to access the element directly (just like unit tests do)
-9. Replace calls with `getRect` and `screenshotAndCompare` with `await expect(elem).to.be.golden()`. If `rect` was not passed in to take a screenshot of the whole page, use `await expect(document).to.be.golden()` instead.
+9. Replace calls to `getRect` and `screenshotAndCompare` with `await expect(elem).to.be.golden()`. If `rect` was not passed in to take a screenshot of the whole page, use `await expect(document).to.be.golden()` instead.
 10. Make use of the `focusElem`, `clickElem`, `sendKeysElem`, `oneEvent`, etc. helpers where possible
 
 Before (`my-elem.visual-diff.html`):
