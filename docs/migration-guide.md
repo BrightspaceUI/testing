@@ -92,9 +92,9 @@ However, waiting for all nested `updateComplete`s means `fixture()` can be a bit
 
 Those tests will need to be reworked to not rely on events fired during `render()`.
 
-### Step 4: Use Browser Interaction Helpers (Optional)
+### Step 4: Use Browser Interaction Helpers
 
-For tests which were manually calling `elem.click()`, `elem.hover()`, use the `clickElem()` and `hoverElem()` helpers. These helpers will trigger a real browser interaction using the mouse.
+For tests which were manually calling `elem.click()` or `elem.hover()`, use the `clickElem()` and `hoverElem()` helpers. These helpers will trigger a real browser interaction using the mouse.
 
 Before:
 
@@ -116,7 +116,9 @@ it('should focus', async() => {
 });
 ```
 
-If tests were manually focusing or dispatching keyboard events, use the `focusElem()` and `sendKeysElem()` helpers.
+If tests were manually focusing and/or dispatching keyboard events, use the `focusElem()` and `sendKeysElem()` helpers.
+
+> **Note:** `sendKeysElem()` will focus on the element before sending the keys, so calling `focusElem()` beforehand isn't necessary.
 
 ```javascript
 it('should press ENTER', async() => {
@@ -125,7 +127,7 @@ it('should press ENTER', async() => {
   const eventObj = document.createEvent('Events');
   eventObj.initEvent('keypress', true, true);
   eventObj.keyCode = '13';
-	elem.dispatchEvent(eventObj);
+  elem.dispatchEvent(eventObj);
 });
 ```
 
@@ -136,7 +138,6 @@ import { focusElem, sendKeysElem } from '@brightspace-ui/testing';
 
 it('should focus', async() => {
   const elem = await fixture(html`<button>hello</button>`);
-  await focusElem(elem);
   await sendKeysElem(elem, 'press', 'Enter');
 });
 ```
@@ -182,16 +183,18 @@ Overview of changes:
   * Browser name (always `chromium` previously) is now included in the path
   * Local snapshots are now stored in a `.vdiff` directory at the root of the project (which should be listed in `.gitignore`)
   * CI goldens are still stored alongside the tests in a `golden` directory, but without `screenshots/ci`
-* Fixtures were defined HTML files and tests in JavaScript files. Both are now defined in JavaScript. (manual migration)
+* Fixtures were defined in HTML files and tests in JavaScript files. Both are now defined in JavaScript. (manual migration)
 * Puppeteer was previously used to interact with the browser. It has been replaced with Playwright, but the browser can now be interacted with directly. (manual migration)
 
 ### Strategy for Large Repositories
 
 For repositories with many vdiff tests, it may be easier to migrate a subset of tests at a time.
 
-By working in this way, both the old and new vdiff libraries continue to run in parallel as tests are gradually migrated from one to the other. Then once all tests migrated, the old infrastructure can be removed.
+By working in this way, both the old and new vdiff libraries continue to run in parallel as tests are gradually migrated from one to the other. Then once all tests are migrated, the old infrastructure can be removed.
 
 The automated migration tools described below support an optional file pattern to make a gradual migration process possible.
+
+In CI, the old and new GitHub actions would also run in parallel during the transition period. Refer to the instructions to get the new version of the [vdiff GitHub Action](https://github.com/BrightspaceUI/actions/tree/main/vdiff) configured in the repository.
 
 ### Step 1: Automatically Migrate Local Goldens
 
@@ -205,10 +208,9 @@ The optional location parameter can be used to migrate a subset of tests.
 
 This will:
 
-1. Install the old `@brightspace-ui/testing` library
-2. Run the old library to generate local goldens
-3. Optional: pass a location to run a subset of tests
-4. Move the local goldens to their new location in the `.vdiff` directory
+1. Install the old `@brightspace-ui/visual-diff` library
+2. Run the old library to generate local goldens. Optional: pass a location to run a subset of tests.
+3. Move the local goldens to their new location in the `.vdiff` directory
 
 ### Step 2: Manually Migrate Tests
 
@@ -222,10 +224,10 @@ For each test file being migrated:
 6. Remove all the old Puppeteer, browser and VisualDiff setup code
 7. Replace `async function() {` with `async () => {`
 8. Rewrite everything using `page.$eval` to access the element directly (just like unit tests do)
-9. Replace calls with `getRect` and `screenshotAndCompare` with `await expect(elem).to.be.golden()`
+9. Replace calls with `getRect` and `screenshotAndCompare` with `await expect(elem).to.be.golden()`. If `rect` was not passed in to take a screenshot of the whole page, use `await expect(document).to.be.golden()` instead.
 10. Make use of the `focusElem`, `clickElem`, `sendKeysElem`, `oneEvent`, etc. helpers where possible
 
-Before (HTML):
+Before (`my-elem.visual-diff.html`):
 
 ```html
 <html>
@@ -243,7 +245,7 @@ Before (HTML):
 </html>
 ```
 
-Before (JavaScript):
+Before (`my-elem.visual-diff.js`):
 
 ```javascript
 import puppeteer from 'puppeteer';
@@ -268,7 +270,7 @@ describe('my-elem', () => {
 
   after(async() => await browser.close());
 
-  it('passes visual-diff comparison', async function() {
+  it('default', async function() {
     await page.$eval('#default', (elem) => {
       const innerElem = elem.shadowRoot.querySelector('button');
       button.focus();
@@ -280,7 +282,7 @@ describe('my-elem', () => {
 });
 ```
 
-After:
+After (`my-elem.vdiff.js`):
 
 ```javascript
 import '../my-elem.js'
@@ -288,7 +290,7 @@ import { expect, fixture, focusElem, html } from '@brightspace-ui/testing';
 
 describe('my-elem', () => {
 
-  it('passes visual-diff comparison', async() => {
+  it('default', async() => {
     const elem = await fixture(html`<my-elem></my-elem>`);
     await focusElem(elem.shadowRoot.querySelector('button'));
     await expect(elem).to.be.golden();
@@ -303,12 +305,12 @@ Much less code, right?
 
 Test the migration by running `d2l-test-runner vdiff`, filtering by file using `--filter <file-name>` if appropriate.
 
-If tests fail, run `d2l-test-runner report` to view a HTML report visualizing the differences.
+If tests fail, run `d2l-test-runner report` to view an HTML report visualizing the differences.
 
 Tips:
 
 * If possible, line up the snapshot element size and viewport size to match the old values. This will result in a much clearer picture of any changes - or there may be none at all!
-* The Daylight fonts and typography are now included automatically. If those weren't added previously, this will result in some font changes. It may be helpful to turn these off with inline styles (`font-family: auto; letter-spacing: normal;, maybe color: black; font-size: 20px;`) while developing or to get an initial "clean" CI run to verify there are no actual unexpected changes. They can then be removed before merging the new goldens.
+* The Daylight fonts and typography are now included automatically. If those weren't added previously, this will result in some font changes. It may be helpful to turn these off with inline styles (`font-family: auto; letter-spacing: normal;`, maybe `color: black; font-size: 20px;`) while developing or to get an initial "clean" CI run to verify there are no actual unexpected changes. They can then be removed before merging the new goldens.
 
 ### Step 4: Migrating CI Goldens
 
