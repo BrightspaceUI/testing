@@ -458,6 +458,16 @@ To capture the entire viewport, pass `document` as the target element to the ass
 await expect(document).to.be.golden();
 ```
 
+#### Rendering Fullscreen Fixtures
+
+To render a fullscreen fixture that fills the viewport, pass a `fullscreen` option to `fixture()`:
+
+```javascript
+  const elem = await fixture(html`<fullscreen-elem></fullscreen-elem>`, {
+    fullscreen: true
+  });
+```
+
 #### Including Other Elements
 
 Elements using `absolute` or `fixed` positioning (like dropdowns or tooltips) may overflow the target element's capture area. To include them, apply the `vdiff-include` CSS class.
