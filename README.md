@@ -4,6 +4,9 @@
 
 Testing utilities which are specifically designed and configured for Brightspace UI components and applications.
 
+> **Migrating from `@open-wc/testing` and/or `@brightspace-ui/visual-diff`?**
+> Refer to the [Migration Guide](./docs/migration-guide.md) for help migrating a repo to `@brightspace-ui/testing`.
+
 Install from NPM:
 
 ```shell
@@ -552,12 +555,6 @@ d2l-test-runner vdiff report
 The report supports filtering by status and browser, and allows for iteration through test files or tests within a file. It presents either a "full" view for quickly toggling between golden/new or a "split" side-by-side view. The diff changes can be optionally overlaid.
 
 To help surface instances where a browser version change may be responsible for vdiff failures in the report, a `.vdiff.json` tracking file will be committed to the root of the repository.
-
-### Migrating
-
-TODO:
-- Migration commands
-- Migration Guide
 
 ## Developing and Contributing
 
