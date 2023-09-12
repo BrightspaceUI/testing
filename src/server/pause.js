@@ -15,7 +15,11 @@ const controls = `
 			display: none !important;
 		}
 		body {
-			margin-top: 70px;
+			margin-top: 76px;
+		}
+
+		:not(.screenshot) body.fullscreen > #d2l-test-fixture-container {
+			top: 76px;
 		}
 
 		.screenshot body {

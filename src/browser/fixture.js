@@ -49,7 +49,11 @@ async function waitForElem(elem, awaitLoadingComplete = true) {
 
 export async function fixture(element, opts = {}) {
 	await Promise.all([reset(opts), document.fonts.ready]);
-	const elem = await wcFixture(element);
+
+	const parentNode = document.createElement('div');
+	parentNode.setAttribute('id', 'd2l-test-fixture-container');
+
+	const elem = await wcFixture(element, { parentNode });
 	await waitForElem(elem, opts.awaitLoadingComplete);
 
 	await pause();

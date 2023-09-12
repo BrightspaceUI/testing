@@ -96,6 +96,10 @@ export class WTRConfig {
 								line-height: 1.4rem;
 								padding: 30px;
 							}
+							body.fullscreen > #d2l-test-fixture-container {
+								position: absolute;
+								inset: 0;
+							}
 						</style>
 					</head>
 					<body>
