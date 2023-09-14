@@ -102,6 +102,19 @@ If `lang` is set to Arabic (`ar`), the right-to-left option will automatically b
 
 > **Note:** it's not recommended to use `language` configuration with [vdiff](#vdiff-testing) to solely test the correctness of translations. The [messageformat-validator](https://github.com/bearfriend/messageformat-validator) is a more efficient way to test translations.
 
+#### Configuring the Media Type
+
+By default, tests will run using the `screen` media type. To use a different media type, pass a `media` option to `fixture()`.
+
+```javascript
+it('should work when printing', async() => {
+  const elem = await fixture(html`<my-elem></my-elem>`, {
+    media: 'print'
+  });
+  // do assertions
+});
+```
+
 ### Accessibility Testing with aXe
 
 Elements can be processed by the [aXe accessibility validator](https://github.com/dequelabs/axe-core), which will automatically fail the test if any violations are detected.
@@ -296,7 +309,7 @@ await waitUntil(() => elem.condition, {
 If a test requires a one-off custom element, define it using `defineCE` and pass the returned tag name to `fixture()`.
 
 ```javascript
-import { defineCE, fixture, html } from '@brightspace-ui/testing';
+import { defineCE, fixture } from '@brightspace-ui/testing';
 
 const tag = defineCE(
   class extends LitElement {
@@ -311,7 +324,7 @@ const tag = defineCE(
 
 it('should use custom element', async() => {
   const foo = 'bar';
-  const elem = await fixture(html`<${tag} foo="${foo}"></${tag}>`);
+  const elem = await fixture(`<${tag} foo="${foo}"></${tag}>`);
 });
 ```
 
