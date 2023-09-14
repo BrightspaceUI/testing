@@ -5,7 +5,7 @@ import { nextFrame } from '@open-wc/testing';
 const DEFAULT_FULLSCREEN = false,
 	DEFAULT_LANG = 'en',
 	DEFAULT_MATHJAX_RENDER_LATEX = false,
-	DEFAULT_MEDIA = 'print',
+	DEFAULT_MEDIA = 'screen',
 	DEFAULT_VIEWPORT_HEIGHT = 800,
 	DEFAULT_VIEWPORT_WIDTH = 800;
 
@@ -34,7 +34,8 @@ export async function reset(opts = {}) {
 			height: DEFAULT_VIEWPORT_HEIGHT,
 			width: DEFAULT_VIEWPORT_WIDTH
 		},
-		fullscreen: DEFAULT_FULLSCREEN
+		fullscreen: DEFAULT_FULLSCREEN,
+		media: DEFAULT_MEDIA
 	};
 
 	opts = { ...defaultOpts, ...opts };
