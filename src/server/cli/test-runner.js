@@ -202,7 +202,7 @@ async function getTestRunnerOptions(argv = []) {
 }
 
 function installDeps() {
-	execSync('npx playwright install-deps', { stdio: 'pipe' });
+	execSync('npx playwright install --with-deps', { stdio: 'pipe' });
 }
 
 export const runner = {
