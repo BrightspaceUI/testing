@@ -1,10 +1,11 @@
-import { sendMouse, setViewport } from '@web/test-runner-commands';
+import { emulateMedia, sendMouse, setViewport } from '@web/test-runner-commands';
 import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { nextFrame } from '@open-wc/testing';
 
 const DEFAULT_FULLSCREEN = false,
 	DEFAULT_LANG = 'en',
 	DEFAULT_MATHJAX_RENDER_LATEX = false,
+	DEFAULT_MEDIA = 'print',
 	DEFAULT_VIEWPORT_HEIGHT = 800,
 	DEFAULT_VIEWPORT_WIDTH = 800;
 
@@ -13,6 +14,7 @@ const documentLocaleSettings = getDocumentLocaleSettings();
 let
 	currentFullscreen = false,
 	currentMathjaxRenderLatex = DEFAULT_MATHJAX_RENDER_LATEX,
+	currentMedia = DEFAULT_MEDIA,
 	currentRtl = false,
 	currentViewportHeight = 0,
 	currentViewportWidth = 0,
@@ -96,6 +98,12 @@ export async function reset(opts = {}) {
 				renderLatex: opts.mathjax.renderLatex
 			});
 		}
+	}
+
+	if (opts.media !== currentMedia) {
+		currentMedia = opts.media;
+		await emulateMedia({ media: opts.media }).catch(() => {});
+		awaitNextFrame = true;
 	}
 
 	if (awaitNextFrame) {
