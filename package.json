@@ -24,7 +24,7 @@
     "eslint": "^8",
     "eslint-config-brightspace": "^0.23",
     "mocha": "^10",
-    "sinon": "^15"
+    "sinon": "^16"
   },
   "exports": {
     ".": "./src/browser/index.js"
