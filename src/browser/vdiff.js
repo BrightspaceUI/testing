@@ -4,6 +4,7 @@ import { executeServerCommand } from '@web/test-runner-commands';
 // start loading fonts early
 [...document.fonts].forEach(font => font.load());
 
+const DEFAULT_MARGIN = 10;
 let test;
 
 /* eslint-disable no-undef, no-invalid-this */
@@ -26,7 +27,7 @@ function findTargets(elem) {
 	return Array.from(nestedTargets).reduce((acc, target) => [...acc, ...findTargets(target)], [elem]);
 }
 
-function findLargestRect(elems) {
+function findLargestRect(elems, margin) {
 	let largestRect = { left: Number.MAX_SAFE_INTEGER, top: Number.MAX_SAFE_INTEGER, right: 0, bottom: 0 };
 	elems.forEach(elem => {
 		const targets = findTargets(elem);
@@ -42,11 +43,29 @@ function findLargestRect(elems) {
 			}
 		});
 	});
+	const rect = {
+		x: largestRect.left - margin,
+		y: largestRect.top - margin,
+		width: largestRect.right - largestRect.left + (margin * 2),
+		height: largestRect.bottom - largestRect.top + (margin * 2)
+	};
+	// We need to handle RTL overflow/scroll scenarios because of Playwright limitations
+	if (document.documentElement.getAttribute('dir') === 'rtl' && (largestRect.left < 0 || window.scrollX < 0)) {
+		rect.x = -1 * largestRect.left - 1;
+		rect.width = largestRect.right + margin;
 
-	return { x: largestRect.left, y: largestRect.top, width: largestRect.right - largestRect.left, height: largestRect.bottom - largestRect.top };
+		if (largestRect.top <= 0) {
+			rect.y = window.scrollY;
+			rect.height = largestRect.bottom + margin;
+		}
+		rect.width = Math.min(rect.width, document.documentElement.clientWidth);
+		rect.height = Math.min(rect.height, document.documentElement.clientHeight);
+		return { rect, fullPage: true };
+	}
+	return { rect, fullPage: false };
 }
 
-async function ScreenshotAndCompare(opts) {
+async function ScreenshotAndCompare(opts = {}) {
 
 	if (window.d2lTest) {
 		document.documentElement.classList.add('screenshot');
@@ -54,13 +73,18 @@ async function ScreenshotAndCompare(opts) {
 	}
 
 	const name = this.test.fullTitle();
-	let rect = null;
-	if (this.elem !== document) {
+	let fullPage = false,
+		rect = null;
+	if (this.elem === document) {
+		fullPage = true;
+	} else {
 		const elemsToInclude = [this.elem, ...this.elem.querySelectorAll('.vdiff-include')];
-		rect = findLargestRect(elemsToInclude);
+		const margin = opts.margin ?? DEFAULT_MARGIN;
+		({ rect, fullPage } = findLargestRect(elemsToInclude, margin));
 	}
 	const slowDuration = this.test.slow();
-	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, rect, slowDuration, opts });
+
+	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration });
 	if (result.resizeRequired) {
 		this.test.timeout(0);
 		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name });
