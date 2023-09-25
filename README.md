@@ -476,7 +476,7 @@ await expect(document).to.be.golden();
 
 #### Turning Off Full Page Padding
 
-By default, the `body` of the page has `38px` of padding. For elements meant to take up the entire page with no bordering whitespace, you may want to turn that off:
+By default, the page hosting vdiff fixtures has `38px` of padding. For fixtures which are meant to fill the entire page with no surrounding whitespace, the page padding can be disabled:
 
 ```javascript
   await fixture(html`<fullscreen-elem></fullscreen-elem>`, {
