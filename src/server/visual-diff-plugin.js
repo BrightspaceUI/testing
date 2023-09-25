@@ -5,7 +5,6 @@ import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
 const isCI = !!env['CI'];
-const DEFAULT_MARGIN = 10;
 const DEFAULT_TOLERANCE = 0; // TODO: Support tolerance override?
 const METADATA_NAME = '.vdiff.json';
 const ROOT_NAME = '.vdiff';
@@ -181,21 +180,13 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					}
 				}
 
-				const opts = { margin: DEFAULT_MARGIN, ...payload.opts };
 				const screenshotOpts = {
 					animations: 'disabled',
 					path: updateGoldens ? goldenFileName : screenshotFileName
 				};
-				if (!payload.rect) {
-					screenshotOpts.fullPage = true;
-				} else {
-					screenshotOpts.clip = {
-						x: payload.rect.x - opts.margin,
-						y: payload.rect.y - opts.margin,
-						width: payload.rect.width + (opts.margin * 2),
-						height: payload.rect.height + (opts.margin * 2)
-					};
-				}
+
+				if (payload.fullPage) screenshotOpts.fullPage = true;
+				if (payload.rect) screenshotOpts.clip = payload.rect;
 
 				const page = session.browser.getPage(session.id);
 				await page.screenshot(screenshotOpts);
