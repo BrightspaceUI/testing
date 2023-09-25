@@ -35,7 +35,7 @@ const elementTag = defineCE(
 			`;
 		}
 		render() {
-			return html`${this.text}<b>Testing</b>`;
+			return html`<span>${this.text}</span><b>Testing</b>`;
 		}
 	}
 );
@@ -138,6 +138,21 @@ describe('element-matches', () => {
 	it('multiple to include', async() => {
 		const elem = await fixture(`<${nestedElementTag}><${absoluteElementTag} class="vdiff-include"></${absoluteElementTag}></${nestedElementTag}>`, { viewport: { width: 500, height: 500 } });
 		await expect(elem).to.be.golden();
+	});
+
+	[
+		{ name: 'overflow' },
+		{ name: 'overflow-rtl', rtl: true },
+		{ name: 'scrolled', action: elem => elem.shadowRoot.querySelector('span').scrollIntoView() },
+		{ name: 'scrolled-rtl', rtl: true, action: elem => elem.shadowRoot.querySelector('span').scrollIntoView() }
+	].forEach(({ name, rtl, action }) => {
+		it(name, async() => {
+			const elem = await fixture(`<${elementTag} style="margin: 0 0 500px; text-align: end;" text="Scrolled"></${elementTag}>`,
+				{ rtl: rtl, viewport: { width: 270, height: 400 } }
+			);
+			if (action) await action(elem);
+			await expect(elem).to.be.golden();
+		});
 	});
 });
 
