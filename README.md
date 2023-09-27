@@ -474,14 +474,15 @@ To capture the entire viewport, pass `document` as the target element to the ass
 await expect(document).to.be.golden();
 ```
 
-#### Rendering Fullscreen Fixtures
+#### Turning Off Full Page Padding
 
-To render a fullscreen fixture that fills the viewport, pass a `fullscreen` option to `fixture()`:
+By default, the page hosting vdiff fixtures has `38px` of padding. For fixtures which are meant to fill the entire page with no surrounding whitespace, the page padding can be disabled:
 
 ```javascript
-  const elem = await fixture(html`<fullscreen-elem></fullscreen-elem>`, {
-    fullscreen: true
+  await fixture(html`<fullscreen-elem></fullscreen-elem>`, {
+    pagePadding: false
   });
+  await expect(document).to.be.golden();
 ```
 
 #### Including Other Elements

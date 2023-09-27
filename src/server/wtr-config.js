@@ -94,11 +94,11 @@ export class WTRConfig {
 								font-size: 0.95rem;
 								font-weight: 400;
 								line-height: 1.4rem;
-								padding: 30px;
+								margin: 0;
+								padding: 38px;
 							}
-							body.fullscreen > #d2l-test-fixture-container {
-								position: absolute;
-								inset: 0;
+							body.no-padding {
+								padding: 0;
 							}
 						</style>
 					</head>

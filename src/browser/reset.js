@@ -2,7 +2,7 @@ import { emulateMedia, sendMouse, setViewport } from '@web/test-runner-commands'
 import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { nextFrame } from '@open-wc/testing';
 
-const DEFAULT_FULLSCREEN = false,
+const DEFAULT_PAGE_PADDING = true,
 	DEFAULT_LANG = 'en',
 	DEFAULT_MATHJAX_RENDER_LATEX = false,
 	DEFAULT_MEDIA = 'screen',
@@ -12,7 +12,7 @@ const DEFAULT_FULLSCREEN = false,
 const documentLocaleSettings = getDocumentLocaleSettings();
 
 let
-	currentFullscreen = false,
+	currentPagePadding = true,
 	currentMathjaxRenderLatex = DEFAULT_MATHJAX_RENDER_LATEX,
 	currentMedia = DEFAULT_MEDIA,
 	currentRtl = false,
@@ -34,7 +34,7 @@ export async function reset(opts = {}) {
 			height: DEFAULT_VIEWPORT_HEIGHT,
 			width: DEFAULT_VIEWPORT_WIDTH
 		},
-		fullscreen: DEFAULT_FULLSCREEN,
+		pagePadding: DEFAULT_PAGE_PADDING,
 		media: DEFAULT_MEDIA
 	};
 
@@ -46,15 +46,15 @@ export async function reset(opts = {}) {
 
 	window.scroll(0, 0);
 
-	if (opts.fullscreen !== currentFullscreen) {
-		if (opts.fullscreen) {
-			document.body.classList.add('fullscreen');
+	if (opts.pagePadding !== currentPagePadding) {
+		if (!opts.pagePadding) {
+			document.body.classList.add('no-padding');
 		}
 		else {
-			document.body.classList.remove('fullscreen');
+			document.body.classList.remove('no-padding');
 		}
 		awaitNextFrame = true;
-		currentFullscreen = opts.fullscreen;
+		currentPagePadding = opts.pagePadding;
 	}
 
 	if (shouldResetMouse) {

@@ -109,7 +109,7 @@ describe('element-matches', () => {
 		{ name: 'transition', action: elem => elem.style.opacity = '0.2' }
 	].forEach(({ name, rtl, action }) => {
 		it(name, async() => {
-			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { rtl: rtl });
+			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { rtl });
 			if (action) await action(elem);
 			await expect(elem).to.be.golden();
 		});
@@ -118,6 +118,16 @@ describe('element-matches', () => {
 	it('full page', async() => {
 		await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { viewport: { width: 500, height: 500 } });
 		await expect(document).to.be.golden();
+	});
+
+	it('full page no padding', async() => {
+		await fixture(`<${elementTag} style="margin: 0;" text="Visual Difference"></${elementTag}>`, { pagePadding: false, viewport: { width: 500, height: 500 } });
+		await expect(document).to.be.golden();
+	});
+
+	it('page no padding', async() => {
+		const elem = await fixture(`<${elementTag} style="margin: 0;" text="Visual Difference"></${elementTag}>`, { pagePadding: false, viewport: { width: 500, height: 500 } });
+		await expect(elem).to.be.golden();
 	});
 
 	it('true size', async() => {
