@@ -14,6 +14,7 @@ const BROWSER_MAP = {
 	safari: 'webkit',
 	webkit: 'webkit'
 };
+const TIMEZONE = '{&quot;name&quot;:&quot;Canada - Toronto&quot;,&quot;identifier&quot;:&quot;America/Toronto&quot;}';
 const SUPPRESS_RESIZE_OBSERVER_ERRORS = `
 	<script>
 	window.addEventListener('error', (err) => {
@@ -43,7 +44,7 @@ export class WTRConfig {
 			nodeResolve: true,
 			testRunnerHtml: testFramework =>
 				`<!DOCTYPE html>
-				<html lang="en">
+				<html lang="en" data-timezone='${TIMEZONE}'>
 					<body>
 						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
 						<script type="module" src="${testFramework}"></script>
@@ -69,7 +70,7 @@ export class WTRConfig {
 			browsers: ['chrome'],
 			testRunnerHtml: testFramework =>
 				`<!DOCTYPE html>
-				<html lang="en">
+				<html lang="en" data-timezone='${TIMEZONE}'>
 					<head>
 						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-400.woff2" as="font" type="font/woff2" crossorigin>
 						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-700.woff2" as="font" type="font/woff2" crossorigin>
