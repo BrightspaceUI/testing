@@ -14,6 +14,15 @@ const BROWSER_MAP = {
 	safari: 'webkit',
 	webkit: 'webkit'
 };
+const SUPPRESS_RESIZE_OBSERVER_ERRORS = `
+	<script>
+	window.addEventListener('error', (err) => {
+		if (err.message.includes('ResizeObserver')) {
+			err.stopImmediatePropagation();
+		}
+	});
+	</script>
+`;
 export const DEFAULT_VDIFF_SLOW = 500;
 
 export class WTRConfig {
@@ -36,13 +45,7 @@ export class WTRConfig {
 				`<!DOCTYPE html>
 				<html lang="en">
 					<body>
-						<script>
-							window.addEventListener('error', (err) => {
-								if (err.message.includes('ResizeObserver')) {
-									err.stopImmediatePropagation();
-								}
-							});
-						</script>
+						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
 						<script type="module" src="${testFramework}"></script>
 					</body>
 				</html>`,
@@ -103,6 +106,7 @@ export class WTRConfig {
 						</style>
 					</head>
 					<body>
+						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
 						<script type="module" src="${testFramework}"></script>
 					</body>
 				</html>`
