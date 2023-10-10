@@ -524,7 +524,7 @@ const tag = defineCE(
 
 ### Components with Motion
 
-Components with animations or transitions can cause inconsistent vdiff snapshots, since small timing variances to the snapshot can catch the motion at slightly different points along its path. To help address this, `d2l-test-runner` configures the browser with the `prefers-reduced-motion` setting enabled.
+Components with animations or transitions can cause inconsistent vdiff snapshots, since small timing variations to the snapshot can catch the motion at slightly different points along its path. To help address this, `d2l-test-runner` configures the browser with the `prefers-reduced-motion` setting enabled.
 
 To opt-in to this setting, adjust the component's animation/transition CSS such that it only applies the motion when `prefers-reduced-motion` is set to `no-preference`.
 
@@ -543,6 +543,8 @@ my-elem.faded-out {
   }
 }
 ```
+
+ In addition to making vdiff testing more reliable, disabling or reducing motion based on the `prefers-reduced-motion` setting is recommended to help avoid discomfort for those with [vestibular motion disorders](https://www.a11yproject.com/posts/understanding-vestibular-disorders/).
 
 ### Running Vdiff Tests
 
