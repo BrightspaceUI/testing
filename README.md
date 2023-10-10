@@ -544,7 +544,7 @@ my-elem.faded-out {
 }
 ```
 
- In addition to making vdiff testing more reliable, disabling or reducing motion based on the `prefers-reduced-motion` setting is recommended to help avoid discomfort for those with [vestibular motion disorders](https://www.a11yproject.com/posts/understanding-vestibular-disorders/).
+In addition to making vdiff testing more reliable, disabling or reducing motion based on the `prefers-reduced-motion` setting is recommended to help avoid discomfort for those with [vestibular motion disorders](https://www.a11yproject.com/posts/understanding-vestibular-disorders/).
 
 ### Running Vdiff Tests
 
