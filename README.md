@@ -261,7 +261,6 @@ In other scenarios, a component may have an initial loading state (e.g. loading 
 class SlowElem extends LitElement {
   constructor() {
     super();
-    this._loadingCompleteResolve = undefined;
     this._loadingCompletePromise = new Promise(
       resolve => this._loadingCompleteResolve = resolve
     );
