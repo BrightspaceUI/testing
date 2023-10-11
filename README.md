@@ -259,13 +259,22 @@ In other scenarios, a component may have an initial loading state (e.g. loading 
 
 ```javascript
 class SlowElem extends LitElement {
-  render() {
-    return html`<p>I take my time</p>`;
+  constructor() {
+    super();
+    this._loadingCompletePromise = new Promise(
+      resolve => this._loadingCompleteResolve = resolve
+    );
+  }
+  connectedCallback() {
+    this._fetchMyData().then(() => {
+      if (this._loadingCompleteResolve) {
+        this._loadingCompleteResolve();
+        this._loadingCompleteResolve = undefined;
+      }
+    });
   }
   async getLoadingComplete() {
-    return new Promise(resolve => {
-      setTimeout(() => resolve(), 2000);
-    });
+    return this._loadingCompletePromise;
   }
 }
 ```
