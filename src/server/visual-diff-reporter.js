@@ -129,7 +129,7 @@ export function visualDiffReporter({ updateGoldens } = {}) {
 			const reportDir = join(rootDir, PATHS.VDIFF_ROOT, PATHS.REPORT_ROOT);
 			const tempDir = join(reportDir, 'temp');
 
-			mkdirSync(reportDir);
+			mkdirSync(reportDir, { recursive: true });
 
 			cpSync(inputDir, tempDir, { force: true, recursive: true });
 			writeFileSync(join(tempDir, 'data.js'), `export default ${json};`);
