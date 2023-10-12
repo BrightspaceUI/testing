@@ -65,6 +65,18 @@ it('should have the correct class', async() => {
 
 Each call to `fixture()` will restore the browser to its default state, making subsequent calls isolated from each other. There's therefore no need to manually restore the viewport, language, mouse, or keyboard in between tests.
 
+#### Ensuring Custom Elements Construct
+
+The `runConstructor` helper acts as a bare minimum test for a custom element, making sure that it properly registered with `window.customElements` and that its constructor does not fail.
+
+```javascript
+import { runConstructor } from '@brightspace-ui/testing';
+
+it('should construct', () => {
+  runConstructor('my-elem');
+});
+```
+
 #### Configuring the Viewport Size
 
 The viewport defaults to `800px` wide by `800px` tall. To use different viewport sizes, pass a `viewport` option to `fixture()`.

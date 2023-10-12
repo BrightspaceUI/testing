@@ -9,7 +9,9 @@
     "start": "npx d2l-test-vdiff-report",
     "test": "npm run lint && npm run test:bin && npm run test:server && npm run test:browser",
     "test:bin": "mocha './test/bin/**/*.test.js'",
-    "test:browser": "npx d2l-test-runner --files './test/browser/**/*.test.js'",
+    "test:browser": "npm run test:browser:other && npm run test:browser:ctor",
+    "test:browser:other": "npx d2l-test-runner --files './test/browser/**/*.test.js'",
+    "test:browser:ctor": "npx d2l-test-runner --config ./test/browser/ctor.config.js",
     "test:server": "mocha './test/server/**/*.test.js'",
     "test:vdiff": "npx d2l-test-runner vdiff --config ./test/browser/vdiff.config.js"
   },
