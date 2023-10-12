@@ -71,6 +71,15 @@ export class WTRConfig {
 						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-400.woff2" as="font" type="font/woff2" crossorigin>
 						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-700.woff2" as="font" type="font/woff2" crossorigin>
 						<style>
+
+							* {
+								--d2l-document-direction: ltr;
+							}
+
+							html[dir="rtl"] * {
+								--d2l-document-direction: rtl;
+							}
+
 							@font-face {
 								font-family: 'Lato';
 								font-style: normal;
