@@ -517,7 +517,7 @@ const elem = await fixture(html`
   <button style="position: relative;">
     hello
     <span class="vdiff-include" style="left: 0; position: absolute; top: 100%;">there</span>
-  </span>
+  </button>
 `);
 await expect(elem).to.be.golden();
 ```
