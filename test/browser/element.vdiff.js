@@ -230,6 +230,7 @@ describe('element-different', () => {
 		} else {
 			// Modify golden file to be different byte size than what the test will generate
 			await executeServerCommand('vdiff-modify-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png' });
+			expect(false).equal(true);
 		}
 	});
 });
