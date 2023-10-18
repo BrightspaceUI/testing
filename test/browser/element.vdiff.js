@@ -218,7 +218,6 @@ describe('element-different', () => {
 
 	it('byte size', async() => {
 		const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
-		await expect(elem).to.be.golden();
 		let fail = false;
 		try {
 			await expect(elem).to.be.golden();
