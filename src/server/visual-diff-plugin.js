@@ -1,4 +1,4 @@
-import { access, constants, mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { access, constants, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { env } from 'node:process';
 import pixelmatch from 'pixelmatch';
@@ -243,9 +243,25 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
 						return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
 					} else {
-						const success = await tryMoveFile(screenshotFileName, passFileName);
-						if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
-						return { pass: true };
+						const goldenSize = (await stat(goldenFileName)).size;
+						const screenshotSize = (await stat(screenshotFileName)).size;
+						if (goldenSize !== screenshotSize) {
+							setTestInfo(session, payload.name, {
+								golden: {
+									byteSize: goldenSize
+								},
+								new: {
+									path: `${screenshotFile.substring(rootLength)}.png`,
+									byteSize: screenshotSize
+								},
+								pixelsDiff
+							});
+							return { pass: false, message: 'Image diff is clean but the images do not have the same byte size.' };
+						} else {
+							const success = await tryMoveFile(screenshotFileName, passFileName);
+							if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
+							return { pass: true };
+						}
 					}
 				} else {
 					return { resizeRequired: true };

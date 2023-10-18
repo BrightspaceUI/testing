@@ -1,6 +1,6 @@
 import { css, html, nothing } from 'lit';
 import { FILTER_STATUS, FULL_MODE, LAYOUTS, renderEmpty, renderStatusText, STATUS_TYPE } from './common.js';
-import { ICON_BROWSERS, ICON_NO_GOLDEN, ICON_TADA } from './icons.js';
+import { ICON_BROWSERS, ICON_BYTES, ICON_NO_GOLDEN, ICON_TADA } from './icons.js';
 import data from './data.js';
 
 export const RESULT_STYLE = css`
@@ -96,6 +96,10 @@ export const RESULT_STYLE = css`
 		margin: 0;
 		text-align: center;
 	}
+	.result-graphic > .details {
+		font-size: 1rem;
+		text-align: left;
+	}
 	.result-test-name {
 		align-items: center;
 		display: flex;
@@ -160,7 +164,7 @@ function renderResult(resultData, options) {
 
 	const goldenExists = (resultData.info.golden !== undefined);
 
-	const overlay = (goldenExists && options.showOverlay && !resultData.passed) ?
+	const overlay = (goldenExists && options.showOverlay && !resultData.passed && resultData.info.diff) ?
 		html`<div class="result-overlay"><img src="../${resultData.info.diff}" loading="lazy" alt=""></div>` : nothing;
 
 	const goldenPart = !goldenExists ?
@@ -168,9 +172,20 @@ function renderResult(resultData, options) {
 		renderPart('golden', resultData.info.golden, options.layout === LAYOUTS.SPLIT.value ? undefined : overlay);
 
 	if (options.layout === LAYOUTS.SPLIT.value) {
-		const newPart = resultData.passed ?
-			html`<div class="result-graphic padding">${ICON_TADA}<p>Hooray! No changes here.</p></div>` :
-			renderPart('new', resultData.info.new, overlay);
+		let newPart;
+		if (resultData.passed) {
+			newPart = html`<div class="result-graphic padding">${ICON_TADA}<p>Hooray! No changes here.</p></div>`;
+		} else if (resultData.info.pixelsDiff === 0) {
+			newPart = html`<div class="result-graphic padding">${ICON_BYTES}
+				<p>No pixels have changed, but the byte size is different.</p>
+				<p class="details">
+					Golden size: ${resultData.info.golden.byteSize} bytes<br />
+					New size: ${resultData.info.new.byteSize} bytes
+				</p>
+			</div>`;
+		} else {
+			newPart = renderPart('new', resultData.info.new, overlay);
+		}
 		return html`
 			<div class="result-split">
 				${goldenPart}
