@@ -28,7 +28,7 @@ function modifyGolden() {
 			const browser = session.browser.name.toLowerCase();
 			const testPath = dirname(session.testFile).replace(rootDir, '');
 			const filePath = join(rootDir, PATHS.VDIFF_ROOT, testPath, payload.testCategory);
-			const fileLocation = isCI ? PATHS.FAILED : PATHS.GOLDEN;
+			const fileLocation = isCI ? PATHS.FAIL : PATHS.GOLDEN;
 
 			const fullPath = join(filePath, fileLocation, browser, payload.fileName);
 			const data = await readFile(fullPath);
