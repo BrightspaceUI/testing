@@ -167,6 +167,11 @@ describe('element-matches', () => {
 });
 
 describe('element-different', () => {
+	let isGolden;
+	before(async() => {
+		isGolden = await executeServerCommand('vdiff-get-golden-flag');
+	});
+
 	[
 		{ name: 'default', action: elem => {
 			elem.style.borderColor = 'black';
@@ -193,7 +198,6 @@ describe('element-different', () => {
 	].forEach(({ name, action }) => {
 		it(name, async() => {
 			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
-			const isGolden = await executeServerCommand('vdiff-get-golden-flag');
 			if (!isGolden) {
 				await action(elem);
 				await elem.updateComplete;
@@ -210,5 +214,22 @@ describe('element-different', () => {
 				expect(fail, 'current and golden images to be different').equal(true);
 			}
 		});
+	});
+
+	it('byte size', async() => {
+		const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
+		let fail = false;
+		try {
+			await expect(elem).to.be.golden();
+		} catch (ex) {
+			fail = true;
+		}
+
+		if (!isGolden) {
+			expect(fail, 'current and golden images to have different byte size').equal(true);
+		} else {
+			// Modify golden file to be different byte size than what the test will generate
+			await executeServerCommand('vdiff-modify-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png' });
+		}
 	});
 });
