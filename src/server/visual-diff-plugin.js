@@ -1,6 +1,7 @@
 import { access, constants, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { env } from 'node:process';
+import { execSync } from 'node:child_process';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
@@ -190,6 +191,9 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 				const page = session.browser.getPage(session.id);
 				await page.screenshot(screenshotOpts);
+
+				// losslessly compress and remove metadata from screenshot
+				if (isCI) execSync(`optipng -quiet -strip all ${screenshotOpts.path}`);
 
 				if (updateGoldens) {
 					return { pass: true };
