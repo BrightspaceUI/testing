@@ -5,7 +5,7 @@
 Testing utilities which are specifically designed and configured for Brightspace UI components and applications.
 
 > **Migrating from `@open-wc/testing` and/or `@brightspace-ui/visual-diff`?**
-> Refer to the [Migration Guide](./docs/migration-guide.md) for help migrating a repo to `@brightspace-ui/testing`.
+> Refer to the [Migration Guide](docs/migration-guide.md) for help migrating a repo to `@brightspace-ui/testing`.
 
 Install from NPM:
 
