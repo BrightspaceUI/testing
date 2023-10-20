@@ -240,6 +240,7 @@ export class WTRConfig {
 			product: b,
 			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' }),
 			launchOptions: {
+				args: b === 'chromium' ? ['--no-sandbox', '--disable-setuid-sandbox'] : undefined,
 				headless: !this.#cliArgs.open,
 				devtools: false,
 				slowMo: this.#cliArgs.slowmo || 0
