@@ -78,7 +78,7 @@ export async function reset(opts = {}) {
 	}
 
 	opts.lang ??= '';
-	if (documentLocaleSettings.lamguage !== opts.lang) {
+	if (documentLocaleSettings.language !== opts.lang) {
 		document.documentElement.lang = opts.lang;
 		awaitNextFrame = true;
 	}
