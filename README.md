@@ -409,7 +409,12 @@ Tests are organized into groups, which can be configured and run together.
 
 The group name appears in the default `files` pattern (`'./test/**/*.<group>.js'`), making it typical for test files to have the group name as part of their extension. For example, the default group is `'test'` so all test files named `*.test.js` will belong to it by default. Similarly, the `vdiff` group contains files named `*.vdiff.js`.
 
-Beyond the default and `vdiff` groups, the `d2l-test-runner.config.js` configuration file is used to define custom groups:
+To run tests which match the pattern `'./test/**/*.mygroup.js'`:
+```bash
+d2l-test-runner --group mygroup
+```
+
+The configuration file can also be used to set up custom groups:
 
 ```javascript
 export default {
@@ -419,11 +424,6 @@ export default {
     browsers: ['safari']
   }]
 };
-```
-
-To run tests which belong to that group:
-```bash
-d2l-test-runner --group safari-only
 ```
 
 ### Running a Subset of Tests
