@@ -133,7 +133,7 @@ async function getTestRunnerOptions(argv = []) {
 			},
 			{
 				header: 'Usage',
-				content: 'd2l-test-runner [options]\nd2l-test-runner <command> [options]\n',
+				content: 'd2l-test-runner [options]\nd2l-test-runner <group> [options]\nd2l-test-runner <command> [options]\n',
 			},
 			{
 				header: 'Options',

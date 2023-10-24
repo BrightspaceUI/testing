@@ -11,12 +11,6 @@ describe('WTRConfig', () => {
 			config = wtrConfig.create();
 		});
 
-		it('should return an empty object given invalid group', () => {
-			const wtrConfig = new WTRConfig({ group: 'default' });
-			const config = wtrConfig.create();
-			expect(config).to.deep.equal({});
-		});
-
 		it('should remove browsers passthrough config', () => {
 			const config = wtrConfig.create({ browsers: [ 1, 2, 3 ] });
 			expect(config).to.be.an('object');
@@ -29,6 +23,17 @@ describe('WTRConfig', () => {
 			const group = config.groups[0];
 			expect(config.groups).to.be.an('array').that.has.length(1);
 			expect(group.name).to.equal('a-group');
+			expect(group.browsers).to.be.an('array').that.has.length(3);
+			expect(group.browsers.filter(b => b.name === 'Chromium')).to.have.length(1);
+			group.browsers.forEach(b => expect(b.constructor.name).to.equal('PlaywrightLauncher'));
+		});
+
+		it('should create a valid group when requested from CLI', () => {
+			const wtrConfig = new WTRConfig({ group: 'implicit-group' });
+			const config = wtrConfig.create();
+			const group = config.groups[0];
+			expect(config.groups).to.be.an('array').that.has.length(1);
+			expect(group.name).to.equal('implicit-group');
 			expect(group.browsers).to.be.an('array').that.has.length(3);
 			expect(group.browsers.filter(b => b.name === 'Chromium')).to.have.length(1);
 			group.browsers.forEach(b => expect(b.constructor.name).to.equal('PlaywrightLauncher'));
