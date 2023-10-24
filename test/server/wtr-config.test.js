@@ -34,7 +34,7 @@ describe('WTRConfig', () => {
 			const group = config.groups[0];
 			expect(config.groups).to.be.an('array').that.has.length(1);
 			expect(group.name).to.equal('implicit-group');
-			expect(group.files).to.deep.equal(['./test/**/*.implicit-group.js']);
+			expect(group.files).to.include.members(['./test/**/*.implicit-group.js']);
 			expect(group.browsers).to.be.an('array').that.has.length(3);
 		});
 
@@ -44,7 +44,7 @@ describe('WTRConfig', () => {
 			const group = config.groups[0];
 			expect(config.groups).to.be.an('array').that.has.length(1);
 			expect(group.name).to.equal('a-group');
-			expect(group.files).to.deep.equal(['./test/**/*.a-group.js']);
+			expect(group.files).to.include.members(['./test/**/*.a-group.js']);
 		});
 
 		it('should enable nodeResolve', () => {
@@ -119,12 +119,12 @@ describe('WTRConfig', () => {
 		});
 
 		it('should set a common default files pattern', () => {
-			expect(config.groups[0].files).to.deep.equal(['./test/**/*.test.js']);
+			expect(config.groups[0].files).to.deep.equal([ './test/**/*.test.js', '!**/node_modules/**/*' ]);
 		});
 
 		it('should run a given pattern function to set files', () => {
 			const config = wtrConfig.create({ pattern: type => `./a/b.${type}.js` });
-			expect(config.groups[0].files).to.deep.equal(['./a/b.test.js']);
+			expect(config.groups[0].files).to.include.members(['./a/b.test.js']);
 		});
 
 		it('should create a "test" group by default', () => {
@@ -150,8 +150,8 @@ describe('WTRConfig', () => {
 			const wtrConfig = new WTRConfig({ filter: ['subset', 'subset*'] });
 			const config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.*` });
 			expect(config.files).to.be.undefined;
-			expect(config.groups[0].files).to.have.length(2);
-			expect(config.groups[0].files).to.have.members(['./test/**/*/+(subset.test.*|*.test.subset)', './test/**/*/+(subset*.test.*|*.test.subset*)']);
+			expect(config.groups[0].files).to.have.length(3);
+			expect(config.groups[0].files).to.have.members(['./test/**/*/+(subset.test.*|*.test.subset)', './test/**/*/+(subset*.test.*|*.test.subset*)', '!**/node_modules/**/*']);
 		});
 
 		it('should add --grep value to testFramework config', () => {

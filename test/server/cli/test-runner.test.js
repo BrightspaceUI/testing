@@ -14,7 +14,7 @@ describe('runner.getOptions()', () => {
 		expect(opts.config.groups).to.be.an('array').with.length(1);
 		expect(opts.config.groups[0]).to.deep.include({
 			name: 'test',
-			files: ['./test/**/*.test.js']
+			files: [ './test/**/*.test.js', '!**/node_modules/**/*' ]
 		});
 	});
 
@@ -47,7 +47,7 @@ describe('runner.getOptions()', () => {
 		expect(opts.argv).to.deep.equal(['--group', 'test']);
 		expect(opts.config.groups[0]).to.deep.include({
 			name: 'test',
-			files: [ 'test/browser/**/+(abc.vdiff.js)' ]
+			files: [ 'test/browser/**/+(abc.vdiff.js)', '!**/node_modules/**/*' ]
 		});
 		expect(opts.config.testFramework).to.deep.include({
 			config: { timeout: '123', grep: 'ghi', slow: '456' }
