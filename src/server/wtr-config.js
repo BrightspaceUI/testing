@@ -124,9 +124,10 @@ export class WTRConfig {
 	}
 
 	#filterFiles(files) {
+		const flatFiles = files.flat();
 		return this.#cliArgs.filter.map(filterStr => {
 			// replace everything after the last forward slash
-			return files
+			return flatFiles
 				.filter(f => !f.startsWith('!')) // don't filter exclusions
 				.map(f => f.replace(/[^/]*$/, fileGlob => {
 					// create a new glob for each wildcard
@@ -139,7 +140,7 @@ export class WTRConfig {
 				}));
 		})
 			.flat()
-			.concat(files.filter(f => f.startsWith('!')));
+			.concat(flatFiles.filter(f => f.startsWith('!')));
 	}
 
 	#getMochaConfig(group, slowConfig, timeoutConfig) {

@@ -154,6 +154,13 @@ describe('WTRConfig', () => {
 			expect(config.groups[0].files).to.have.members(['./test/**/*/+(subset.test.*|*.test.subset)', './test/**/*/+(subset*.test.*|*.test.subset*)', '!**/node_modules/**/*']);
 		});
 
+		it('should never filter excluded files', () => {
+			const wtrConfig = new WTRConfig({ filter: ['subset'], files: ['./used/*', '!no-no/*'] });
+			const config = wtrConfig.create({ pattern: () => './not-used/*' });
+			expect(config.groups[0].files).to.have.length(3);
+			expect(config.groups[0].files).to.have.members(['./used/+(subset)', '!no-no/*', '!**/node_modules/**/*']);
+		});
+
 		it('should add --grep value to testFramework config', () => {
 			const wtrConfig = new WTRConfig({ grep: 'subset|subset2' });
 			const config = wtrConfig.create();
