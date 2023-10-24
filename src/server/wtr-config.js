@@ -187,6 +187,11 @@ export class WTRConfig {
 
 		if (!['test', 'vdiff', ...passthroughGroupNames].includes(group)) {
 			config.groups.push({ name: group, files: this.#pattern });
+		} else {
+			const groupConfig = config.groups.find(g => g.name === group);
+			if (groupConfig) {
+				groupConfig.files = this.#pattern;
+			}
 		}
 
 		if (filter) {

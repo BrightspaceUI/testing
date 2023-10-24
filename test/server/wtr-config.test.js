@@ -39,6 +39,15 @@ describe('WTRConfig', () => {
 			group.browsers.forEach(b => expect(b.constructor.name).to.equal('PlaywrightLauncher'));
 		});
 
+		it('should add missing files to group config', () => {
+			const wtrConfig = new WTRConfig({ group: 'a-group' });
+			const config = wtrConfig.create({ groups: [{ name: 'a-group' }] });
+			const group = config.groups[0];
+			expect(config.groups).to.be.an('array').that.has.length(1);
+			expect(group.name).to.equal('a-group');
+			expect(group.files).to.deep.equal(['./test/**/*.a-group.js']);
+		});
+
 		it('should enable nodeResolve', () => {
 			expect(config.nodeResolve).to.be.true;
 		});
