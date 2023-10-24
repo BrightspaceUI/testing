@@ -314,13 +314,15 @@ Tips:
 
 ### Step 4: Migrating CI Goldens
 
-Finally! The last step is to automatically migrate the repo's CI goldens and add `.vdiff` to the repo's `.gitignore`. To do this, run:
+Finally! The last step is to automatically migrate the repo's CI goldens. To do this, run:
 
 ```bash
 d2l-test-runner vdiff migrate ./**/<location>/*
 ```
 
 Again, the optional location parameter can be used to migrate a subset of tests.
+
+Commit the changes to the goldens, which will be limited to files being moved/renamed and the addition of `.vdiff` to the repo's `.gitignore`.
 
 Follow the instructions to get the new version of the [vdiff GitHub Action](https://github.com/BrightspaceUI/actions/tree/main/vdiff) configured in the repository. Remember that for large repos both the old and new tests can be run together to enable a gradual migration.
 
