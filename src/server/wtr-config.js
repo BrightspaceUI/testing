@@ -54,7 +54,7 @@ export class WTRConfig {
 	}
 
 	get #pattern() {
-		const files = [ this.#cliArgs.files || this.pattern(this.#cliArgs.group), '!**/node_modules/**/*' ];
+		const files = [ this.#cliArgs.files || this.pattern(this.#cliArgs.group), '!**/node_modules/**/*' ].flat();
 
 		if (this.#cliArgs.filter) {
 			return this.#filterFiles(files);
@@ -124,10 +124,9 @@ export class WTRConfig {
 	}
 
 	#filterFiles(files) {
-		const flatFiles = files.flat();
 		return this.#cliArgs.filter.map(filterStr => {
 			// replace everything after the last forward slash
-			return flatFiles
+			return files
 				.filter(f => !f.startsWith('!')) // don't filter exclusions
 				.map(f => f.replace(/[^/]*$/, fileGlob => {
 					// create a new glob for each wildcard
@@ -140,7 +139,7 @@ export class WTRConfig {
 				}));
 		})
 			.flat()
-			.concat(flatFiles.filter(f => f.startsWith('!')));
+			.concat(files.filter(f => f.startsWith('!')));
 	}
 
 	#getMochaConfig(group, slowConfig, timeoutConfig) {
