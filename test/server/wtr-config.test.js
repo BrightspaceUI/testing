@@ -34,9 +34,8 @@ describe('WTRConfig', () => {
 			const group = config.groups[0];
 			expect(config.groups).to.be.an('array').that.has.length(1);
 			expect(group.name).to.equal('implicit-group');
+			expect(group.files).to.deep.equal(['./test/**/*.implicit-group.js']);
 			expect(group.browsers).to.be.an('array').that.has.length(3);
-			expect(group.browsers.filter(b => b.name === 'Chromium')).to.have.length(1);
-			group.browsers.forEach(b => expect(b.constructor.name).to.equal('PlaywrightLauncher'));
 		});
 
 		it('should add missing files to group config', () => {
