@@ -174,10 +174,6 @@ export class WTRConfig {
 		const { files, filter, golden, grep, group, open, watch } = this.#cliArgs;
 		const passthroughGroupNames = passthroughConfig.groups?.map(g => g.name) ?? [];
 
-		if (!['test', 'vdiff', ...passthroughGroupNames].includes(group)) {
-			return {}; // allow wtr to error
-		}
-
 		delete passthroughConfig.browsers;
 
 		if (typeof pattern !== 'function') throw new TypeError('pattern must be a function');
@@ -188,6 +184,15 @@ export class WTRConfig {
 			...this.#getMochaConfig(group, slow, timeout),
 			...passthroughConfig
 		};
+
+		if (!['test', 'vdiff', ...passthroughGroupNames].includes(group)) {
+			config.groups.push({ name: group, files: this.#pattern });
+		} else {
+			const groupConfig = config.groups.find(g => g.name === group);
+			if (groupConfig) {
+				groupConfig.files = this.#pattern;
+			}
+		}
 
 		if (filter) {
 			config.groups.forEach(group => {
