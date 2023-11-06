@@ -2,7 +2,7 @@
   "name": "@brightspace-ui/testing",
   "description": "Utilities for testing front-end components and applications",
   "type": "module",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "repository": "https://github.com/BrightspaceUI/testing.git",
   "scripts": {
     "lint": "eslint . --ext .js",
