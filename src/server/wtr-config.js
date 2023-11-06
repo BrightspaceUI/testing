@@ -40,6 +40,7 @@ export class WTRConfig {
 
 	get #defaultConfig() {
 		return {
+			browserStartTimeout: 60 * 1000,
 			groups: [],
 			nodeResolve: true,
 			testRunnerHtml: testFramework =>
