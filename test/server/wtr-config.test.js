@@ -47,8 +47,9 @@ describe('WTRConfig', () => {
 			expect(group.files).to.include.members(['./test/**/*.a-group.js']);
 		});
 
-		it('should enable nodeResolve', () => {
-			expect(config.nodeResolve).to.be.true;
+		it('should enable nodeResolve to default', () => {
+			expect(config.nodeResolve.exportConditions).to.be.an('array').that.has.length(1);
+			expect(config.nodeResolve.exportConditions[0]).to.equal('default');
 		});
 
 		it('should not configure testFramework by default', () => {
