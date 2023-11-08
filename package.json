@@ -6,7 +6,6 @@
   "repository": "https://github.com/BrightspaceUI/testing.git",
   "scripts": {
     "lint": "eslint . --ext .js",
-    "start": "npx d2l-test-vdiff-report",
     "test": "npm run lint && npm run test:bin && npm run test:server && npm run test:browser",
     "test:bin": "mocha './test/bin/**/*.test.js'",
     "test:browser": "npm run test:browser:other && npm run test:browser:ctor",
