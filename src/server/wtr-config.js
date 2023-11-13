@@ -157,7 +157,11 @@ export class WTRConfig {
 
 		const config = {};
 
-		if (timeout) config.timeout = String(timeout);
+		if (timeout) {
+			config.timeout = String(timeout);
+		} else if (group === 'vdiff') {
+			config.timeout = '5000';
+		}
 		if (open || watch) config.timeout = '0';
 		if (grep) config.grep = grep;
 		if (slow) {
