@@ -55,10 +55,11 @@ const nestedElem = defineCE(
 const removedElem = defineCE(
 	class extends LitElement {
 		render() {
-			setTimeout(() => {
-				this.shadowRoot.querySelector(asyncElem).remove();
-			}, 100);
-			return unsafeHTML(`<${asyncElem} id="slow"></${asyncElem}>`);
+			return html`<p>Still here</p>`;
+		}
+		async getLoadingComplete() {
+			setTimeout(() => this.remove());
+			return new Promise(() => {});
 		}
 	}
 );
@@ -292,8 +293,8 @@ describe('fixture', () => {
 		});
 
 		it('should abort waiting if elements are removed before getLoadingComplete', async() => {
-			const elem = await fixture(`<${removedElem}></${removedElem}>`);
-			expect(elem.shadowRoot.querySelector(asyncElem)).to.be.null;
+			const elem = await fixture(`<div><${removedElem}></${removedElem}></div>`);
+			expect(elem.querySelector(removedElem)).to.be.null;
 		});
 
 	});
