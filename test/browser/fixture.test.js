@@ -52,6 +52,17 @@ const nestedElem = defineCE(
 	}
 );
 
+const removedElem = defineCE(
+	class extends LitElement {
+		render() {
+			setTimeout(() => {
+				this.shadowRoot.querySelector(asyncElem).remove();
+			}, 100);
+			return unsafeHTML(`<${asyncElem} id="slow"></${asyncElem}>`);
+		}
+	}
+);
+
 describe('fixture', () => {
 
 	afterEach(() => restore());
@@ -278,6 +289,11 @@ describe('fixture', () => {
 			timeouts.push(setTimeout(() => resolves.get('slow')(), 40));
 			const finished = await finishedPromise;
 			expect(finished.length).to.equal(2);
+		});
+
+		it('should abort waiting if elements are removed before getLoadingComplete', async() => {
+			const elem = await fixture(`<${removedElem}></${removedElem}>`);
+			expect(elem.shadowRoot.querySelector(asyncElem)).to.be.null;
 		});
 
 	});
