@@ -9,7 +9,7 @@ describe('runner.getOptions()', () => {
 			argv: ['--group', 'test'],
 			readFileConfig: false,
 		});
-		expect(opts.config).to.deep.include({ nodeResolve: true });
+		expect(opts.config).to.deep.include({ nodeResolve: { exportConditions: ['default'] } });
 		expect(opts.config).to.have.property('testRunnerHtml').that.is.a('function');
 		expect(opts.config.groups).to.be.an('array').with.length(1);
 		expect(opts.config.groups[0]).to.deep.include({

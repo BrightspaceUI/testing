@@ -42,7 +42,9 @@ export class WTRConfig {
 		return {
 			browserStartTimeout: 60 * 1000,
 			groups: [],
-			nodeResolve: true,
+			nodeResolve: {
+				exportConditions: ['default']
+			},
 			testRunnerHtml: testFramework =>
 				`<!DOCTYPE html>
 				<html lang="en" data-timezone='${TIMEZONE}'>
