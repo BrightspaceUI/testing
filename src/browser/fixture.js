@@ -31,19 +31,41 @@ function getComposedChildren(node) {
 
 async function waitForElem(elem, awaitLoadingComplete = true) {
 
-	const update = elem?.updateComplete;
-	if (typeof update === 'object' && Promise.resolve(update) === update) {
-		await update;
-		await nextFrame();
-	}
+	const doWait = async() => {
 
-	if (awaitLoadingComplete && typeof elem?.getLoadingComplete === 'function') {
-		await elem.getLoadingComplete();
-		await nextFrame();
-	}
+		const update = elem?.updateComplete;
+		if (typeof update === 'object' && Promise.resolve(update) === update) {
+			await update;
+			await nextFrame();
+		}
 
-	const children = getComposedChildren(elem);
-	await Promise.all(children.map(e => waitForElem(e, awaitLoadingComplete)));
+		if (awaitLoadingComplete && typeof elem?.getLoadingComplete === 'function') {
+			await elem.getLoadingComplete();
+			await nextFrame();
+		}
+
+		const children = getComposedChildren(elem);
+		await Promise.all(children.map(e => waitForElem(e, awaitLoadingComplete)));
+
+	};
+
+	await new Promise((resolve) => {
+		const observer = new MutationObserver((records) => {
+			for (const record of records) {
+				for (const removedNode of record.removedNodes) {
+					if (removedNode === elem) {
+						observer.disconnect();
+						resolve();
+						return;
+					}
+				}
+			}
+		});
+		observer.observe(elem.parentNode, { childList: true });
+		doWait()
+			.then(() => observer.disconnect())
+			.then(resolve);
+	});
 
 }
 
