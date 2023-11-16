@@ -31,15 +31,17 @@ function getComposedChildren(node) {
 
 async function waitForElem(elem, awaitLoadingComplete = true) {
 
+	if (!elem) return;
+
 	const doWait = async() => {
 
-		const update = elem?.updateComplete;
+		const update = elem.updateComplete;
 		if (typeof update === 'object' && Promise.resolve(update) === update) {
 			await update;
 			await nextFrame();
 		}
 
-		if (awaitLoadingComplete && typeof elem?.getLoadingComplete === 'function') {
+		if (awaitLoadingComplete && typeof elem.getLoadingComplete === 'function') {
 			await elem.getLoadingComplete();
 			await nextFrame();
 		}
