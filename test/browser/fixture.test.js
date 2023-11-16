@@ -193,6 +193,10 @@ describe('fixture', () => {
 			}
 		});
 
+		it('should handle an empty fixture', async() => {
+			await fixture(html``);
+		});
+
 		it('should wait for slow element at fixture root', async() => {
 			const finishedPromise = fixture(`<${slowElem} id="slow"></${slowElem}>`)
 				.then((elem) => elem.finished);
