@@ -1,4 +1,4 @@
-import { emulateMedia, sendMouse, setViewport } from '@web/test-runner-commands';
+import { setViewport as cmdSetViewport, emulateMedia, sendMouse } from '@web/test-runner-commands';
 import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { nextFrame } from '@open-wc/testing';
 
@@ -6,8 +6,10 @@ const DEFAULT_PAGE_PADDING = true,
 	DEFAULT_LANG = 'en',
 	DEFAULT_MATHJAX_RENDER_LATEX = false,
 	DEFAULT_MEDIA = 'screen',
-	DEFAULT_VIEWPORT_HEIGHT = 800,
-	DEFAULT_VIEWPORT_WIDTH = 800;
+	DEFAULT_VIEWPORT = {
+		height: 800,
+		width: 800
+	};
 
 const documentLocaleSettings = getDocumentLocaleSettings();
 
@@ -24,22 +26,32 @@ export function requestMouseReset() {
 	shouldResetMouse = true;
 }
 
+export async function setViewport(viewport) {
+
+	const newViewport = { ...DEFAULT_VIEWPORT, ...viewport };
+
+	if (newViewport.height !== currentViewportHeight || newViewport.width !== currentViewportWidth) {
+		currentViewportHeight = newViewport.height;
+		currentViewportWidth = newViewport.width;
+		await cmdSetViewport(newViewport).catch(() => {});
+		return true;
+	}
+
+	return false;
+
+}
+
 export async function reset(opts = {}) {
 
 	const defaultOpts = {
 		lang: DEFAULT_LANG,
 		mathjax: {},
 		rtl: !!opts.lang?.startsWith('ar'),
-		viewport: {
-			height: DEFAULT_VIEWPORT_HEIGHT,
-			width: DEFAULT_VIEWPORT_WIDTH
-		},
 		pagePadding: DEFAULT_PAGE_PADDING,
 		media: DEFAULT_MEDIA
 	};
 
 	opts = { ...defaultOpts, ...opts };
-	opts.viewport = { ...defaultOpts.viewport, ...opts.viewport };
 	opts.mathjax.renderLatex = (typeof opts.mathjax.renderLatex === 'boolean') ? opts.mathjax.renderLatex : DEFAULT_MATHJAX_RENDER_LATEX;
 
 	let awaitNextFrame = false;
@@ -83,11 +95,8 @@ export async function reset(opts = {}) {
 		awaitNextFrame = true;
 	}
 
-	if (opts.viewport.height !== currentViewportHeight || opts.viewport.width !== currentViewportWidth) {
-		await setViewport(opts.viewport).catch(() => {});
+	if (await setViewport(opts.viewport)) {
 		awaitNextFrame = true;
-		currentViewportHeight = opts.viewport.height;
-		currentViewportWidth = opts.viewport.width;
 	}
 
 	if (opts.mathjax.renderLatex !== currentMathjaxRenderLatex) {

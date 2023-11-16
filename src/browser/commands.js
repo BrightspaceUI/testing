@@ -1,5 +1,6 @@
 import { sendKeys as cmdSendKeys, sendMouse as cmdSendMouse } from '@web/test-runner-commands';
 import { requestMouseReset } from './reset.js';
+export { setViewport } from './reset.js';
 
 function getElementPosition(elem) {
 	const { x, y, width, height } = elem.getBoundingClientRect();

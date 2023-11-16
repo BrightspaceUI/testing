@@ -90,6 +90,18 @@ it('should work on small viewports', async() => {
 });
 ```
 
+To change the viewport size outside of `fixture`, use the `setViewport` command:
+
+```javascript
+import { fixture, setViewport } from '@brightspace-ui/testing';
+
+it('should adapt when viewport changes', async() => {
+  const elem = await fixture(html`<my-elem></my-elem>`);
+  await setViewport({ height: 300, width: 200 });
+  // do assertions
+});
+```
+
 #### Configuring the Language or Text Direction
 
 If the component under test has special multi-lingual or bidirectional text behavior, both `language` and `rtl` (right-to-left) options are available.
