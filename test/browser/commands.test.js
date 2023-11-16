@@ -1,4 +1,4 @@
-import { clickAt, clickElem, expect, fixture, focusElem, hoverAt, hoverElem, sendKeys, sendKeysElem } from '../../src/browser/index.js';
+import { clickAt, clickElem, expect, fixture, focusElem, hoverAt, hoverElem, sendKeys, sendKeysElem, setViewport } from '../../src/browser/index.js';
 import { html } from 'lit';
 import { spy } from 'sinon';
 
@@ -104,6 +104,45 @@ describe('commands', () => {
 				expect(mousePos.y).to.equal(0);
 			});
 		});
+	});
+
+	describe('viewport', () => {
+
+		it('should set width and height', async() => {
+			await setViewport({ height: 200, width: 300 });
+			expect(window.innerHeight).to.equal(200);
+			expect(window.innerWidth).to.equal(300);
+		});
+
+		it('should use default width and height', async() => {
+			await setViewport({ height: 200, width: 300 });
+			await setViewport();
+			expect(window.innerHeight).to.equal(800);
+			expect(window.innerWidth).to.equal(800);
+		});
+
+		it('should use default width', async() => {
+			await setViewport({ height: 200, width: 300 });
+			await setViewport({ height: 400 });
+			expect(window.innerHeight).to.equal(400);
+			expect(window.innerWidth).to.equal(800);
+		});
+
+		it('should use default height', async() => {
+			await setViewport({ height: 200, width: 300 });
+			await setViewport({ width: 400 });
+			expect(window.innerHeight).to.equal(800);
+			expect(window.innerWidth).to.equal(400);
+		});
+
+		it('should not call underlying API if values are unchanged', async() => {
+			const size = { height: 200, width: 300 };
+			const changed1 = await setViewport(size);
+			expect(changed1).to.be.true;
+			const changed2 = await setViewport(size);
+			expect(changed2).to.be.false;
+		});
+
 	});
 
 });

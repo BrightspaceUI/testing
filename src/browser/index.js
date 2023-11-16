@@ -1,6 +1,6 @@
 import './vdiff.js';
 
 export { assert, aTimeout, defineCE, expect, html, nextFrame, oneDefaultPreventedEvent, oneEvent, waitUntil } from '@open-wc/testing';
-export { clickAt, clickElem, focusElem, hoverAt, hoverElem, sendKeys, sendKeysElem } from './commands.js';
+export { clickAt, clickElem, focusElem, hoverAt, hoverElem, sendKeys, sendKeysElem, setViewport } from './commands.js';
 export { fixture } from './fixture.js';
 export { runConstructor } from './constructor.js';
