@@ -1,7 +1,7 @@
 import { access, constants, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
-import { env, stdout } from 'node:process';
 import { unwatchFile, watchFile } from 'node:fs';
+import { env } from 'node:process';
 import { exec } from 'node:child_process';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
@@ -210,7 +210,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false, compressi
 						});
 					}
 					else {
-						//stdout.write('Compression enabled, but optipng not found\n\n');
+						//console.log('Compression enabled, but optipng not found');
 					}
 				}
 				else {
