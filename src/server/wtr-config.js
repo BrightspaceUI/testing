@@ -182,7 +182,7 @@ export class WTRConfig {
 		...passthroughConfig
 	} = {}) {
 
-		const { files, filter, golden, grep, group, open, watch } = this.#cliArgs;
+		const { files, filter, golden, grep, group, open, watch, compression } = this.#cliArgs;
 		const passthroughGroupNames = passthroughConfig.groups?.map(g => g.name) ?? [];
 
 		delete passthroughConfig.browsers;
@@ -223,7 +223,7 @@ export class WTRConfig {
 			config.reporters.push(visualDiffReporter({ updateGoldens: golden }));
 
 			config.plugins ??= [];
-			config.plugins.push(visualDiff({ updateGoldens: golden, runSubset: !!(filter || grep) }));
+			config.plugins.push(visualDiff({ updateGoldens: golden, runSubset: !!(filter || grep), compression }));
 
 			config.groups.push(this.visualDiffGroup);
 		}

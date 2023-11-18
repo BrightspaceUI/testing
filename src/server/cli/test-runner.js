@@ -121,9 +121,15 @@ async function getTestRunnerOptions(argv = []) {
 			description: 'Run tests in Webkit',
 			order: 4
 		},
+		{
+			name: 'compression',
+			alias: 'z',
+			type: Number,
+			description: 'Compression level, 0 - 8\n[Default: 1]'
+		}
 	];
 
-	const cliArgs = commandLineArgs(optionDefinitions, { partial: true, argv });
+	const cliArgs = commandLineArgs(optionDefinitions, { partial: true, camelCase: true, argv });
 
 	if (cliArgs.help) {
 		const help = commandLineUsage([

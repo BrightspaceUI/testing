@@ -1,6 +1,7 @@
 import { access, constants, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
-import { env } from 'node:process';
+import { env, stdout } from 'node:process';
+import { unwatchFile, watchFile } from 'node:fs';
 import { exec } from 'node:child_process';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
@@ -138,7 +139,7 @@ function setTestInfo(session, fullTitle, testInfo) {
 	testInfoMap.set(key, testInfo);
 }
 
-export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
+export function visualDiff({ updateGoldens = false, runSubset = false, compression = 1 } = {}) {
 	let currentRun = 0,
 		rootDir;
 	const clearedDirs = new Map();
@@ -192,24 +193,35 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				const page = session.browser.getPage(session.id);
 				await page.screenshot(screenshotOpts);
 
-				// losslessly compress and remove metadata from screenshot
-				if (isCI) exec(`optipng -strip all ${screenshotOpts.path}`);
+				let compressionPromise;
+				if (compression) {
+					//console.log('Compression enabled');
+					const err = await new Promise(r => exec('optipng -h', err => r(err?.code)));
+
+					if (!err) {
+						compressionPromise = new Promise(r => {
+							watchFile(screenshotOpts.path, { interval: 5 }, (curr, prev) => {
+								if (curr.size && curr.size !== prev.size) {
+									unwatchFile(screenshotOpts.path);
+									r(curr);
+								}
+							});
+							exec(`optipng -silent -strip all -o${Math.min(7, compression - 1)} '${screenshotOpts.path}'`);
+						});
+					}
+					else {
+						//stdout.write('Compression enabled, but optipng not found\n\n');
+					}
+				}
+				else {
+					//console.log('Compression disabled');
+				}
 
 				if (updateGoldens) {
 					return { pass: true };
 				}
 
 				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
-
-				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
-				setTestInfo(session, payload.name, {
-					slowDuration: payload.slowDuration,
-					new: {
-						height: screenshotImage.height,
-						path: passFileName.substring(rootLength),
-						width: screenshotImage.width
-					}
-				});
 
 				const goldenExists = await checkFileExists(goldenFileName);
 				if (!goldenExists) {
@@ -221,8 +233,18 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					return { pass: false, message: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.' };
 				}
 
-				const goldenImage = PNG.sync.read(await readFile(goldenFileName));
+				const [ screenshotImage, goldenImage ] = (await Promise.all([
+					readFile(screenshotFileName),
+					readFile(goldenFileName)
+				])).map(f => PNG.sync.read(f));
+
 				setTestInfo(session, payload.name, {
+					slowDuration: payload.slowDuration,
+					new: {
+						height: screenshotImage.height,
+						path: passFileName.substring(rootLength),
+						width: screenshotImage.width
+					},
 					golden: {
 						height: goldenImage.height,
 						path: goldenFileName.substring(rootLength),
@@ -230,6 +252,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					}
 				});
 
+				let res;
 				if (screenshotImage.width === goldenImage.width && screenshotImage.height === goldenImage.height) {
 					const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
 					const pixelsDiff = pixelmatch(
@@ -245,10 +268,10 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 							pixelsDiff
 						});
 						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
-						return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
+						res = { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
 					} else {
-						const goldenSize = (await stat(goldenFileName)).size;
-						const screenshotSize = (await stat(screenshotFileName)).size;
+						const screenshotStat = await (compressionPromise || stat(screenshotFileName));
+						const [ goldenSize, screenshotSize ] = (await Promise.all([stat(goldenFileName), screenshotStat])).map(f => f.size);
 						if (goldenSize !== screenshotSize) {
 							setTestInfo(session, payload.name, {
 								golden: {
@@ -262,24 +285,34 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 							});
 							return { pass: false, message: 'Image diff is clean but the images do not have the same byte size.' };
 						} else {
+							await compressionPromise;
 							const success = await tryMoveFile(screenshotFileName, passFileName);
 							if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
 							return { pass: true };
 						}
 					}
 				} else {
-					return { resizeRequired: true };
+					res = { resizeRequired: true };
 				}
+
+				await compressionPromise;
+
+				return res;
+
 			} else if (command === 'brightspace-visual-diff-compare-resize') {
-				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
-				const goldenImage = PNG.sync.read(await readFile(goldenFileName));
+				const [ screenshotImage, goldenImage ] = (await Promise.all([
+					readFile(screenshotFileName),
+					readFile(goldenFileName)
+				])).map(f => PNG.sync.read(f));
 
 				const newWidth = Math.max(screenshotImage.width, goldenImage.width);
 				const newHeight = Math.max(screenshotImage.height, goldenImage.height);
 				const newSize = { width: newWidth, height: newHeight };
 
-				const newScreenshots = await createComparisonPNGs(screenshotImage, newSize);
-				const newGoldens = await createComparisonPNGs(goldenImage, newSize);
+				const [ newScreenshots, newGoldens ] = await Promise.all([
+					createComparisonPNGs(screenshotImage, newSize),
+					createComparisonPNGs(goldenImage, newSize)
+				]);
 
 				let bestIndex = -1;
 				let bestDiffImage = null;
@@ -297,9 +330,11 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					}
 				}
 
-				await writeFile(`${screenshotFile}-resized-screenshot.png`, PNG.sync.write(newScreenshots[bestIndex].png));
-				await writeFile(`${screenshotFile}-resized-golden.png`, PNG.sync.write(newGoldens[bestIndex].png));
-				await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(bestDiffImage));
+				await Promise.all([
+					writeFile(`${screenshotFile}-resized-screenshot.png`, PNG.sync.write(newScreenshots[bestIndex].png)),
+					writeFile(`${screenshotFile}-resized-golden.png`, PNG.sync.write(newGoldens[bestIndex].png)),
+					writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(bestDiffImage))
+				]);
 
 				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
 				setTestInfo(session, payload.name, {
