@@ -139,7 +139,7 @@ function setTestInfo(session, fullTitle, testInfo) {
 	testInfoMap.set(key, testInfo);
 }
 
-export function visualDiff({ updateGoldens = false, runSubset = false, compression = 0 } = {}) {
+export function visualDiff({ updateGoldens = false, runSubset = false, compression = 1 } = {}) {
 	let currentRun = 0,
 		rootDir;
 	const clearedDirs = new Map();
