@@ -206,7 +206,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false, compressi
 									r(curr);
 								}
 							});
-							exec(`optipng -silent -strip all -o${Math.min(7, compression - 1)} '${screenshotOpts.path}'`);
+							exec(`optipng -silent -strip all -o${Math.min(7, compression - 1)} "${screenshotOpts.path}"`);
 						});
 					}
 					else {
