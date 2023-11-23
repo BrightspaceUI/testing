@@ -1,4 +1,4 @@
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, nothing } from 'lit';
 import { defineCE, expect, fixture } from '../../src/browser/index.js';
 
 const mediaTag = defineCE(
@@ -22,6 +22,18 @@ const mediaTag = defineCE(
 );
 
 describe('media', () => {
+
+	it('nothing', async() => {
+		const nothingTag = defineCE(
+			class extends LitElement {
+				render() {
+					return nothing;
+				}
+			}
+		);
+		const elem = await fixture(`<${nothingTag}></${nothingTag}>`);
+		await expect(elem).to.be.golden();
+	});
 
 	it('default', async() => {
 		const elem = await fixture(`<${mediaTag}></${mediaTag}>`);
