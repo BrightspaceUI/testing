@@ -164,6 +164,19 @@ describe('element-matches', () => {
 			await expect(elem).to.be.golden();
 		});
 	});
+
+	it('nothing', async() => {
+		const nothingTag = defineCE(
+			class extends LitElement {
+				render() {
+					return nothing;
+				}
+			}
+		);
+		const elem = await fixture(`<${nothingTag}></${nothingTag}>`);
+		await expect(elem).to.be.golden();
+	});
+
 });
 
 describe('element-different', () => {

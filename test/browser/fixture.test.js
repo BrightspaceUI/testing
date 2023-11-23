@@ -1,8 +1,8 @@
 
 import { defineCE, expect, fixture, html, waitUntil } from '../../src/browser/index.js';
+import { LitElement, nothing } from 'lit';
 import { restore, stub } from 'sinon';
 import { focusElem } from '../../src/browser/commands.js';
-import { LitElement } from 'lit';
 import { requestMouseReset } from '../../src/browser/reset.js';
 import { sendMouse } from '@web/test-runner-commands';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
@@ -195,6 +195,17 @@ describe('fixture', () => {
 
 		it('should handle an empty fixture', async() => {
 			await fixture(html``);
+		});
+
+		it('should handle an element that renders nothing', async() => {
+			const nothingTag = defineCE(
+				class extends LitElement {
+					render() {
+						return nothing;
+					}
+				}
+			);
+			await fixture(`<${nothingTag}></${nothingTag}>`);
 		});
 
 		it('should wait for slow element at fixture root', async() => {
