@@ -28,17 +28,14 @@ function findTargets(elem) {
 }
 
 function findLargestRect(elems, margin) {
-	console.log('findLargestRect', elems.length);
 	let largestRect = { left: Number.MAX_SAFE_INTEGER, top: Number.MAX_SAFE_INTEGER, right: 0, bottom: 0 };
-	let first = true;
+	let foundElemRect = false;
 	elems.forEach(elem => {
 		const targets = findTargets(elem);
-		console.log('targets', targets.length);
 		targets.forEach(target => {
 			const targetRect = target.getBoundingClientRect();
-			console.log('targetRect', target.tagName, targetRect);
-			if (first || (targetRect.width !== 0 && targetRect.height !== 0)) {
-				first = true;
+			if (targetRect.width !== 0 && targetRect.height !== 0) {
+				foundElemRect = true;
 				largestRect = {
 					left: Math.floor(Math.min(largestRect.left, targetRect.left)),
 					top: Math.floor(Math.min(largestRect.top, targetRect.top)),
@@ -48,6 +45,10 @@ function findLargestRect(elems, margin) {
 			}
 		});
 	});
+	// no elements had a size, so pick a reasonable rect
+	if (!foundElemRect) {
+		largestRect = { left: margin, top: margin, right: margin, bottom: margin };
+	}
 	const rect = {
 		x: largestRect.left - margin,
 		y: largestRect.top - margin,
@@ -80,7 +81,6 @@ async function ScreenshotAndCompare(opts = {}) {
 	const name = this.test.fullTitle();
 	let fullPage = false,
 		rect = null;
-	console.log('ScreenshotAndCompare', name, this.elem.tagName);
 	if (this.elem === document) {
 		fullPage = true;
 	} else {
@@ -89,15 +89,11 @@ async function ScreenshotAndCompare(opts = {}) {
 		({ rect, fullPage } = findLargestRect(elemsToInclude, margin));
 	}
 	const slowDuration = this.test.slow();
-	console.log(fullPage, rect, slowDuration);
 
 	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration });
-	console.log('got result', result);
 	if (result.resizeRequired) {
 		this.test.timeout(0);
-		console.log('resizing');
 		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name });
-		console.log('done resizing');
 	}
 
 	if (window.d2lTest) document.documentElement.classList.remove('screenshot');

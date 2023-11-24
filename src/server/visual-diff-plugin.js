@@ -184,15 +184,12 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					animations: 'disabled',
 					path: updateGoldens ? goldenFileName : screenshotFileName
 				};
-				console.log('server: compare', screenshotOpts, payload.rect);
 
 				if (payload.fullPage) screenshotOpts.fullPage = true;
 				if (payload.rect) screenshotOpts.clip = payload.rect;
 
 				const page = session.browser.getPage(session.id);
-				console.log('getting screenshot');
 				await page.screenshot(screenshotOpts);
-				console.log('got screenshot');
 
 				if (updateGoldens) {
 					return { pass: true };
