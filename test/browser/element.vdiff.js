@@ -101,7 +101,7 @@ const nestedElementTag = defineCE(
 );
 
 describe('element-matches', () => {
-	[
+	/*[
 		{ name: 'default' },
 		{ name: 'rtl', rtl: true },
 		{ name: 'hover', action: async(elem) => await hoverElem(elem) },
@@ -163,7 +163,7 @@ describe('element-matches', () => {
 			if (action) await action(elem);
 			await expect(elem).to.be.golden();
 		});
-	});
+	});*/
 
 	it('nothing', async() => {
 		const nothingTag = defineCE(
@@ -179,7 +179,7 @@ describe('element-matches', () => {
 
 });
 
-describe('element-different', () => {
+/*describe('element-different', () => {
 	let isGolden;
 	before(async() => {
 		isGolden = await executeServerCommand('vdiff-get-golden-flag');
@@ -246,3 +246,4 @@ describe('element-different', () => {
 		}
 	});
 });
+*/

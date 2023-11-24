@@ -28,11 +28,14 @@ function findTargets(elem) {
 }
 
 function findLargestRect(elems, margin) {
+	console.log('findLargestRect', elems.length);
 	let largestRect = { left: Number.MAX_SAFE_INTEGER, top: Number.MAX_SAFE_INTEGER, right: 0, bottom: 0 };
 	elems.forEach(elem => {
 		const targets = findTargets(elem);
+		console.log('targets', targets.length);
 		targets.forEach(target => {
 			const targetRect = target.getBoundingClientRect();
+			console.log('targetRect', target.tagName, targetRect);
 			if (targetRect.width !== 0 && targetRect.height !== 0) {
 				largestRect = {
 					left: Math.floor(Math.min(largestRect.left, targetRect.left)),
@@ -75,6 +78,7 @@ async function ScreenshotAndCompare(opts = {}) {
 	const name = this.test.fullTitle();
 	let fullPage = false,
 		rect = null;
+	console.log('ScreenshotAndCompare', name, this.elem.tagName);
 	if (this.elem === document) {
 		fullPage = true;
 	} else {
@@ -83,11 +87,15 @@ async function ScreenshotAndCompare(opts = {}) {
 		({ rect, fullPage } = findLargestRect(elemsToInclude, margin));
 	}
 	const slowDuration = this.test.slow();
+	console.log(fullPage, rect, slowDuration);
 
 	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration });
+	console.log('got result', result);
 	if (result.resizeRequired) {
 		this.test.timeout(0);
+		console.log('resizing');
 		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name });
+		console.log('done resizing');
 	}
 
 	if (window.d2lTest) document.documentElement.classList.remove('screenshot');
