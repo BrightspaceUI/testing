@@ -30,13 +30,15 @@ function findTargets(elem) {
 function findLargestRect(elems, margin) {
 	console.log('findLargestRect', elems.length);
 	let largestRect = { left: Number.MAX_SAFE_INTEGER, top: Number.MAX_SAFE_INTEGER, right: 0, bottom: 0 };
+	let first = true;
 	elems.forEach(elem => {
 		const targets = findTargets(elem);
 		console.log('targets', targets.length);
 		targets.forEach(target => {
 			const targetRect = target.getBoundingClientRect();
 			console.log('targetRect', target.tagName, targetRect);
-			if (targetRect.width !== 0 && targetRect.height !== 0) {
+			if (first || (targetRect.width !== 0 && targetRect.height !== 0)) {
+				first = true;
 				largestRect = {
 					left: Math.floor(Math.min(largestRect.left, targetRect.left)),
 					top: Math.floor(Math.min(largestRect.top, targetRect.top)),
