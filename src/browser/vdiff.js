@@ -29,11 +29,13 @@ function findTargets(elem) {
 
 function findLargestRect(elems, margin) {
 	let largestRect = { left: Number.MAX_SAFE_INTEGER, top: Number.MAX_SAFE_INTEGER, right: 0, bottom: 0 };
+	let foundElemRect = false;
 	elems.forEach(elem => {
 		const targets = findTargets(elem);
 		targets.forEach(target => {
 			const targetRect = target.getBoundingClientRect();
 			if (targetRect.width !== 0 && targetRect.height !== 0) {
+				foundElemRect = true;
 				largestRect = {
 					left: Math.floor(Math.min(largestRect.left, targetRect.left)),
 					top: Math.floor(Math.min(largestRect.top, targetRect.top)),
@@ -43,6 +45,10 @@ function findLargestRect(elems, margin) {
 			}
 		});
 	});
+	// no elements had a size, so pick a reasonable rect
+	if (!foundElemRect) {
+		largestRect = { left: margin, top: margin, right: margin + 1, bottom: margin + 1 };
+	}
 	const rect = {
 		x: largestRect.left - margin,
 		y: largestRect.top - margin,
