@@ -47,7 +47,7 @@ function findLargestRect(elems, margin) {
 	});
 	// no elements had a size, so pick a reasonable rect
 	if (!foundElemRect) {
-		largestRect = { left: margin, top: margin, right: margin, bottom: margin };
+		largestRect = { left: margin, top: margin, right: margin + 1, bottom: margin + 1 };
 	}
 	const rect = {
 		x: largestRect.left - margin,
