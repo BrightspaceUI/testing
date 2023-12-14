@@ -15,6 +15,7 @@ const BROWSER_MAP = {
 	webkit: 'webkit'
 };
 const TIMEZONE = '{&quot;name&quot;:&quot;Canada - Toronto&quot;,&quot;identifier&quot;:&quot;America/Toronto&quot;}';
+const FONT_ASSETS = 'https://s.brightspace.com/lib/fonts/0.6.0/assets/';
 const SUPPRESS_RESIZE_OBSERVER_ERRORS = `
 	<script>
 	window.addEventListener('error', (err) => {
@@ -75,8 +76,8 @@ export class WTRConfig {
 				`<!DOCTYPE html>
 				<html lang="en" data-timezone='${TIMEZONE}'>
 					<head>
-						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-400.woff2" as="font" type="font/woff2" crossorigin>
-						<link rel="preload" href="https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-700.woff2" as="font" type="font/woff2" crossorigin>
+						<link rel="preload" href="${FONT_ASSETS}Lato-400.woff2" as="font" type="font/woff2" crossorigin>
+						<link rel="preload" href="${FONT_ASSETS}Lato-700.woff2" as="font" type="font/woff2" crossorigin>
 						<style>
 
 							* {
@@ -91,14 +92,15 @@ export class WTRConfig {
 								font-family: 'Lato';
 								font-style: normal;
 								font-weight: 400;
-								src: url(https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-400.woff2) format('woff2');
+								src: url(${FONT_ASSETS}Lato-400.woff2) format('woff2');
 							}
 							@font-face {
 								font-family: 'Lato';
 								font-style: normal;
 								font-weight: 700;
-								src: url(https://s.brightspace.com/lib/fonts/0.5.0/assets/Lato-700.woff2) format('woff2');
+								src: url(${FONT_ASSETS}Lato-700.woff2) format('woff2');
 							}
+
 							html {
 								font-size: 20px;
 							}
