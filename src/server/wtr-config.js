@@ -78,12 +78,6 @@ export class WTRConfig {
 					<head>
 						<link rel="preload" href="${FONT_ASSETS}Lato-400.woff2" as="font" type="font/woff2" crossorigin>
 						<link rel="preload" href="${FONT_ASSETS}Lato-700.woff2" as="font" type="font/woff2" crossorigin>
-						<link rel="preload" href="${FONT_ASSETS}BCSans-Light.woff2" as="font" type="font/woff2" crossorigin>
-						<link rel="preload" href="${FONT_ASSETS}BCSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
-						<link rel="preload" href="${FONT_ASSETS}BCSans-Bold.woff2" as="font" type="font/woff2" crossorigin>
-						<link rel="preload" href="${FONT_ASSETS}BCSans-LightItalic.woff2" as="font" type="font/woff2" crossorigin>
-						<link rel="preload" href="${FONT_ASSETS}BCSans-Italic.woff2" as="font" type="font/woff2" crossorigin>
-						<link rel="preload" href="${FONT_ASSETS}BCSans-BoldItalic.woff2" as="font" type="font/woff2" crossorigin>
 						<style>
 
 							* {
