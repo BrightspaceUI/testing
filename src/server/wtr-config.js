@@ -100,42 +100,7 @@ export class WTRConfig {
 								font-weight: 700;
 								src: url(${FONT_ASSETS}Lato-700.woff2) format('woff2');
 							}
-							@font-face {
-								font-family: 'BC Sans';
-								font-style: normal;
-								font-weight: 300;
-								src: url(${FONT_ASSETS}BCSans-Light.woff2) format('woff2');
-							}
-							@font-face {
-								font-family: 'BC Sans';
-								font-style: normal;
-								font-weight: 400;
-								src: url(${FONT_ASSETS}BCSans-Regular.woff2) format('woff2');
-							}
-							@font-face {
-								font-family: 'BC Sans';
-								font-style: normal;
-								font-weight: 700;
-								src: url(${FONT_ASSETS}BCSans-Bold.woff2) format('woff2');
-							}
-							@font-face {
-								font-family: 'BC Sans';
-								font-style: italic;
-								font-weight: 300;
-								src: url(${FONT_ASSETS}BCSans-LightItalic.woff2) format('woff2');
-							}
-							@font-face {
-								font-family: 'BC Sans';
-								font-style: italic;
-								font-weight: 400;
-								src: url(${FONT_ASSETS}BCSans-Italic.woff2) format('woff2');
-							}
-							@font-face {
-								font-family: 'BC Sans';
-								font-style: italic;
-								font-weight: 700;
-								src: url(${FONT_ASSETS}BCSans-BoldItalic.woff2) format('woff2');
-							}
+
 							html {
 								font-size: 20px;
 							}
