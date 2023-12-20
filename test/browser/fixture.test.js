@@ -17,12 +17,12 @@ const slowElem = defineCE(
 			this.promise = new Promise((resolve) => resolves.set(this.id, resolve));
 			this.promise.then(() => this.finished = true);
 		}
-		render() {
-			return html`<slot></slot>`;
-		}
 		async getUpdateComplete() {
 			await super.getUpdateComplete;
 			return this.promise;
+		}
+		render() {
+			return html`<slot></slot>`;
 		}
 	}
 );
@@ -194,6 +194,7 @@ describe('fixture', () => {
 		});
 
 		it('should handle an empty fixture', async() => {
+			// eslint-disable-next-line lit/prefer-nothing
 			await fixture(html``);
 		});
 
