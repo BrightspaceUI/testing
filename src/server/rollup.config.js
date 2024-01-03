@@ -3,7 +3,6 @@ import { rollupPluginHTML as html } from '@web/rollup-plugin-html';
 import { join } from 'path';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { PATHS } from './visual-diff-plugin.js';
-import { cwd } from 'node:process';
 
 export default {
 	input: join(cwd(), PATHS.VDIFF_ROOT, PATHS.REPORT_ROOT, './temp/index.html'),
