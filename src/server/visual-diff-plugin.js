@@ -197,7 +197,8 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
 
-				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
+				const screenshotFileBuffer = await readFile(screenshotFileName);
+				const screenshotImage = PNG.sync.read(screenshotFileBuffer);
 				setTestInfo(session, payload.name, {
 					slowDuration: payload.slowDuration,
 					new: {
@@ -217,7 +218,8 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					return { pass: false, message: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.' };
 				}
 
-				const goldenImage = PNG.sync.read(await readFile(goldenFileName));
+				const goldenFileBuffer = await readFile(goldenFileName);
+				const goldenImage = PNG.sync.read(goldenFileBuffer);
 				setTestInfo(session, payload.name, {
 					golden: {
 						height: goldenImage.height,
@@ -245,7 +247,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					} else {
 						const goldenSize = (await stat(goldenFileName)).size;
 						const screenshotSize = (await stat(screenshotFileName)).size;
-						if (goldenSize !== screenshotSize) {
+						if (goldenSize !== screenshotSize || !screenshotFileBuffer.equals(goldenFileBuffer)) {
 							setTestInfo(session, payload.name, {
 								golden: {
 									byteSize: goldenSize
