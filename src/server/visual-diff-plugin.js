@@ -258,7 +258,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 								},
 								pixelsDiff
 							});
-							return { pass: false, message: 'Image diff is clean but the images do not have the same byte size.' };
+							return { pass: false, message: 'Image diff is clean but the images do not have the same bytes.' };
 						} else {
 							const success = await tryMoveFile(screenshotFileName, passFileName);
 							if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
