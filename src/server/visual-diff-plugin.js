@@ -229,6 +229,14 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				});
 
 				if (screenshotImage.width === goldenImage.width && screenshotImage.height === goldenImage.height) {
+					const goldenSize = (await stat(goldenFileName)).size;
+					const screenshotSize = (await stat(screenshotFileName)).size;
+					if (goldenSize === screenshotSize && screenshotFileBuffer.equals(goldenFileBuffer)) {
+						const success = await tryMoveFile(screenshotFileName, passFileName);
+						if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
+						return { pass: true };
+					}
+
 					const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
 					const pixelsDiff = pixelmatch(
 						screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { diffMask: true, threshold: DEFAULT_TOLERANCE }
@@ -245,25 +253,17 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
 						return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
 					} else {
-						const goldenSize = (await stat(goldenFileName)).size;
-						const screenshotSize = (await stat(screenshotFileName)).size;
-						if (goldenSize !== screenshotSize || !screenshotFileBuffer.equals(goldenFileBuffer)) {
-							setTestInfo(session, payload.name, {
-								golden: {
-									byteSize: goldenSize
-								},
-								new: {
-									path: `${screenshotFile.substring(rootLength)}.png`,
-									byteSize: screenshotSize
-								},
-								pixelsDiff
-							});
-							return { pass: false, message: 'Image diff is clean but the images do not have the same bytes.' };
-						} else {
-							const success = await tryMoveFile(screenshotFileName, passFileName);
-							if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
-							return { pass: true };
-						}
+						setTestInfo(session, payload.name, {
+							golden: {
+								byteSize: goldenSize
+							},
+							new: {
+								path: `${screenshotFile.substring(rootLength)}.png`,
+								byteSize: screenshotSize
+							},
+							pixelsDiff
+						});
+						return { pass: false, message: 'Image diff is clean but the images do not have the same bytes.' };
 					}
 				} else {
 					return { resizeRequired: true };
