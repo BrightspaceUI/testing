@@ -258,7 +258,8 @@ export class WTRConfig {
 			launchOptions: {
 				headless: !this.#cliArgs.open,
 				devtools: false,
-				slowMo: this.#cliArgs.slowmo || 0
+				slowMo: this.#cliArgs.slowmo || 0,
+				args: ['--disable-gpu', '--disable-partial-raster']
 			}
 		}));
 	}
