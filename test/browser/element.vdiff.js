@@ -236,11 +236,11 @@ describe('element-different', () => {
 			fail = true;
 		}
 
-		if (isGolden) {
+		if (!isGolden) {
+			expect(fail, 'current and golden images to have different byte size').equal(true);
+		} else {
 			// Modify golden file to be different byte size than what the test will generate
 			await executeServerCommand('vdiff-modify-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png' });
 		}
-
-		expect(fail, 'current and golden images to have different byte size').equal(!isGolden);
 	});
 });
