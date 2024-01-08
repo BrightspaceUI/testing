@@ -5,8 +5,6 @@ import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
-const ALLOWED_BROWSERS = ['chrome', 'chromium', 'firefox', 'safari', 'webkit'];
-const DEFAULT_BROWSERS = ['chromium', 'firefox', 'webkit'];
 const BROWSER_MAP = {
 	chrome: 'chromium',
 	chromium: 'chromium',
@@ -14,6 +12,8 @@ const BROWSER_MAP = {
 	safari: 'webkit',
 	webkit: 'webkit'
 };
+const ALLOWED_BROWSERS = Object.keys(BROWSER_MAP);
+const DEFAULT_BROWSERS = [...new Set(Object.values(BROWSER_MAP))];
 const TIMEZONE = '{&quot;name&quot;:&quot;Canada - Toronto&quot;,&quot;identifier&quot;:&quot;America/Toronto&quot;}';
 const SUPPRESS_RESIZE_OBSERVER_ERRORS = `
 	<script>
@@ -70,7 +70,7 @@ export class WTRConfig {
 		return {
 			name: 'vdiff',
 			files: this.#pattern,
-			browsers: ['chrome'],
+			browsers: [BROWSER_MAP.chrome],
 			testRunnerHtml: testFramework =>
 				`<!DOCTYPE html>
 				<html lang="en" data-timezone='${TIMEZONE}'>
@@ -247,19 +247,19 @@ export class WTRConfig {
 	}
 
 	getBrowsers(browsers) {
-		browsers = (this.#requestedBrowsers || browsers || DEFAULT_BROWSERS).map(b => BROWSER_MAP[b] || 'chromium');
+		browsers = (this.#requestedBrowsers || browsers || DEFAULT_BROWSERS).map(b => BROWSER_MAP[b] || BROWSER_MAP.chrome);
 
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 
 		return [...new Set(browsers)].map((b) => playwrightLauncher({
-			concurrency: b === 'firefox' || this.#cliArgs.open ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
+			concurrency: b === BROWSER_MAP.firefox || this.#cliArgs.open ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
 			product: b,
 			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' }),
 			launchOptions: {
 				headless: !this.#cliArgs.open,
 				devtools: false,
 				slowMo: this.#cliArgs.slowmo || 0,
-				args: ['--disable-gpu', '--disable-partial-raster']
+				args: b === BROWSER_MAP.chrome ? ['--disable-gpu-rasterization'] : []
 			}
 		}));
 	}
