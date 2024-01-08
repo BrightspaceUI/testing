@@ -223,9 +223,7 @@ describe('element-different', () => {
 				fail = true;
 			}
 
-			if (!isGolden) {
-				expect(fail, 'current and golden images to be different').equal(true);
-			}
+			expect(fail, 'current and golden images to be different').equal(!isGolden);
 		});
 	});
 
