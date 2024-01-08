@@ -197,7 +197,8 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
 
-				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
+				const screenshotFileBuffer = await readFile(screenshotFileName);
+				const screenshotImage = PNG.sync.read(screenshotFileBuffer);
 				setTestInfo(session, payload.name, {
 					slowDuration: payload.slowDuration,
 					new: {
@@ -217,7 +218,8 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					return { pass: false, message: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.' };
 				}
 
-				const goldenImage = PNG.sync.read(await readFile(goldenFileName));
+				const goldenFileBuffer = await readFile(goldenFileName);
+				const goldenImage = PNG.sync.read(goldenFileBuffer);
 				setTestInfo(session, payload.name, {
 					golden: {
 						height: goldenImage.height,
@@ -227,6 +229,14 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				});
 
 				if (screenshotImage.width === goldenImage.width && screenshotImage.height === goldenImage.height) {
+					const goldenSize = (await stat(goldenFileName)).size;
+					const screenshotSize = (await stat(screenshotFileName)).size;
+					if (goldenSize === screenshotSize && screenshotFileBuffer.equals(goldenFileBuffer)) {
+						const success = await tryMoveFile(screenshotFileName, passFileName);
+						if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
+						return { pass: true };
+					}
+
 					const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
 					const pixelsDiff = pixelmatch(
 						screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { diffMask: true, threshold: DEFAULT_TOLERANCE }
@@ -243,25 +253,17 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
 						return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
 					} else {
-						const goldenSize = (await stat(goldenFileName)).size;
-						const screenshotSize = (await stat(screenshotFileName)).size;
-						if (goldenSize !== screenshotSize) {
-							setTestInfo(session, payload.name, {
-								golden: {
-									byteSize: goldenSize
-								},
-								new: {
-									path: `${screenshotFile.substring(rootLength)}.png`,
-									byteSize: screenshotSize
-								},
-								pixelsDiff
-							});
-							return { pass: false, message: 'Image diff is clean but the images do not have the same byte size.' };
-						} else {
-							const success = await tryMoveFile(screenshotFileName, passFileName);
-							if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
-							return { pass: true };
-						}
+						setTestInfo(session, payload.name, {
+							golden: {
+								byteSize: goldenSize
+							},
+							new: {
+								path: `${screenshotFile.substring(rootLength)}.png`,
+								byteSize: screenshotSize
+							},
+							pixelsDiff
+						});
+						return { pass: false, message: 'Image diff is clean but the images do not have the same bytes.' };
 					}
 				} else {
 					return { resizeRequired: true };
