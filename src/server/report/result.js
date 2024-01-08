@@ -177,7 +177,7 @@ function renderResult(resultData, options) {
 			newPart = html`<div class="result-graphic padding">${ICON_TADA}<p>Hooray! No changes here.</p></div>`;
 		} else if (!resultData.info.diff && resultData.info.pixelsDiff === 0) {
 			newPart = html`<div class="result-graphic padding">${ICON_BYTES}
-				<p>No pixels have changed, but the byte size is different.</p>
+				<p>No pixels have changed, but the bytes are different.</p>
 				<p class="details">
 					Golden size: ${resultData.info.golden.byteSize} bytes<br />
 					New size: ${resultData.info.new.byteSize} bytes
