@@ -15,7 +15,7 @@ const BROWSER_MAP = {
 const ALLOWED_BROWSERS = Object.keys(BROWSER_MAP);
 const DEFAULT_BROWSERS = [...new Set(Object.values(BROWSER_MAP))];
 const TIMEZONE = '{&quot;name&quot;:&quot;Canada - Toronto&quot;,&quot;identifier&quot;:&quot;America/Toronto&quot;}';
-const FONT_ASSETS = 'https://s.brightspace.com/lib/fonts/0.6.0/assets/';
+const FONT_ASSETS = 'https://s.brightspace.com/lib/fonts/0.6.1/assets/';
 const SUPPRESS_RESIZE_OBSERVER_ERRORS = `
 	<script>
 	window.addEventListener('error', (err) => {
