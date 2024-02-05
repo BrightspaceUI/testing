@@ -23,9 +23,9 @@ export const RESULT_STYLE = css`
 		font-weight: bold;
 	}
 	.result-split {
+		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
-		display: flex;
 	}
 	.result-split > .result-part {
 		flex: 0 1 auto;
@@ -54,14 +54,14 @@ export const RESULT_STYLE = css`
 	.result-split > .result-part:first-of-type > div > .result-diff-container {
 		border-right: none;
 	}
-	.result-split > .result-part:last-of-type > div> .result-diff-container {
+	.result-split > .result-part:last-of-type > div > .result-diff-container {
 		border-left: none;
 	}
 	.result-overlay {
-		background: hsla(0,0%,100%,.8);
+		background: hsla(0, 0%, 100%, 0.8);
+		left: 0;
 		position: absolute;
 		top: 0;
-		left: 0;
 	}
 	.result-part-info {
 		align-items: center;

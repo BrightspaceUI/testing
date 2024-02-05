@@ -25,9 +25,9 @@ class App extends LitElement {
 			overflow: hidden;
 		}
 		aside {
-			background-color: #fff;
+			background-color: #ffffff;
 			border-right: 1px solid #e6e6e6;
-			box-shadow: 0 0 6px rgba(0,0,0,.07);
+			box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
 			padding: 20px;
 		}
 		main {
@@ -57,8 +57,8 @@ class App extends LitElement {
 		tbody th {
 			font-weight: normal;
 			text-align: left;
-			width: 100%;
 			white-space: normal;
+			width: 100%;
 		}
 		td.passed {
 			background-color: #efffd9;
@@ -82,7 +82,7 @@ class App extends LitElement {
 		.header {
 			background-color: #f0f0f0;
 			border-bottom: 1px solid #cdd5dc;
-			box-shadow: 0 0 6px rgba(0,0,0,.07);
+			box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
 		}
 		.tab-panels {
 			overflow: auto;
@@ -100,8 +100,8 @@ class App extends LitElement {
 		.settings {
 			align-items: center;
 			display: flex;
-			padding: 20px;
 			gap: 10px;
+			padding: 20px;
 		}
 		.settings > * {
 			flex: 0 0 auto;
