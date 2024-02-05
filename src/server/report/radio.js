@@ -8,17 +8,17 @@ export const RADIO_STYLE = css`
 		flex-wrap: nowrap;
 	}
 	.radio-item input[type="radio"] {
-		position: absolute;
 		opacity: 0;
 		pointer-events: none;
+		position: absolute;
 	}
 	.radio-item label {
 		align-items: center;
 		background-color: #ffffff;
 		border-block-end-style: solid;
 		border-block-start-style: solid;
-		border-inline-start-style: solid;
 		border-color: #cdd5dc;
+		border-inline-start-style: solid;
 		border-width: 1px;
 		cursor: pointer;
 		display: flex;
@@ -29,8 +29,8 @@ export const RADIO_STYLE = css`
 		user-select: none;
 	}
 	.radio-item:first-child label {
-		border-start-start-radius: 5px;
 		border-end-start-radius: 5px;
+		border-start-start-radius: 5px;
 	}
 	.radio-item:last-child label {
 		border-end-end-radius: 5px;
@@ -42,9 +42,9 @@ export const RADIO_STYLE = css`
 		color: white;
 	}
 	.radio-item input[type="radio"]:focus-visible + label {
-		z-index: 1;
 		border-color: #007bff;
 		box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #007bff;
+		z-index: 1;
 	}
 `;
 

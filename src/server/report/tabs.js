@@ -56,8 +56,8 @@ export const TAB_STYLE = css`
 	}
 	.tab-selected-indicator {
 		border-block-start: 4px solid #007bff;
-		border-start-start-radius: 4px;
 		border-start-end-radius: 4px;
+		border-start-start-radius: 4px;
 		bottom: 0;
 		position: absolute;
 		width: calc(100% - 30px);

@@ -11,7 +11,7 @@ const elementTag = defineCE(
 		static get styles() {
 			return css`
 				:host {
-					background-color: rgba(255,165,0,0.5);
+					background-color: rgba(255, 165, 0, 0.5);
 					border: 1px solid orange;
 					display: inline-block;
 					height: 60px;
@@ -21,7 +21,7 @@ const elementTag = defineCE(
 					width: 300px;
 				}
 				:host(:hover) {
-					background-color: rgba(255,165,225,0.5);
+					background-color: rgba(255, 165, 225, 0.5);
 				}
 				b {
 					display: block;
@@ -46,8 +46,8 @@ const absoluteElementTag = defineCE(
 			return css`
 				div {
 					border: 1px solid blue;
-					position: absolute;
 					bottom: 250px;
+					position: absolute;
 				}
 			`;
 		}

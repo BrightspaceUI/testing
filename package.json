@@ -5,7 +5,9 @@
   "version": "1.13.2",
   "repository": "https://github.com/BrightspaceUI/testing.git",
   "scripts": {
-    "lint": "eslint . --ext .js",
+    "lint": "npm run lint:eslint && npm run lint:style",
+    "lint:eslint": "eslint . --ext .js",
+    "lint:style": "stylelint \"**/*.{js,html}\" --ignore-path .gitignore",
     "test": "npm run lint && npm run test:bin && npm run test:server && npm run test:browser",
     "test:bin": "mocha './test/bin/**/*.test.js'",
     "test:browser": "npm run test:browser:other && npm run test:browser:ctor",
@@ -21,11 +23,13 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@brightspace-ui/stylelint-config": "^1.0.0",
     "chai": "^5",
     "eslint": "^8",
     "eslint-config-brightspace": "^1",
     "mocha": "^10",
-    "sinon": "^17"
+    "sinon": "^17",
+    "stylelint": "^16.2.1"
   },
   "exports": {
     ".": "./src/browser/index.js"
