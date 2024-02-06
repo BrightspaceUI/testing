@@ -14,11 +14,11 @@ jobs:
       - name: Check before
         run: ls -la
       - name: Cache Test Data
-        uses: Brightspace/third-party-actions@actions/cache
+        uses: bearfriend/third-party-actions@patch-2
         with:
           path: .d2l-test-runner
           key: ${{ github.sha }}
-          save-always: 'true'
+          save-always: true
       - name: Check after cache action
         run: ls -la
       - name: Install dependencies
