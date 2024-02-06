@@ -17,9 +17,8 @@ jobs:
         run: npm run lint
       - name: Unit Tests (Browser)
         run: |
-          [[ -f ~/.npm/text$((GITHUB_ATTEMPT_NUM - 1)).txt ]] && cat ~/.npm/text$((GITHUB_ATTEMPT_NUM - 1)).txt
-          touch ~/.npm/text_$GITHUB_ATTEMPT_NUM.txt
-          echo 'test' > ~/.npm/text_$GITHUB_ATTEMPT_NUM.txt
+          [[ -f ~/.attempt-report.txt ]] && cat ~/.attempt-report.txt
+          echo 'attempt report!' > ~/.attempt-report.txt
           npm run test:browser
       - name: Unit Tests (Server)
         run: npm run test:server
