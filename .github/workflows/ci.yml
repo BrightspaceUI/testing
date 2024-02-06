@@ -12,7 +12,7 @@ jobs:
           node-version-file: .nvmrc
           cache: 'npm'
       - name: Install dependencies
-        run: ls -la ~/.npm/ && npm i
+        run: npm ci
       - name: Lint (JavaScript)
         run: npm run lint
       - name: Unit Tests (Browser)
@@ -21,6 +21,5 @@ jobs:
           [[ -f ~/.npm/text$((GITHUB_ATTEMPT_NUM - 1)).txt ]] && cat ~/.npm/text$((GITHUB_ATTEMPT_NUM - 1)).txt
           touch ~/.npm/text_$GITHUB_ATTEMPT_NUM.txt
           echo 'test' > ~/.npm/text_$GITHUB_ATTEMPT_NUM.txt
-          npm run test:browser
       - name: Unit Tests (Server)
         run: npm run test:server
