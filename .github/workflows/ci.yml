@@ -18,7 +18,8 @@ jobs:
       - name: Unit Tests (Browser)
         run: |
           [[ -f ~/.npm/\@brightspace-ui/testing/text$((GITHUB_ATTEMPT_NUM - 1)).txt ]] && cat ~/.npm/\@brightspace-ui/testing/text$((GITHUB_ATTEMPT_NUM - 1)).txt
-          echo 'test' > ~/.npm/\@brightspace-ui/testing/text_$GITHUB_ATTEMPT_NUM}.txt
+          touch ~/.npm/\@brightspace-ui/testing/text_$GITHUB_ATTEMPT_NUM.txt
+          echo 'test' > ~/.npm/\@brightspace-ui/testing/text_$GITHUB_ATTEMPT_NUM.txt
           npm run test:browser
       - name: Unit Tests (Server)
         run: npm run test:server
