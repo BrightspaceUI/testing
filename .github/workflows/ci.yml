@@ -12,11 +12,12 @@ jobs:
           node-version-file: .nvmrc
           cache: 'npm'
       - name: Install dependencies
-        run: ls -la ~/work/testing/testing
+        run: ls -la ~/.npm/ && npm i
       - name: Lint (JavaScript)
         run: npm run lint
       - name: Unit Tests (Browser)
         run: |
+          ls -la ~/.npm/
           [[ -f ~/.npm/\@brightspace-ui/testing/text$((GITHUB_ATTEMPT_NUM - 1)).txt ]] && cat ~/.npm/\@brightspace-ui/testing/text$((GITHUB_ATTEMPT_NUM - 1)).txt
           touch ~/.npm/\@brightspace-ui/testing/text_$GITHUB_ATTEMPT_NUM.txt
           echo 'test' > ~/.npm/\@brightspace-ui/testing/text_$GITHUB_ATTEMPT_NUM.txt
