@@ -11,17 +11,25 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
+      - name: Check before
+        run: ls -la
+      - name: Cache Test Data
+        uses: Brightspace/third-party-actions@actions/cache
+        with:
+          path: .d2l-test-runner
+          key: ${{ github.sha }}
+      - name: Check after cache action
+        run: ls -la
       - name: Install dependencies
         run: npm ci
       - name: Lint (JavaScript)
         run: npm run lint
       - name: Unit Tests (Browser)
         run: |
-          echo 'before'
-          ls -la ~/
-          echo 'attempt report!' > ~/.attempt-report.txt
-          echo 'after'
-          ls -la ~/
           npm run test:browser
+          mkdir .d2l-test-runner
+          touch .d2l-test-runner/attempt-report.js
+      - name: Check after cache action
+        run: ls -la
       - name: Unit Tests (Server)
         run: npm run test:server
