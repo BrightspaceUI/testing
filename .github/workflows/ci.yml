@@ -18,10 +18,10 @@ jobs:
       - name: Unit Tests (Browser)
         run: |
           echo 'before'
-          ls -la
-          echo 'attempt report!' > .attempt-report.txt
+          ls -la ~/
+          echo 'attempt report!' > ~/.attempt-report.txt
           echo 'after'
-          ls -la
+          ls -la ~/
           npm run test:browser
       - name: Unit Tests (Server)
         run: npm run test:server
