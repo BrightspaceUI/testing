@@ -17,7 +17,6 @@ jobs:
         run: npm run lint
       - name: Unit Tests (Browser)
         run: |
-          ls -la ~/.npm/
           [[ -f ~/.npm/text$((GITHUB_ATTEMPT_NUM - 1)).txt ]] && cat ~/.npm/text$((GITHUB_ATTEMPT_NUM - 1)).txt
           touch ~/.npm/text_$GITHUB_ATTEMPT_NUM.txt
           echo 'test' > ~/.npm/text_$GITHUB_ATTEMPT_NUM.txt
