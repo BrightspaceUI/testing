@@ -26,10 +26,11 @@ jobs:
         run: npm run lint
       - name: Unit Tests (Browser)
         run: |
-          npm run test:browser
           mkdir .d2l-test-runner
           touch .d2l-test-runner/attempt-report.js
-      - name: Check after cache action
+          npm run test:browser
+      - name: Check after test
+        if: always()
         run: ls -la
       - name: Unit Tests (Server)
         run: npm run test:server
