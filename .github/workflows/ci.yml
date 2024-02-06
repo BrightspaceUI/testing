@@ -17,8 +17,11 @@ jobs:
         run: npm run lint
       - name: Unit Tests (Browser)
         run: |
-          [[ -f ~/.attempt-report.txt ]] && cat ~/.attempt-report.txt
-          echo 'attempt report!' > ~/.attempt-report.txt
+          echo 'before'
+          ls -la
+          echo 'attempt report!' > .attempt-report.txt
+          echo 'after'
+          ls -la
           npm run test:browser
       - name: Unit Tests (Server)
         run: npm run test:server
