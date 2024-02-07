@@ -15,6 +15,7 @@ jobs:
         run: ls -la
       - name: Cache Test Data
         uses: bearfriend/third-party-actions@patch-2
+        id: d2l-test-data
         with:
           path: .d2l-test
           key: ${{ github.sha }}
