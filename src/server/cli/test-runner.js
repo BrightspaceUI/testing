@@ -189,6 +189,8 @@ async function getTestRunnerOptions(argv = []) {
 	if (process.env.GITHUB_ATTEMPT_NUM > 1) {
 		const reportPath = join(process.cwd(), '.d2l-test', '.attempt-report.js');
 		attemptReport = (await import(reportPath).catch(() => {}))?.default;
+		console.log('ATTEMPT REPORT:');
+		console.log(attemptReport);
 	}
 
 	const wtrConfig = new WTRConfig(cliArgs, attemptReport);
