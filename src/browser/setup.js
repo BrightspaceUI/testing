@@ -11,7 +11,11 @@ let test;
 chai.Assertion.addMethod('golden', function(...args) {
 	return ScreenshotAndCompare.call({ test, elem: this._obj }, ...args);
 });
+
+window._attemptFiles ??= {};
+
 mocha.setup({
+	grep: window._attemptFiles[window.__WTR_CONFIG__.testFile.split('?')[0].slice(1)],
 	rootHooks: {
 		beforeEach() {
 			test = this.currentTest;

@@ -4,7 +4,10 @@ import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
 import { execSync } from 'node:child_process';
 import process from 'node:process';
+import { cwd, env } from 'node:process';
 import { startTestRunner } from '@web/test-runner';
+
+import { join } from 'node:path';
 
 async function getTestRunnerOptions(argv = []) {
 
@@ -184,7 +187,15 @@ async function getTestRunnerOptions(argv = []) {
 		}
 	}) || {};
 
-	const wtrConfig = new WTRConfig(cliArgs);
+	let attemptReport = {};
+	if (env.GITHUB_ATTEMPT_NUM > 1 || 1) {
+		console.log('setting files');
+		const reportPath = join(cwd(), '.d2l-test', '.attempt-report.js');
+		console.log(reportPath);
+		attemptReport = (await import(reportPath).catch(() => {}))?.default;
+	}
+
+	const wtrConfig = new WTRConfig(cliArgs, attemptReport);
 	const config = wtrConfig.create(testConfig);
 
 	argv = [
