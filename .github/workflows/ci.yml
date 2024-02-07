@@ -18,7 +18,7 @@ jobs:
         id: d2l-test-data
         with:
           path: .d2l-test
-          key: ${{ github.sha }}
+          key: ${{ github.sha }}-${{ github.run_attempt }}
           save-always: true
           restore-keys:
       - name: Check after cache action
