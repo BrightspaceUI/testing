@@ -19,7 +19,6 @@ jobs:
         with:
           path: .d2l-test
           key: ${{ github.sha }}
-          save-always: true
       - name: Check after cache action
         run: ls -la
       - name: Unit Tests (Browser)
