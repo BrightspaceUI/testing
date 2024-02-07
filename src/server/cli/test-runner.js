@@ -186,7 +186,7 @@ async function getTestRunnerOptions(argv = []) {
 	}) || {};
 
 	let attemptReport = {};
-	if (process.env.GITHUB_ATTEMPT_NUM > 1) {
+	if (process.env.GITHUB_RUN_ATTEMPT > 1) {
 		const reportPath = join(process.cwd(), '.d2l-test', '.attempt-report.js');
 		attemptReport = (await import(reportPath).catch(() => {}))?.default;
 		console.log('READING ATTEMPT REPORT:');/* eslint-disable-line */
