@@ -23,6 +23,6 @@ jobs:
       - name: Lint (JavaScript)
         run: npm run lint
       - name: Unit Tests (Browser)
-        run: npm run test:browser
+        run: npm run test:browser:ctor
       - name: Unit Tests (Server)
         run: npm run test:server
