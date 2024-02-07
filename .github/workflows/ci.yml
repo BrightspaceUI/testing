@@ -18,14 +18,16 @@ jobs:
         id: d2l-test-data
         with:
           path: .d2l-test
-          key: ${{ github.sha }}
+          key: ${{ github.sha }}-${{ hashFiles('.d2l-test/attempt-report.js') }}
           save-always: true
+          restore-keys:
       - name: Check after cache action
         run: ls -la
       - name: Unit Tests (Browser)
         run: |
           mkdir .d2l-test
           touch .d2l-test/attempt-report.js
+          echo $RANDOM > .d2l-test/attempt-report.js
           cat nothing.txt
       - name: Check after test
         if: always()
