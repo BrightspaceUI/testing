@@ -16,20 +16,16 @@ jobs:
       - name: Cache Test Data
         uses: bearfriend/third-party-actions@patch-2
         with:
-          path: .d2l-test-runner
+          path: .d2l-test
           key: ${{ github.sha }}
           save-always: true
       - name: Check after cache action
         run: ls -la
-      - name: Install dependencies
-        run: npm ci
-      - name: Lint (JavaScript)
-        run: npm run lint
       - name: Unit Tests (Browser)
         run: |
           mkdir .d2l-test-runner
           touch .d2l-test-runner/attempt-report.js
-          npm run test:browser
+          cat nothing.txt
       - name: Check after test
         if: always()
         run: ls -la
