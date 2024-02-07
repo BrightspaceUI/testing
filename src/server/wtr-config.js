@@ -1,17 +1,17 @@
+import { argv } from 'node:process';
+import { attemptPlugin } from './attempt-plugin.js';
 import { attemptReporter } from '../../src/server/attempt-reporter.js';
 import { defaultReporter } from '@web/test-runner';
-import { attemptPlugin } from './attempt-plugin.js';
 import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
-import { argv, env } from 'node:process';
 
 const defaultReporterGrep = () => {
 	const dr = defaultReporter();
 
 	const removeGrepFailures = results => {
-		results.tests?.forEach((test, arr, idx) => {
+		results.tests?.forEach(test => {
 			if (!test.passed && !test.error) {
 				test.skipped = true;
 			}
@@ -25,9 +25,9 @@ const defaultReporterGrep = () => {
 			sessionsForTestFile.forEach(session => {
 				removeGrepFailures(session.testResults);
 			});
-			return dr.reportTestFileResults({ sessionsForTestFile, ...others })
+			return dr.reportTestFileResults({ sessionsForTestFile, ...others });
 		}
-	}};
+	} };
 };
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
@@ -55,9 +55,9 @@ export const DEFAULT_VDIFF_SLOW = 500;
 
 export class WTRConfig {
 
+	#attemptFiles;
 	#cliArgs;
 	#requestedBrowsers;
-	#attemptFiles;
 
 	constructor(cliArgs, previousAttemptFailures = {}) {
 		this.#cliArgs = cliArgs || {};
@@ -244,7 +244,6 @@ export class WTRConfig {
 			});
 		}
 
-		
 		config.reporters ??= [ defaultReporterGrep(), attemptReporter() ];
 
 		if (group === 'test') {

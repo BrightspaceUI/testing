@@ -3,11 +3,9 @@ import { DEFAULT_VDIFF_SLOW, WTRConfig } from '../wtr-config.js';
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
 import { execSync } from 'node:child_process';
-import process from 'node:process';
-import { cwd, env } from 'node:process';
-import { startTestRunner } from '@web/test-runner';
-
 import { join } from 'node:path';
+import process from 'node:process';
+import { startTestRunner } from '@web/test-runner';
 
 async function getTestRunnerOptions(argv = []) {
 
@@ -188,10 +186,8 @@ async function getTestRunnerOptions(argv = []) {
 	}) || {};
 
 	let attemptReport = {};
-	if (env.GITHUB_ATTEMPT_NUM > 1 || 1) {
-		console.log('setting files');
-		const reportPath = join(cwd(), '.d2l-test', '.attempt-report.js');
-		console.log(reportPath);
+	if (process.env.GITHUB_ATTEMPT_NUM > 1) {
+		const reportPath = join(process.cwd(), '.d2l-test', '.attempt-report.js');
 		attemptReport = (await import(reportPath).catch(() => {}))?.default;
 	}
 
