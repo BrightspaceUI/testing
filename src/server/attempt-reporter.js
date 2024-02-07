@@ -40,7 +40,8 @@ export function attemptReporter() {
 
 			const reportDir = join(cwd(), '.d2l-test');
 			await access(reportDir).catch(async err => err && await mkdir(reportDir).catch(() => {}));
-
+			console.log('WRITING ATTEMPT REPORT:');
+			console.log(failedData);
 			await writeFile(join(reportDir, '.attempt-report.js'), `export default ${JSON.stringify(failedData, null, 2)}\n`);
 		},
 	};
