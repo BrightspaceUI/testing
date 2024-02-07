@@ -18,7 +18,7 @@ jobs:
         id: d2l-test-data
         with:
           path: .d2l-test
-          key: ${{ github.sha }}-${{ hashFiles('.d2l-test/attempt-report.js') }}
+          key: ${{ github.sha }}
           save-always: true
           restore-keys:
       - name: Check after cache action
