@@ -23,8 +23,8 @@ jobs:
         run: ls -la
       - name: Unit Tests (Browser)
         run: |
-          mkdir .d2l-test-runner
-          touch .d2l-test-runner/attempt-report.js
+          mkdir .d2l-test
+          touch .d2l-test/attempt-report.js
           cat nothing.txt
       - name: Check after test
         if: always()
