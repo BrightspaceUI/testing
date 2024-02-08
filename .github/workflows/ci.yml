@@ -12,7 +12,7 @@ jobs:
           node-version-file: .nvmrc
           cache: 'npm'
       - name: Cache Test Data
-        uses: bearfriend/third-party-actions@patch-2
+        uses: bearfriend/third-party-actions@cache-run-attempt
         id: d2l-test-data
         with:
           path: .d2l-test
