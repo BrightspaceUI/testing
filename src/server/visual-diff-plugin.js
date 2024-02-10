@@ -84,7 +84,7 @@ async function createComparisonPNGs(original, newSize) {
 	return resizedPNGs;
 }
 
-async function tryMoveFile(srcFileName, destFileName) {
+export async function tryMoveFile(srcFileName, destFileName) {
 	await mkdir(dirname(destFileName), { recursive: true });
 	try {
 		await rename(srcFileName, destFileName);
@@ -95,7 +95,7 @@ async function tryMoveFile(srcFileName, destFileName) {
 	}
 }
 
-function extractTestPartsFromName(name) {
+export function extractTestPartsFromName(name) {
 	name = name.toLowerCase();
 	const parts = name.split(' ');
 	if (parts.length > 1) {

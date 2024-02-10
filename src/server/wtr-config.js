@@ -59,12 +59,13 @@ export class WTRConfig {
 	#cliArgs;
 	#requestedBrowsers;
 
-	constructor(cliArgs, previousAttemptFailures = {}) {
+	constructor(cliArgs, previousAttemptReport = {}) {
 		this.#cliArgs = cliArgs || {};
 		this.#cliArgs.group ??= 'test';
 		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs?.[b]);
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
-		this.#attemptFiles = previousAttemptFailures[argv.join(' ')];
+		const files = previousAttemptReport[argv.join(' ')];
+		if (files && Object.keys(files).length) this.#attemptFiles = files;
 	}
 
 	get #defaultConfig() {
