@@ -15,7 +15,7 @@ chai.Assertion.addMethod('golden', function(...args) {
 window._attemptFiles ??= {};
 
 mocha.setup({
-	grep: window._attemptFiles[window.__WTR_CONFIG__.testFile.split('?')[0].slice(1)] || window.__WTR_CONFIG__.testFrameworkConfig.grep,
+	grep: window._attemptFiles[window.__WTR_CONFIG__.testFile.split('?')[0].slice(1)] || window.__WTR_CONFIG__.testFrameworkConfig?.grep,
 	rootHooks: {
 		beforeEach() {
 			test = this.currentTest;
