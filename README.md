@@ -315,21 +315,21 @@ it('should not wait', async() => {
 
 #### Waiting for a Condition
 
-In cases where there are no other reliable hooks (like events, `getUpdateComplete()` or `getLoadingComplete()`), `waitUntil(condition)` can be used to wait for a particular condition to become `true`. The condition can optionally return a Promise.
+In cases where there are no other reliable hooks (like events, `getUpdateComplete()` or `getLoadingComplete()`), `waitUntil(condition, failMessage)` can be used to wait for a particular condition to become `true`. The condition can optionally return a Promise.
 
 ```javascript
 import { fixture, waitUntil } from '@brightspace-ui/testing';
 
 it('should wait for condition', async() => {
   const elem = await fixture(...);
-  await waitUntil(() => elem.foo === 'bar');
+  await waitUntil(() => elem.foo === 'bar', 'foo never became "bar"');
 });
 ```
 
 By default, `waitUntil` will poll every `50ms` and time out after `1000ms`. Those options can be configured:
 
 ```javascript
-await waitUntil(() => elem.condition, {
+await waitUntil(() => elem.condition, 'Condition was never met', {
   interval: 10,
   timeout: 2000
 });
