@@ -97,7 +97,7 @@ async function tryMoveFile(srcFileName, destFileName) {
 
 function extractTestPartsFromName(name) {
 	name = name.toLowerCase();
-	const parts = name.split(' ');
+	const parts = name.split(/[\s*"/\\<>:|?]/);
 	if (parts.length > 1) {
 		let dirName = parts.shift();
 		if (dirName.startsWith('d2l-')) {
