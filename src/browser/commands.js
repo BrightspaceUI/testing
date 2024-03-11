@@ -49,5 +49,6 @@ export async function sendKeysElem(elem, action, keys) {
 	if (elem) {
 		await focusElem(elem);
 	}
+	await new Promise(r => setTimeout(r));
 	return sendKeys(action, keys);
 }
