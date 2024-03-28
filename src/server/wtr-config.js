@@ -231,7 +231,7 @@ export class WTRConfig {
 		}
 
 		// convert all browsers to playwright
-		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers, config.deviceScaleFactor ?? (g.name === 'vdiff' ? 2 : 1)));
+		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers));
 
 		if (open || watch) {
 			config.testsFinishTimeout = 15 * 60 * 1000;
@@ -248,7 +248,7 @@ export class WTRConfig {
 		return config;
 	}
 
-	getBrowsers(browsers, deviceScaleFactor) {
+	getBrowsers(browsers) {
 		browsers = (this.#requestedBrowsers || browsers || DEFAULT_BROWSERS).map(b => BROWSER_MAP[b] || BROWSER_MAP.chrome);
 
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
@@ -256,7 +256,7 @@ export class WTRConfig {
 		return [...new Set(browsers)].map((b) => playwrightLauncher({
 			concurrency: b === BROWSER_MAP.firefox || this.#cliArgs.open ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
 			product: b,
-			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor, reducedMotion: 'reduce' }),
+			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' }),
 			launchOptions: {
 				headless: !this.#cliArgs.open,
 				devtools: false,
