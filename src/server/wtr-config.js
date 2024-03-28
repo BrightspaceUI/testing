@@ -219,7 +219,7 @@ export class WTRConfig {
 				files: this.#pattern
 			});
 		} else if (group === 'vdiff') {
-			if (!config.testsFinishTimeout) config.testsFinishTimeout = 5 * 60 * 1000;
+			config.testsFinishTimeout = 5 * 60 * 1000;
 
 			config.reporters ??= [ defaultReporter() ];
 			config.reporters.push(visualDiffReporter({ updateGoldens: golden }));
@@ -231,7 +231,7 @@ export class WTRConfig {
 		}
 
 		// convert all browsers to playwright
-		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers, config.deviceScaleFactor ?? (g.name === 'vdiff' ? 2 : 1)));
+		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers, g.name === 'vdiff' ? 2 : 1));
 
 		if (open || watch) {
 			config.testsFinishTimeout = 15 * 60 * 1000;
