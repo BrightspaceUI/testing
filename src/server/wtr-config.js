@@ -219,7 +219,7 @@ export class WTRConfig {
 				files: this.#pattern
 			});
 		} else if (group === 'vdiff') {
-			if (!config.testsFinishTimeout) config.testsFinishTimeout = 5 * 60 * 1000;
+			config.testsFinishTimeout = 5 * 60 * 1000;
 
 			config.reporters ??= [ defaultReporter() ];
 			config.reporters.push(visualDiffReporter({ updateGoldens: golden }));
