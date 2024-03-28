@@ -198,7 +198,7 @@ class App extends LitElement {
 
 		const statusFilters = [
 			{ name: FILTER_STATUS.FAILED, count: data.numFailed },
-			{ name: FILTER_STATUS.PASSED, count: data.numTests - data.numFailed },
+			{ name: FILTER_STATUS.PASSED, count: data.numTests - data.numFailed - data.numSkipped },
 			{ name: FILTER_STATUS.ALL, count: data.numTests }
 		];
 
@@ -247,6 +247,7 @@ class App extends LitElement {
 			<fieldset>
 				<legend>Test Status</legend>
 				${statusFilters.map(f => renderStatusFilter(f))}
+				(${data.numSkipped} skipped)
 			</fieldset>
 			${browserFilter}
 			${browserDiffInfo}
