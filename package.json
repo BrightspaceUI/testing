@@ -55,7 +55,7 @@
     "glob": "^10",
     "lit": "^2 || ^3",
     "page": "^1",
-    "pixelmatch": "^5",
+    "pixelmatch": "^6",
     "pngjs": "^7",
     "rollup": "^4"
   }
