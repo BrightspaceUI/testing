@@ -50,7 +50,7 @@
     "@web/test-runner": "^0.18",
     "@web/test-runner-commands": "^0.9",
     "@web/test-runner-playwright": "^0.11",
-    "command-line-args": "^5",
+    "command-line-args": "^6",
     "command-line-usage": "^7",
     "glob": "^10",
     "lit": "^2 || ^3",
