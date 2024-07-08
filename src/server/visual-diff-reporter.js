@@ -57,7 +57,7 @@ function createData(rootDir, updateGoldens, sessions) {
 		metadata.browsers = Array.from(browsers.values()).map(b => {
 			return { name: b.name, version: b.version };
 		});
-		writeFileSync(metadataPath, JSON.stringify(metadata, undefined, '\t'));
+		writeFileSync(metadataPath, `${JSON.stringify(metadata, undefined, '\t')}\n`);
 	}
 
 	return { browsers, files, numFailed, numTests };
