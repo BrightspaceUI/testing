@@ -1,9 +1,10 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { getTestInfo, PATHS } from './visual-diff-plugin.js';
 import { env } from 'node:process';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { getTestInfo } from './visual-diff-plugin.js';
+import { PATHS } from './paths.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const isCI = !!env['CI'];

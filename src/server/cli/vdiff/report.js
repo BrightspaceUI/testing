@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { PATHS } from '../../visual-diff-plugin.js';
+import { PATHS } from '../../paths.js';
 import { startDevServer } from '@web/dev-server';
 
 export const report = {
