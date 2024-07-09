@@ -1,21 +1,12 @@
 import { access, constants, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { env } from 'node:process';
+import { PATHS } from './paths.js';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
 const isCI = !!env['CI'];
 const DEFAULT_TOLERANCE = 0; // TODO: Support tolerance override?
-const METADATA_NAME = '.vdiff.json';
-const ROOT_NAME = '.vdiff';
-export const PATHS = {
-	FAIL: 'fail',
-	GOLDEN: 'golden',
-	PASS: 'pass',
-	METADATA: isCI ? METADATA_NAME : join(ROOT_NAME, METADATA_NAME),
-	REPORT_ROOT: '.report',
-	VDIFF_ROOT: ROOT_NAME
-};
 
 async function checkFileExists(fileName) {
 	try {

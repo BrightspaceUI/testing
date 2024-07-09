@@ -3,7 +3,7 @@ import { appendFile, mkdir, readFile, rename, rm } from 'node:fs/promises';
 import { join, normalize, parse } from 'node:path';
 import commandLineArgs from 'command-line-args';
 import { glob } from 'glob';
-import { PATHS } from '../../visual-diff-plugin.js';
+import { PATHS } from '../../paths.js';
 import { stdout } from 'node:process';
 
 async function start(argv = [], local = false) {

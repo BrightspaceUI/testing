@@ -1,7 +1,7 @@
 import { argv, env } from 'node:process';
 import { dirname, join } from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
-import { PATHS } from '../../src/server/visual-diff-plugin.js';
+import { PATHS } from '../../src/server/paths.js';
 import { PNG } from 'pngjs';
 
 const isCI = !!env['CI'];
