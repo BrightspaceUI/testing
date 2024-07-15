@@ -1,6 +1,7 @@
 import { defaultReporter } from '@web/test-runner';
 import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
+import { reporter as testReportingReporter } from 'd2l-test-reporting/reporters/web-test-runner.js';
 import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
 
@@ -181,6 +182,7 @@ export class WTRConfig {
 		pattern = DEFAULT_PATTERN,
 		slow,
 		timeout,
+		testReporting,
 		...passthroughConfig
 	} = {}) {
 
@@ -213,6 +215,12 @@ export class WTRConfig {
 			});
 		}
 
+		testReporting = !!testReporting || this.#cliArgs['test-reporting'];
+
+		if (group === 'vdiff' || testReporting) {
+			config.reporters ??= [ defaultReporter() ];
+		}
+
 		if (group === 'test') {
 			config.groups.push({
 				name: 'test',
@@ -221,13 +229,16 @@ export class WTRConfig {
 		} else if (group === 'vdiff') {
 			config.testsFinishTimeout = 5 * 60 * 1000;
 
-			config.reporters ??= [ defaultReporter() ];
 			config.reporters.push(visualDiffReporter({ updateGoldens: golden }));
 
 			config.plugins ??= [];
 			config.plugins.push(visualDiff({ updateGoldens: golden, runSubset: !!(filter || grep) }));
 
 			config.groups.push(this.visualDiffGroup);
+		}
+
+		if (testReporting) {
+			config.reporters.push(testReportingReporter());
 		}
 
 		// convert all browsers to playwright
