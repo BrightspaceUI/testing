@@ -125,7 +125,7 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'test-reporting',
 			type: Boolean,
 			defaultOption: false,
-			description: 'Enables generating a D2L Test Reporting report JSON file',
+			description: 'Enables generating a D2L Test Reporting format JSON file',
 			order: 14
 		}
 	];
