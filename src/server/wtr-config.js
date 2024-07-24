@@ -1,4 +1,5 @@
 import { defaultReporter } from '@web/test-runner';
+import { env } from 'node:process';
 import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { reporter as testReportingReporter } from 'd2l-test-reporting/reporters/web-test-runner.js';
@@ -6,6 +7,7 @@ import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
+const DEFAULT_TEST_REPORTING = !!env['GITHUB_ACTIONS'];
 const BROWSER_MAP = {
 	chrome: 'chromium',
 	chromium: 'chromium',
@@ -182,7 +184,7 @@ export class WTRConfig {
 		pattern = DEFAULT_PATTERN,
 		slow,
 		timeout,
-		testReporting,
+		testReporting = DEFAULT_TEST_REPORTING,
 		...passthroughConfig
 	} = {}) {
 
@@ -214,8 +216,6 @@ export class WTRConfig {
 				group.files = this.#filterFiles([ group.files ].flat());
 			});
 		}
-
-		testReporting = !!testReporting || this.#cliArgs['test-reporting'];
 
 		if (group === 'vdiff' || testReporting) {
 			config.reporters ??= [ defaultReporter() ];
