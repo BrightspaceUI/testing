@@ -120,13 +120,6 @@ async function getTestRunnerOptions(argv = []) {
 			type: Boolean,
 			description: 'Run tests in Webkit',
 			order: 4
-		},
-		{
-			name: 'test-reporting',
-			type: Boolean,
-			defaultOption: false,
-			description: 'Enables generating a D2L Test Reporting format JSON file',
-			order: 14
 		}
 	];
 
