@@ -7,7 +7,7 @@ import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
-const DEFAULT_TEST_REPORTING = !!env['GITHUB_ACTIONS'];
+const DEFAULT_TEST_REPORTING = !!env['CI'];
 const BROWSER_MAP = {
 	chrome: 'chromium',
 	chromium: 'chromium',
