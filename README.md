@@ -4,7 +4,7 @@
 
 Testing utilities which are specifically designed and configured for Brightspace UI components and applications.
 
-> **Migrating from `@open-wc/testing` and/or `@brightspace-ui/visual-diff`?**
+> **Migrating from `@open-wc/testing`/`@web/test-runner`?**
 > Refer to the [Migration Guide](docs/migration-guide.md) for help migrating a repo to `@brightspace-ui/testing`.
 
 Install from NPM:
@@ -479,6 +479,7 @@ Vdiff tests are written [just like other tests](#writing-tests), and the same ut
 Use the asynchronous `.to.be.golden()` Chai assertion to take a vdiff snapshot and [compare it against its golden](#generating-the-goldens).
 
 ```javascript
+import './my-elem.js';
 import { fixture, html } from '@brightspace-ui/testing';
 
 describe('my-elem', () => {
