@@ -1,6 +1,5 @@
 import { assert, restore, stub } from 'sinon';
 import { expect } from 'chai';
-import { migrate } from '../../src/server/cli/vdiff/migrate.js';
 import process from 'node:process';
 import { report } from '../../src/server/cli/vdiff/report.js';
 import { runner } from '../../src/server/cli/test-runner.js';
@@ -60,21 +59,6 @@ describe('d2l-test-runner', () => {
 		assert.calledOnce(startStub);
 		assert.calledOnce(installStub);
 		assert.calledOnceWithExactly(stdoutStub, '\nGenerating vdiff goldens...\n');
-	});
-
-	it('starts migration', async() => {
-		const migrateStub = stub(migrate, 'start');
-		const optionsStub = stub(runner, 'getOptions');
-		const startStub = stub(runner, 'start');
-		const installStub = stub(runner, 'install');
-
-		argv.splice(0, argv.length, 'fake-node', 'fake-test-runner', 'vdiff', 'migrate', './test/**/dir');
-		await run();
-
-		assert.calledOnceWithExactly(migrateStub, ['./test/**/dir']);
-		assert.notCalled(optionsStub);
-		assert.notCalled(startStub);
-		assert.notCalled(installStub);
 	});
 
 });
