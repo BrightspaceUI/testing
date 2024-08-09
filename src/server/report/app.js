@@ -121,7 +121,7 @@ class App extends LitElement {
 	constructor() {
 		super();
 		this._filterBrowsers = data.browsers.map(b => b.name);
-		this._filterStatus = data.numFailed > 0 ? FILTER_STATUS.FAILED : FILTER_STATUS.ALL;
+		this._filterStatus = data.numFailed > 0 ? FILTER_STATUS.FAILED : (data.numByteDiff > 0 ? FILTER_STATUS.BYTEDIFF : FILTER_STATUS.ALL);
 		this._fullMode = FULL_MODE.GOLDEN.value;
 		this._layout = LAYOUTS.SPLIT.value;
 		this._overlay = true;
@@ -146,7 +146,10 @@ class App extends LitElement {
 			}
 			if (searchParams.has('status')) {
 				let filterStatus = searchParams.get('status');
-				if (filterStatus === FILTER_STATUS.FAILED && data.numFailed === 0) filterStatus = FILTER_STATUS.ALL;
+				if (filterStatus === FILTER_STATUS.FAILED && data.numFailed === 0 ||
+					filterStatus === FILTER_STATUS.BYTEDIFF && data.numByteDiff === 0) {
+					filterStatus = FILTER_STATUS.ALL;
+				}
 				this._filterStatus = filterStatus;
 			}
 			if (searchParams.has('browsers')) {
@@ -198,7 +201,8 @@ class App extends LitElement {
 
 		const statusFilters = [
 			{ name: FILTER_STATUS.FAILED, count: data.numFailed },
-			{ name: FILTER_STATUS.PASSED, count: data.numTests - data.numFailed },
+			{ name: FILTER_STATUS.BYTEDIFF, count: data.numByteDiff },
+			{ name: FILTER_STATUS.PASSED, count: data.numTests - data.numFailed - data.numByteDiff },
 			{ name: FILTER_STATUS.ALL, count: data.numTests }
 		];
 
@@ -434,7 +438,8 @@ class App extends LitElement {
 					if (this._filterBrowsers.includes(r.name) &&
 						(this._filterStatus === FILTER_STATUS.ALL ||
 						r.passed && this._filterStatus === FILTER_STATUS.PASSED ||
-						!r.passed && this._filterStatus === FILTER_STATUS.FAILED)) numStatusMatch++;
+						r.bytediff && this._filterStatus === FILTER_STATUS.BYTEDIFF ||
+						!r.bytediff && !r.passed && this._filterStatus === FILTER_STATUS.FAILED)) numStatusMatch++;
 				});
 				if (numStatusMatch > 0) {
 					if (lookingForNextTest) {

@@ -175,7 +175,7 @@ function renderResult(resultData, options) {
 		let newPart;
 		if (resultData.passed) {
 			newPart = html`<div class="result-graphic padding">${ICON_TADA}<p>Hooray! No changes here.</p></div>`;
-		} else if (!resultData.info.diff && resultData.info.pixelsDiff === 0) {
+		} else if (resultData.bytediff) {
 			newPart = html`<div class="result-graphic padding">${ICON_BYTES}
 				<p>No pixels have changed, but the bytes are different.</p>
 				<p class="details">
