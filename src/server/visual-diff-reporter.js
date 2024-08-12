@@ -27,6 +27,7 @@ function createData(rootDir, updateGoldens, sessions) {
 			const prevBrowser = metadata.browsers?.find(b => b.name === browserName);
 			browsers.set(browserName, {
 				name: browserName,
+				numByteDiff: 0,
 				numFailed: 0,
 				version: parseInt(s.browser.browser.version()),
 				previousVersion: prevBrowser?.version
@@ -36,20 +37,24 @@ function createData(rootDir, updateGoldens, sessions) {
 
 		const fileName = s.testFile.substring(rootDir.length + 1);
 		if (!files.has(fileName)) {
-			files.set(fileName, { name: fileName, numFailed: 0, tests: new Map() });
+			files.set(fileName, { name: fileName, numByteDiff: 0, numFailed: 0, tests: new Map() });
 		}
 		const fileData = files.get(fileName);
 		flattenResults(s, browserData, fileData);
 
 	});
 
-	let numTests = 0, numFailed = 0;
+	let numTests = 0, numFailed = 0, numByteDiff = 0;
 	files.forEach(f => {
 		numTests += f.tests.size;
 		f.tests.forEach(t => {
 			if (t.numFailed > 0) {
 				f.numFailed++;
 				numFailed++;
+			}
+			if (t.numByteDiff > 0) {
+				f.numByteDiff++;
+				numByteDiff++;
 			}
 		});
 	});
@@ -61,7 +66,7 @@ function createData(rootDir, updateGoldens, sessions) {
 		writeFileSync(metadataPath, `${JSON.stringify(metadata, undefined, '\t')}\n`);
 	}
 
-	return { browsers, files, numFailed, numTests };
+	return { browsers, files, numByteDiff, numFailed, numTests };
 
 }
 
@@ -79,20 +84,28 @@ function flattenResults(session, browserData, fileData) {
 			if (!fileData.tests.has(testName)) {
 				fileData.tests.set(testName, {
 					name: testName,
+					numByteDiff: 0,
 					numFailed: 0,
 					results: []
 				});
 			}
 			const testData = fileData.tests.get(testName);
+			const bytediff = !t.passed && !info.diff && info.pixelsDiff === 0;
 			if (!t.passed) {
-				browserData.numFailed++;
-				testData.numFailed++;
+				if (bytediff) {
+					browserData.numByteDiff++;
+					testData.numByteDiff++;
+				} else {
+					browserData.numFailed++;
+					testData.numFailed++;
+				}
 			}
 			testData.results.push({
 				name: browserData.name,
 				duration: t.duration,
 				error: t.error?.message,
 				passed: t.passed,
+				bytediff,
 				info: info
 			});
 		});
