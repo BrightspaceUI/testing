@@ -95,10 +95,9 @@ function flattenResults(session, browserData, fileData) {
 				if (bytediff) {
 					browserData.numByteDiff++;
 					testData.numByteDiff++;
-				} else {
-					browserData.numFailed++;
-					testData.numFailed++;
 				}
+				browserData.numFailed++;
+				testData.numFailed++;
 			}
 			testData.results.push({
 				name: browserData.name,
