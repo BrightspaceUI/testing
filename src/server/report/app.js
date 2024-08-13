@@ -306,7 +306,7 @@ class App extends LitElement {
 			if (!this._filterBrowsers.includes(b.name)) return nothing;
 			const result = test.results.find(r => r.name === b.name);
 			const passed = (result !== undefined) ? result.passed : true;
-			const text = passed ? 'passed' : result.bytediff ? 'byte-diff' : 'failed';
+			const text = passed ? 'passed' : (result.bytediff ? 'byte-diff' : 'failed');
 			return html`<td class="${text}">${text}</td>`;
 		});
 		const searchParams = new URLSearchParams(window.location.search);
