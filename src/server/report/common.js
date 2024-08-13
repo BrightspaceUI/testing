@@ -77,8 +77,7 @@ export const COMMON_STYLE = css`
 export const FILTER_STATUS = {
 	ALL: 'All',
 	PASSED: 'Passed',
-	FAILED: 'Failed',
-	BYTEDIFF: 'Byte Diff'
+	FAILED: 'Failed'
 };
 
 export const FULL_MODE = {

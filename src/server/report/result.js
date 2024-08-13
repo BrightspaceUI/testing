@@ -207,7 +207,8 @@ export function renderBrowserResults(browser, tests, options) {
 
 		const resultData = t.results.find(r => r.name === browser.name);
 		if (resultData.passed && options.filterStatus === FILTER_STATUS.FAILED ||
-			!resultData.passed && options.filterStatus === FILTER_STATUS.PASSED) {
+			!resultData.passed && options.filterStatus === FILTER_STATUS.PASSED ||
+			resultData.bytediff && options.filterHideByteDiff) {
 			return acc;
 		}
 
