@@ -19,6 +19,7 @@ const ALLOWED_BROWSERS = Object.keys(BROWSER_MAP);
 const DEFAULT_BROWSERS = [...new Set(Object.values(BROWSER_MAP))];
 const TIMEZONE = '{&quot;name&quot;:&quot;Canada - Toronto&quot;,&quot;identifier&quot;:&quot;America/Toronto&quot;}';
 const FONT_ASSETS = 'https://s.brightspace.com/lib/fonts/0.6.1/assets/';
+const TEST_PAGE = '<script>window.isD2LTestPage = true;</script>';
 const SUPPRESS_RESIZE_OBSERVER_ERRORS = `
 	<script>
 	window.addEventListener('error', (err) => {
@@ -53,6 +54,7 @@ export class WTRConfig {
 				`<!DOCTYPE html>
 				<html lang="en" data-timezone='${TIMEZONE}'>
 					<body>
+						${TEST_PAGE}
 						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
 						<script type="module" src="${testFramework}"></script>
 					</body>
@@ -124,6 +126,7 @@ export class WTRConfig {
 						</style>
 					</head>
 					<body>
+						${TEST_PAGE}
 						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
 						<script type="module" src="${testFramework}"></script>
 					</body>
