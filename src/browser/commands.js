@@ -24,6 +24,15 @@ export async function clickElem(elem) {
 	return clickAt(position.x, position.y);
 }
 
+export async function dragDropElems(elem, toElem) {
+	const fromPosition = getElementPosition(elem);
+	const toPosition = getElementPosition(toElem);
+	await sendMouse({ type: 'move', position: [fromPosition.x, fromPosition.y] });
+	await sendMouse({ type: 'down' });
+	await sendMouse({ type: 'move', position: [toPosition.x, toPosition.y] });
+	await sendMouse({ type: 'up' });
+}
+
 export async function focusElem(elem) {
 	await cmdSendKeys({ press: 'Shift' }); // Tab moves focus, Escape causes dismissible things to close
 	elem.focus({ focusVisible: true });
