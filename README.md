@@ -189,6 +189,33 @@ it('should click at coordinate', async() => {
 });
 ```
 
+Elements configured using the [Drag & Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) can be interacted with using `dragDropElems(sourceElem, destElem)`:
+
+```javascript
+import { dragDropElems } from '@brightspace-ui/testing';
+
+it('should drag & drop', async() => {
+  const rootElem = await fixture(html`
+    <div>
+      <div id="source" draggable="true"></div>
+      <div id="dest"></div>
+    </div>
+  `);
+  // NOTE: destination must have "dragover" and "drop"
+  // event listeners added for the drag & drop API to function
+  await dragDropElems(
+    rootElem.querySelector('#source'),
+    rootElem.querySelector('#target')
+  );
+  // do assertions
+});
+
+it('should click at coordinate', async() => {
+  await clickAt(100, 200);
+  // do assertions
+});
+```
+
 ### Using the Keyboard
 
 To place focus on an element using the keyboard, use `focusElem(elem)`. Doing so will trigger its `:focus-visible` CSS pseudo-class.

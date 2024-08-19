@@ -1,87 +1,131 @@
-import { clickAt, clickElem, expect, fixture, focusElem, hoverAt, hoverElem, sendKeys, sendKeysElem, setViewport } from '../../src/browser/index.js';
+import { clickAt, clickElem, dragDropElems, expect, fixture, focusElem, hoverAt, hoverElem, sendKeys, sendKeysElem, setViewport } from '../../src/browser/index.js';
 import { html } from 'lit';
 import { spy } from 'sinon';
 
 describe('commands', () => {
 
-	let elem;
-	const input = html`<input type="text">`;
-	beforeEach(async() => {
-		elem = await fixture(input);
+	describe('click/hover', () => {
+
+		let elem;
+		beforeEach(async() => {
+			elem = await fixture(html`<button>text</button>`);
+		});
+
+		it('should click on element', async() => {
+			const clickSpy = spy();
+			elem.addEventListener('click', clickSpy);
+			await clickElem(elem);
+			expect(clickSpy).to.be.calledOnce;
+		});
+
+		it('should click at position', async() => {
+			const clickPos = { x: 0, y: 0 };
+			function onClick(e) {
+				clickPos.x = e.clientX;
+				clickPos.y = e.clientY;
+			}
+			window.addEventListener('click', onClick);
+			await clickAt(200, 300);
+			expect(clickPos.x).to.equal(200);
+			expect(clickPos.y).to.equal(300);
+			window.removeEventListener('click', onClick);
+		});
+
+		it('should hover over element', async() => {
+			let hovered = false;
+			elem.addEventListener('mouseover', () => hovered = true);
+			elem.addEventListener('mouseout', () => hovered = false);
+			await hoverElem(elem);
+			expect(hovered).to.be.true;
+		});
+
+		it('should hover at position', async() => {
+			const mousePos = { x: 0, y: 0 };
+			function onMouseMove(e) {
+				mousePos.x = e.clientX;
+				mousePos.y = e.clientY;
+			}
+			window.addEventListener('mousemove', onMouseMove);
+			await hoverAt(50, 100);
+			expect(mousePos.x).to.equal(50);
+			expect(mousePos.y).to.equal(100);
+			window.removeEventListener('mousemove', onMouseMove);
+		});
+
 	});
 
-	it('should click on element', async() => {
-		const clickSpy = spy();
-		elem.addEventListener('click', clickSpy);
-		await clickElem(elem);
-		expect(clickSpy).to.be.calledOnce;
+	describe('keyboard/focus', async() => {
+
+		let elem;
+		beforeEach(async() => {
+			elem = await fixture(html`<input type="text">`);
+		});
+
+		it('should focus on element', async() => {
+			let focussed = false;
+			elem.addEventListener('focus', () => focussed = true);
+			await focusElem(elem);
+			expect(focussed).to.be.true;
+		});
+
+		it('should send keys to element', async() => {
+			await sendKeysElem(elem, 'type', 'Hello');
+			expect(elem.value).to.equal('Hello');
+		});
+
+		it('should send keys to browser', async() => {
+			let key = undefined;
+			function onKeyDown(e) {
+				key = e.key;
+			}
+			window.addEventListener('keydown', onKeyDown);
+			await sendKeys('press', 'Escape');
+			expect(key).to.equal('Escape');
+			window.removeEventListener('keydown', onKeyDown);
+		});
+
 	});
 
-	it('should click at position', async() => {
-		const clickPos = { x: 0, y: 0 };
-		function onClick(e) {
-			clickPos.x = e.clientX;
-			clickPos.y = e.clientY;
-		}
-		window.addEventListener('click', onClick);
-		await clickAt(200, 300);
-		expect(clickPos.x).to.equal(200);
-		expect(clickPos.y).to.equal(300);
-		window.removeEventListener('click', onClick);
-	});
+	describe('drag & drop', () => {
 
-	it('should focus on element', async() => {
-		let focussed = false;
-		elem.addEventListener('focus', () => focussed = true);
-		await focusElem(elem);
-		expect(focussed).to.be.true;
-	});
+		it('should drag & drop element', (done) => {
+			fixture(html`<div>
+				<div id="dest" style="height: 100px; width: 100px;"></div>
+				<div id="source" draggable="true" style="height: 50px; width: 50px;"></div>
+			</div>`).then(rootElem => {
 
-	it('should hover over element', async() => {
-		let hovered = false;
-		elem.addEventListener('mouseover', () => hovered = true);
-		elem.addEventListener('mouseout', () => hovered = false);
-		await hoverElem(elem);
-		expect(hovered).to.be.true;
-	});
+				let dragSource;
+				const sourceElem = rootElem.querySelector('#source');
+				sourceElem.addEventListener('dragstart', e => dragSource = e.target);
 
-	it('should hover at position', async() => {
-		const mousePos = { x: 0, y: 0 };
-		function onMouseMove(e) {
-			mousePos.x = e.clientX;
-			mousePos.y = e.clientY;
-		}
-		window.addEventListener('mousemove', onMouseMove);
-		await hoverAt(50, 100);
-		expect(mousePos.x).to.equal(50);
-		expect(mousePos.y).to.equal(100);
-		window.removeEventListener('mousemove', onMouseMove);
-	});
+				const destElem = rootElem.querySelector('#dest');
+				destElem.addEventListener('dragover', e => e.preventDefault());
+				destElem.addEventListener('drop', (e) => {
+					e.preventDefault();
+					expect(dragSource).to.equal(sourceElem);
+					done();
+				});
 
-	it('should send keys to element', async() => {
-		await sendKeysElem(elem, 'type', 'Hello');
-		expect(elem.value).to.equal('Hello');
-	});
+				dragDropElems(sourceElem, destElem);
 
-	it('should send keys to browser', async() => {
-		let key = undefined;
-		function onKeyDown(e) {
-			key = e.key;
-		}
-		window.addEventListener('keydown', onKeyDown);
-		await sendKeys('press', 'Escape');
-		expect(key).to.equal('Escape');
-		window.removeEventListener('keydown', onKeyDown);
+			});
+		});
+
 	});
 
 	describe('mouseReset', () => {
+
 		const mousePos = { x: 0, y: 0 };
 		function onMouseMove(e) {
 			mousePos.x = e.clientX;
 			mousePos.y = e.clientY;
 		}
 
-		beforeEach(() => {
+		const buttonTemplate = html`<button>text</button>`;
+
+		let elem;
+		beforeEach(async() => {
+			elem = await fixture(buttonTemplate);
 			window.addEventListener('mousemove', onMouseMove);
 		});
 
@@ -99,7 +143,7 @@ describe('commands', () => {
 				await action(elem);
 				expect(mousePos.x).to.not.equal(0);
 				expect(mousePos.y).to.not.equal(0);
-				await fixture(input);
+				await fixture(buttonTemplate);
 				expect(mousePos.x).to.equal(0);
 				expect(mousePos.y).to.equal(0);
 			});
@@ -107,6 +151,10 @@ describe('commands', () => {
 	});
 
 	describe('viewport', () => {
+
+		beforeEach(async() => {
+			await fixture(html`<div></div>`);
+		});
 
 		it('should set width and height', async() => {
 			await setViewport({ height: 200, width: 300 });
