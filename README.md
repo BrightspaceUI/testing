@@ -209,11 +209,6 @@ it('should drag & drop', async() => {
   );
   // do assertions
 });
-
-it('should click at coordinate', async() => {
-  await clickAt(100, 200);
-  // do assertions
-});
 ```
 
 ### Using the Keyboard
