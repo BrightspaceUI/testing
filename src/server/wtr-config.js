@@ -8,8 +8,8 @@ import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const defaultReporterGrep = () => {
 	const dr = defaultReporter();
-	let passed;
 	const removeGrepFailures = results => {
+		let passed = true;
 		results.tests?.forEach(test => {
 			if (!test.passed) {
 				if (!test.error) {
@@ -21,15 +21,14 @@ const defaultReporterGrep = () => {
 		});
 
 		results.suites?.forEach(suite => removeGrepFailures(suite));
+		return passed;
 	};
 
 	return { ...dr,
 		getTestProgress({ sessions, ...others }) {
 			sessions.forEach(session => {
-				passed = true;
 				if (session.testResults) {
-					removeGrepFailures(session.testResults);
-					session.passed = passed;
+					session.passed = removeGrepFailures(session.testResults) && !session.errors.length;
 				}
 			});
 			return dr.getTestProgress({ sessions, ...others });
