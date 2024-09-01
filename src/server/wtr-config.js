@@ -23,7 +23,7 @@ const defaultReporterGrep = () => {
 		results.suites?.forEach(suite => removeGrepFailures(suite));
 	};
 
-	return { ...dr, ...{
+	return { ...dr,
 		getTestProgress({ sessions, ...others }) {
 			sessions.forEach(session => {
 				passed = true;
@@ -34,7 +34,7 @@ const defaultReporterGrep = () => {
 			});
 			return dr.getTestProgress({ sessions, ...others });
 		}
-	} };
+	};
 };
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
