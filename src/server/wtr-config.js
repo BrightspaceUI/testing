@@ -8,11 +8,15 @@ import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const defaultReporterGrep = () => {
 	const dr = defaultReporter();
-
+	let passed = true;
 	const removeGrepFailures = results => {
 		results.tests?.forEach(test => {
-			if (!test.passed && !test.error) {
-				test.skipped = true;
+			if (!test.passed) {
+				if (!test.error) {
+					test.skipped = true;
+				} else {
+					passed = false;
+				}
 			}
 		});
 
@@ -23,7 +27,7 @@ const defaultReporterGrep = () => {
 		reportTestFileResults({ sessionsForTestFile, ...others }) {
 			sessionsForTestFile.forEach(session => {
 				removeGrepFailures(session.testResults);
-				session.passed = !session.errors.length;
+				session.passed = passed;
 			});
 			return dr.reportTestFileResults({ sessionsForTestFile, ...others });
 		}
