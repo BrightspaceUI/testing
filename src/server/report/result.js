@@ -63,6 +63,18 @@ export const RESULT_STYLE = css`
 		position: absolute;
 		top: 0;
 	}
+	.result-overlay img:active {
+		filter:
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red);
+	}
 	.result-part-info {
 		align-items: center;
 		display: flex;
