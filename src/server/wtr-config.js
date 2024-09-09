@@ -6,6 +6,36 @@ import { reporter as testReportingReporter } from 'd2l-test-reporting/reporters/
 import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
 
+const defaultReporterGrep = () => {
+	const dr = defaultReporter();
+	const removeGrepFailures = results => {
+		let passed = true;
+		results.tests?.forEach(test => {
+			if (!test.passed) {
+				if (!test.error) {
+					test.skipped = true;
+				} else {
+					passed = false;
+				}
+			}
+		});
+
+		results.suites?.forEach(suite => removeGrepFailures(suite));
+		return passed;
+	};
+
+	return { ...dr,
+		getTestProgress({ sessions, ...others }) {
+			sessions.forEach(session => {
+				if (session.testResults) {
+					session.passed = removeGrepFailures(session.testResults) && !session.errors.length;
+				}
+			});
+			return dr.getTestProgress({ sessions, ...others });
+		}
+	};
+};
+
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
 const DEFAULT_TEST_REPORTING = !!env['CI'];
 const BROWSER_MAP = {
@@ -220,9 +250,7 @@ export class WTRConfig {
 			});
 		}
 
-		if (group === 'vdiff' || testReporting) {
-			config.reporters ??= [ defaultReporter() ];
-		}
+		config.reporters ??= [ defaultReporterGrep() ];
 
 		if (group === 'test') {
 			config.groups.push({
