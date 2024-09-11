@@ -11,17 +11,16 @@ const defaultReporterGrep = () => {
 	const removeGrepFailures = results => {
 		let passed = true;
 		results.tests?.forEach(test => {
-			if (!test.passed) {
-				if (!test.error) {
-					test.skipped = true;
-				} else {
-					passed = false;
-				}
+			if (test.error) {
+				passed = false;
+			} else if (!test.passed) {
+				test.skipped = true;
 			}
 		});
 
-		results.suites?.forEach(suite => removeGrepFailures(suite));
-		return passed;
+		const passedStates = results.suites?.map(suite => removeGrepFailures(suite));
+		const nestedPassed = !passedStates?.includes(false) ?? true;
+		return passed && nestedPassed;
 	};
 
 	return { ...dr,
