@@ -19,7 +19,7 @@ const defaultReporterGrep = () => {
 		});
 
 		const passedStates = results.suites?.map(suite => removeGrepFailures(suite));
-		const nestedPassed = !passedStates?.includes(false) ?? true;
+		const nestedPassed = !passedStates?.includes(false);
 		return passed && nestedPassed;
 	};
 
