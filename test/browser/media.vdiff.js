@@ -23,6 +23,11 @@ const mediaTag = defineCE(
 
 describe('media', () => {
 
+	it('default', async() => {
+		const elem = await fixture(`<${mediaTag}></${mediaTag}>`);
+		await expect(elem).to.be.golden();
+	});
+
 	['screen', 'print'].forEach(media => {
 		it(media, async() => {
 			const elem = await fixture(`<${mediaTag}></${mediaTag}>`, { media });
