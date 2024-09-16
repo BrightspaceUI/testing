@@ -222,7 +222,7 @@ describe('element-different', () => {
 			} catch (ex) {
 				fail = true;
 			}
-			await expect(fail, 'current and golden images to be different').equal(!isGolden);
+			expect(fail, 'current and golden images to be different').equal(!isGolden);
 
 			if (!isGolden) {
 				await executeServerCommand('vdiff-revert-golden-file', { testCategory: 'element-different', fileName: `${name}.png` });
@@ -240,7 +240,7 @@ describe('element-different', () => {
 		}
 
 		if (!isGolden) {
-			await expect(fail, 'current and golden images to have different byte size').equal(true);
+			expect(fail, 'current and golden images to have different byte size').equal(true);
 			await executeServerCommand('vdiff-revert-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png' });
 		} else {
 			// Modify golden file to be different byte size than what the test will generate
