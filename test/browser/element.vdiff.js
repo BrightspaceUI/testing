@@ -35,7 +35,7 @@ const elementTag = defineCE(
 			`;
 		}
 		render() {
-			return html`<span>${this.text}</span><b>Testing!</b>`;
+			return html`<span>${this.text}</span><b>Testing</b>`;
 		}
 	}
 );
