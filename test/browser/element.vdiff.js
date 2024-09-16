@@ -222,6 +222,7 @@ describe('element-different', () => {
 			} catch (ex) {
 				fail = true;
 			}
+
 			expect(fail, 'current and golden images to be different').equal(!isGolden);
 
 			if (!isGolden) {

@@ -1,6 +1,6 @@
 import { argv, env } from 'node:process';
-import { dirname, join } from 'node:path';
 import { copyFile, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { PATHS } from '../../src/server/paths.js';
 import { PNG } from 'pngjs';
 
