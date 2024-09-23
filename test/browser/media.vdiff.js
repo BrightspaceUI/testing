@@ -25,7 +25,6 @@ describe('media', () => {
 
 	it('default', async() => {
 		const elem = await fixture(`<${mediaTag}></${mediaTag}>`);
-		elem.shadowRoot.querySelector('thing').throwAnError();
 		await expect(elem).to.be.golden();
 	});
 
