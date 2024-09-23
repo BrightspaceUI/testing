@@ -90,7 +90,7 @@ function flattenResults(session, browserData, fileData) {
 				});
 			}
 			const testData = fileData.tests.get(testName);
-			const bytediff = !t.passed && !info.diff && info.pixelsDiff === 0;
+			const bytediff = !t.passed && !!info?.diff && info?.pixelsDiff === 0;
 			if (!t.passed) {
 				if (bytediff) {
 					browserData.numByteDiff++;
