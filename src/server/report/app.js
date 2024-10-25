@@ -253,6 +253,23 @@ class App extends LitElement {
 				<ul>${browserDiffs}</ul>
 			</div>
 		` : nothing;
+
+		const systemDiffs = Object.entries(data.system).reduce((acc, [k, v]) => {
+			const previous = data.system.previous[k] || 'unknown';
+			if (k === 'previous' || previous === v) {
+				return acc;
+			}
+			return acc.push(html`
+				<li>${k}: <strong>${data.system.previous[k]}</strong> to <strong>${v}</strong></li>
+			`) && acc;
+		}, []);
+		const systemDiffInfo = systemDiffs.length ? html`
+			<div class="browser-diff">
+				<div class="browser-diff-title">System Changes</div>
+				<ul>${systemDiffs}</ul>
+			</div>
+		` : nothing;
+
 		const byteDiffFilter = (data.numByteDiff > 0) ? html`
 			<fieldset>
 				<legend>Byte Diffs</legend>
@@ -271,6 +288,7 @@ class App extends LitElement {
 			${byteDiffFilter}
 			${browserFilter}
 			${browserDiffInfo}
+			${systemDiffInfo}
 		`;
 
 	}

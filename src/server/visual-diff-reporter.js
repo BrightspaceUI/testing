@@ -1,5 +1,6 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import * as os from 'node:os';
 import { env } from 'node:process';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -59,14 +60,30 @@ function createData(rootDir, updateGoldens, sessions) {
 		});
 	});
 
+	const system = {
+		platform: os.platform(),
+		release: os.release(),
+		arch: os.arch(),
+		previous: metadata.system && {
+			platform: metadata.system.platform,
+			release: metadata.system.release,
+			arch: metadata.system.arch
+		}
+	};
+
 	if (isCI || updateGoldens) {
 		metadata.browsers = Array.from(browsers.values()).map(b => {
 			return { name: b.name, version: b.version };
 		});
+		metadata.system = {
+			platform: system.platform,
+			release: system.release,
+			arch: system.arch
+		};
 		writeFileSync(metadataPath, `${JSON.stringify(metadata, undefined, '\t')}\n`);
 	}
 
-	return { browsers, files, numByteDiff, numFailed, numTests };
+	return { browsers, files, numByteDiff, numFailed, numTests, system };
 
 }
 
