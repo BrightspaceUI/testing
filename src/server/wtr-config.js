@@ -62,45 +62,12 @@ export const DEFAULT_VDIFF_SLOW = 500;
 
 export class WTRConfig {
 
-	#cliArgs;
-	#requestedBrowsers;
-
 	constructor(cliArgs) {
 		this.#cliArgs = cliArgs || {};
 		this.#cliArgs.group ??= 'test';
 		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs?.[b]);
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
 	}
-
-	get #defaultConfig() {
-		return {
-			browserStartTimeout: 60 * 1000,
-			groups: [],
-			nodeResolve: {
-				exportConditions: ['default']
-			},
-			testRunnerHtml: testFramework =>
-				`<!DOCTYPE html>
-				<html lang="en" data-timezone='${TIMEZONE}'>
-					<body>
-						${TEST_PAGE}
-						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
-						<script type="module" src="${testFramework}"></script>
-					</body>
-				</html>`,
-		};
-	}
-
-	get #pattern() {
-		const files = [ this.#cliArgs.files || this.pattern(this.#cliArgs.group), '!**/node_modules/**/*' ].flat();
-
-		if (this.#cliArgs.filter) {
-			return this.#filterFiles(files);
-		}
-
-		return files;
-	}
-
 	get visualDiffGroup() {
 		return {
 			name: 'vdiff',
@@ -162,56 +129,6 @@ export class WTRConfig {
 				</html>`
 		};
 	}
-
-	#filterFiles(files) {
-		return this.#cliArgs.filter.map(filterStr => {
-			// replace everything after the last forward slash
-			return files
-				.filter(f => !f.startsWith('!')) // don't filter exclusions
-				.map(f => f.replace(/[^/]*$/, fileGlob => {
-					// create a new glob for each wildcard
-					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
-						const arr = fileGlob.split('');
-						arr.splice(index, 1, filterStr);
-						return arr.join('');
-					});
-					return `+(${fileGlobs.join('|') || fileGlob})`;
-				}));
-		})
-			.flat()
-			.concat(files.filter(f => f.startsWith('!')));
-	}
-
-	#getMochaConfig(group, slowConfig, timeoutConfig) {
-		const {
-			timeout = timeoutConfig,
-			grep,
-			open,
-			slow = slowConfig,
-			watch
-		} = this.#cliArgs;
-
-		if (typeof timeout !== 'undefined' && typeof timeout !== 'number') throw new TypeError('timeout must be a number');
-		if (typeof slow !== 'undefined' && typeof slow !== 'number') throw new TypeError('slow must be a number');
-
-		const config = {};
-
-		if (timeout) {
-			config.timeout = String(timeout);
-		} else if (group === 'vdiff') {
-			config.timeout = '5000';
-		}
-		if (open || watch) config.timeout = '0';
-		if (grep) config.grep = grep;
-		if (slow) {
-			config.slow = String(slow);
-		} else if (group === 'vdiff') {
-			config.slow = String(DEFAULT_VDIFF_SLOW);
-		}
-
-		return Object.keys(config).length && { testFramework: { config } };
-	}
-
 	create({
 		pattern = DEFAULT_PATTERN,
 		slow,
@@ -288,7 +205,6 @@ export class WTRConfig {
 
 		return config;
 	}
-
 	getBrowsers(browsers, deviceScaleFactor) {
 		browsers = (this.#requestedBrowsers || browsers || DEFAULT_BROWSERS).map(b => BROWSER_MAP[b] || BROWSER_MAP.chrome);
 
@@ -305,6 +221,87 @@ export class WTRConfig {
 				args: b === BROWSER_MAP.chrome ? ['--disable-gpu-rasterization'] : []
 			}
 		}));
+	}
+	#cliArgs;
+
+	#requestedBrowsers;
+
+	get #defaultConfig() {
+		return {
+			browserStartTimeout: 60 * 1000,
+			groups: [],
+			nodeResolve: {
+				exportConditions: ['default']
+			},
+			testRunnerHtml: testFramework =>
+				`<!DOCTYPE html>
+				<html lang="en" data-timezone='${TIMEZONE}'>
+					<body>
+						${TEST_PAGE}
+						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
+						<script type="module" src="${testFramework}"></script>
+					</body>
+				</html>`,
+		};
+	}
+
+	get #pattern() {
+		const files = [ this.#cliArgs.files || this.pattern(this.#cliArgs.group), '!**/node_modules/**/*' ].flat();
+
+		if (this.#cliArgs.filter) {
+			return this.#filterFiles(files);
+		}
+
+		return files;
+	}
+
+	#filterFiles(files) {
+		return this.#cliArgs.filter.map(filterStr => {
+			// replace everything after the last forward slash
+			return files
+				.filter(f => !f.startsWith('!')) // don't filter exclusions
+				.map(f => f.replace(/[^/]*$/, fileGlob => {
+					// create a new glob for each wildcard
+					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
+						const arr = fileGlob.split('');
+						arr.splice(index, 1, filterStr);
+						return arr.join('');
+					});
+					return `+(${fileGlobs.join('|') || fileGlob})`;
+				}));
+		})
+			.flat()
+			.concat(files.filter(f => f.startsWith('!')));
+	}
+
+	#getMochaConfig(group, slowConfig, timeoutConfig) {
+		const {
+			timeout = timeoutConfig,
+			grep,
+			open,
+			slow = slowConfig,
+			watch
+		} = this.#cliArgs;
+
+		if (typeof timeout !== 'undefined' && typeof timeout !== 'number') throw new TypeError('timeout must be a number');
+		if (typeof slow !== 'undefined' && typeof slow !== 'number') throw new TypeError('slow must be a number');
+
+		const config = {};
+
+		if (timeout) {
+			config.timeout = String(timeout);
+		} else if (group === 'vdiff') {
+			config.timeout = '5000';
+		}
+		if (open || watch) config.timeout = '0';
+		if (grep) config.grep = grep;
+		if (slow) {
+			config.slow = String(slow);
+		} else if (group === 'vdiff') {
+			config.slow = String(DEFAULT_VDIFF_SLOW);
+		}
+
+		return Object.keys(config).length && { testFramework: { config } };
 	}
 
 }
