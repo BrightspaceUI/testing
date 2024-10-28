@@ -1,3 +1,4 @@
+import * as os from 'node:os';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { env } from 'node:process';
@@ -59,14 +60,24 @@ function createData(rootDir, updateGoldens, sessions) {
 		});
 	});
 
+	const system = {
+		platform: os.platform(),
+		release: os.release(),
+		arch: os.arch()
+	};
+
 	if (isCI || updateGoldens) {
 		metadata.browsers = Array.from(browsers.values()).map(b => {
 			return { name: b.name, version: b.version };
 		});
+		metadata.system = system;
 		writeFileSync(metadataPath, `${JSON.stringify(metadata, undefined, '\t')}\n`);
 	}
 
-	return { browsers, files, numByteDiff, numFailed, numTests };
+	const { previous: gc, ...previous } = metadata.system;
+	system.previous = previous;
+
+	return { browsers, files, numByteDiff, numFailed, numTests, system };
 
 }
 
