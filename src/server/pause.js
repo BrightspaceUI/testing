@@ -228,7 +228,7 @@ function skip() {
 	run();
 	try {
 		currentTest.skip();
-	} catch (e) { null; }
+	} catch { null; }
 }
 
 function skipAll() {

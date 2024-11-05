@@ -12,7 +12,7 @@ async function checkFileExists(fileName) {
 	try {
 		await access(fileName, constants.F_OK);
 		return true;
-	} catch (e) {
+	} catch {
 		return false;
 	}
 }
