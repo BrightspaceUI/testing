@@ -219,7 +219,7 @@ describe('element-different', () => {
 			let fail = false;
 			try {
 				await expect(elem).to.be.golden();
-			} catch (ex) {
+			} catch {
 				fail = true;
 			}
 
@@ -236,7 +236,7 @@ describe('element-different', () => {
 		let fail = false;
 		try {
 			await expect(elem).to.be.golden();
-		} catch (ex) {
+		} catch {
 			fail = true;
 		}
 
