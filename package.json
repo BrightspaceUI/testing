@@ -33,7 +33,7 @@
     "@eslint/compat": "^1",
     "@eslint/eslintrc": "^3",
     "@eslint/js": "^9",
-    "globals": "^1"
+    "globals": "^15"
   },
   "exports": {
     ".": "./src/browser/index.js"
