@@ -57,7 +57,7 @@ export async function hoverElem(elem) {
 
 export async function hoverElemAt(elem, offsetX = 0, offsetY = 0) {
 	const position = getElementPosition(elem);
-	return hoverAt(position.left + offsetX, position.top + offsetY);
+	return hoverAt(Math.floor(position.left + offsetX), Math.floor(position.top + offsetY));
 }
 
 export async function sendKeys(action, keys) {
