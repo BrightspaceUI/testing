@@ -6,9 +6,15 @@ describe('commands', () => {
 
 	describe('click/hover', () => {
 
-		let elem;
+		let clickPos, elem;
+		function onClick(e) {
+			clickPos.x = e.clientX;
+			clickPos.y = e.clientY;
+		}
+
 		beforeEach(async() => {
 			elem = await fixture(html`<button>text</button>`);
+			clickPos = { x: 0, y: 0 };
 		});
 
 		it('should click on element', async() => {
@@ -19,11 +25,6 @@ describe('commands', () => {
 		});
 
 		it('should click at position', async() => {
-			const clickPos = { x: 0, y: 0 };
-			function onClick(e) {
-				clickPos.x = e.clientX;
-				clickPos.y = e.clientY;
-			}
 			window.addEventListener('click', onClick);
 			await clickAt(200, 300);
 			expect(clickPos.x).to.equal(200);
@@ -32,11 +33,6 @@ describe('commands', () => {
 		});
 
 		it('should click top-left by default', async() => {
-			const clickPos = { x: 0, y: 0 };
-			function onClick(e) {
-				clickPos.x = e.clientX;
-				clickPos.y = e.clientY;
-			}
 			window.addEventListener('click', onClick);
 			await clickElemAt(elem);
 
@@ -47,11 +43,6 @@ describe('commands', () => {
 		});
 
 		it('should click at offset from element origin', async() => {
-			const clickPos = { x: 0, y: 0 };
-			function onClick(e) {
-				clickPos.x = e.clientX;
-				clickPos.y = e.clientY;
-			}
 			window.addEventListener('click', onClick);
 			await clickElemAt(elem, 10, 10);
 
@@ -106,7 +97,7 @@ describe('commands', () => {
 				mousePos.y = e.clientY;
 			}
 			window.addEventListener('mousemove', onMouseMove);
-			await hoverElemAt(elem, { x: 10, y: 10 });
+			await hoverElemAt(elem, 10, 10);
 
 			const { x, y } = elem.getBoundingClientRect();
 			const expectedX = x + 10;
