@@ -158,7 +158,7 @@ describe('commands', () => {
 			inputElem.removeEventListener('focus', onFocus);
 		});
 
-		it('should focus on button then input element', async() => {
+		it('should focus on element', async() => {
 			await focusElem(buttonElem);
 			expect(focusSource).to.equal(buttonElem);
 
@@ -167,21 +167,23 @@ describe('commands', () => {
 		});
 
 		it('should move focus via key press', async() => {
-			await sendKeysElem(elem, 'press', 'Tab');
-			expect(focusSource).to.be(inputElem);
+			await sendKeys('press', 'Tab');
+			expect(focusSource).to.equal(inputElem);
+
+			await sendKeys('press', 'Tab');
+			expect(focusSource).to.equal(buttonElem);
 		});
 
 		it('should send keys to element', async() => {
-			key = undefined, keys = [];
+			keys = [];
 
 			await sendKeysElem(inputElem, 'type', 'Hello');
 			expect(inputElem.value).to.equal('Hello');
 			expect(keys).to.include('Shift');
+			expect(focusSource).to.equal(inputElem);
 		});
 
 		it('should send keys to browser', async() => {
-			key = undefined;
-
 			await sendKeys('press', 'Escape');
 			expect(key).to.equal('Escape');
 		});
@@ -228,6 +230,7 @@ describe('commands', () => {
 				await action(elem);
 				expect(mousePos.x).to.not.equal(0);
 				expect(mousePos.y).to.not.equal(0);
+
 				await fixture(buttonTemplate);
 				expect(mousePos.x).to.equal(0);
 				expect(mousePos.y).to.equal(0);
