@@ -16,7 +16,7 @@ describe('commands', () => {
 			<button>text</button>
 		</div>`;
 
-	let elem, focusSource, key, keys;
+	let elem, focusSource, hovered, key, keys;
 	const clickPos = { x: 0, y: 0 };
 	const mousePos = { x: 0, y: 0 };
 
@@ -39,6 +39,14 @@ describe('commands', () => {
 	function onMouseMove(e) {
 		mousePos.x = e.clientX;
 		mousePos.y = e.clientY;
+	}
+
+	function onMouseOver() {
+		hovered = true;
+	}
+
+	function onMouseOut() {
+		hovered = false;
 	}
 
 	before(() => {
@@ -93,15 +101,7 @@ describe('commands', () => {
 		});
 
 		it('should hover over element', async() => {
-			let hovered = false;
-
-			function onMouseOver() {
-				hovered = true;
-			}
-
-			function onMouseOut() {
-				hovered = false;
-			}
+			hovered = false;
 
 			elem.addEventListener('mouseover', onMouseOver);
 			elem.addEventListener('mouseout', onMouseOut);
