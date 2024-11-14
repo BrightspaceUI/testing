@@ -6,7 +6,11 @@ describe('commands', () => {
 
 	describe('click/hover', () => {
 
-		let clickPos, elem, mousePos;
+		let elem;
+		const buttonTemplate = html`<button>text</button>`;
+		const clickPos = { x: 0, y: 0 };
+		const mousePos = { x: 0, y: 0 };
+
 		function onClick(e) {
 			clickPos.x = e.clientX;
 			clickPos.y = e.clientY;
@@ -17,10 +21,18 @@ describe('commands', () => {
 			mousePos.y = e.clientY;
 		}
 
+		before(() => {
+			window.addEventListener('click', onClick);
+			window.addEventListener('mousemove', onMouseMove);
+		});
+
 		beforeEach(async() => {
-			elem = await fixture(html`<button>text</button>`);
-			clickPos = { x: 0, y: 0 };
-			mousePos = { x: 0, y: 0 };
+			elem = await fixture(buttonTemplate);
+		});
+
+		after(() => {
+			window.removeEventListener('click', onClick);
+			window.removeEventListener('mousemove', onMouseMove);
 		});
 
 		it('should click on element', async() => {
@@ -31,33 +43,30 @@ describe('commands', () => {
 		});
 
 		it('should click at position', async() => {
-			window.addEventListener('click', onClick);
 			await clickAt(200, 300);
+
 			expect(clickPos.x).to.equal(200);
 			expect(clickPos.y).to.equal(300);
-			window.removeEventListener('click', onClick);
 		});
 
-		it('should click top-left by default', async() => {
-			window.addEventListener('click', onClick);
+		it('should clickElemAt top-left by default', async() => {
 			await clickElemAt(elem);
 
 			const { x: expectedX, y: expectedY } = elem.getBoundingClientRect();
+
 			expect(clickPos.x).to.equal(expectedX);
 			expect(clickPos.y).to.equal(expectedY);
-			window.removeEventListener('click', onClick);
 		});
 
-		it('should click at offset from element origin', async() => {
-			window.addEventListener('click', onClick);
+		it('should clickElemAt offset from elem origin', async() => {
 			await clickElemAt(elem, 10, 10);
 
 			const { x, y } = elem.getBoundingClientRect();
 			const expectedX = x + 10;
 			const expectedY = y + 10;
+
 			expect(clickPos.x).to.equal(expectedX);
 			expect(clickPos.y).to.equal(expectedY);
-			window.removeEventListener('click', onClick);
 		});
 
 		it('should hover over element', async() => {
@@ -69,33 +78,29 @@ describe('commands', () => {
 		});
 
 		it('should hover at position', async() => {
-			window.addEventListener('mousemove', onMouseMove);
 			await hoverAt(50, 100);
 			expect(mousePos.x).to.equal(50);
 			expect(mousePos.y).to.equal(100);
-			window.removeEventListener('mousemove', onMouseMove);
 		});
 
-		it('should hover top-left by default', async() => {
-			window.addEventListener('mousemove', onMouseMove);
+		it('should hoverElemAt top-left by default', async() => {
 			await hoverElemAt(elem);
 
 			const { x: expectedX, y: expectedY } = elem.getBoundingClientRect();
+
 			expect(mousePos.x).to.equal(expectedX);
 			expect(mousePos.y).to.equal(expectedY);
-			window.removeEventListener('mousemove', onMouseMove);
 		});
 
-		it('should hover at 10x10 offset from element origin', async() => {
-			window.addEventListener('mousemove', onMouseMove);
+		it('should hoverElemAt offset from elem origin', async() => {
 			await hoverElemAt(elem, 10, 10);
 
 			const { x, y } = elem.getBoundingClientRect();
 			const expectedX = x + 10;
 			const expectedY = y + 10;
+
 			expect(mousePos.x).to.equal(expectedX);
 			expect(mousePos.y).to.equal(expectedY);
-			window.removeEventListener('mousemove', onMouseMove);
 		});
 	});
 
@@ -160,21 +165,23 @@ describe('commands', () => {
 
 	describe('mouseReset', () => {
 
+		let elem;
+		const buttonTemplate = html`<button>text</button>`;
 		const mousePos = { x: 0, y: 0 };
 		function onMouseMove(e) {
 			mousePos.x = e.clientX;
 			mousePos.y = e.clientY;
 		}
 
-		const buttonTemplate = html`<button>text</button>`;
-
-		let elem;
-		beforeEach(async() => {
-			elem = await fixture(buttonTemplate);
+		before(() => {
 			window.addEventListener('mousemove', onMouseMove);
 		});
 
-		afterEach(() => {
+		beforeEach(async() => {
+			elem = await fixture(buttonTemplate);
+		});
+
+		after(() => {
 			window.removeEventListener('mousemove', onMouseMove);
 		});
 
