@@ -31,7 +31,7 @@ describe('commands', () => {
 			window.removeEventListener('click', onClick);
 		});
 
-		it('should click at top-left by default', async() => {
+		it('should click top-left by default', async() => {
 			const clickPos = { x: 0, y: 0 };
 			function onClick(e) {
 				clickPos.x = e.clientX;
@@ -40,26 +40,26 @@ describe('commands', () => {
 			window.addEventListener('click', onClick);
 			await clickElemAt(elem);
 
-			const { x: targetX, y: targetY } = elem.getBoundingClientRect();
-			expect(clickPos.x).to.equal(targetX);
-			expect(clickPos.y).to.equal(targetY);
+			const { x: expectedX, y: expectedY } = elem.getBoundingClientRect();
+			expect(clickPos.x).to.equal(expectedX);
+			expect(clickPos.y).to.equal(expectedY);
 			window.removeEventListener('click', onClick);
 		});
 
-		it('should click at 10x10 offset from element origin', async() => {
+		it('should click at offset from element origin', async() => {
 			const clickPos = { x: 0, y: 0 };
 			function onClick(e) {
 				clickPos.x = e.clientX;
 				clickPos.y = e.clientY;
 			}
 			window.addEventListener('click', onClick);
-			await clickElemAt(elem, { x: 10, y: 10 });
+			await clickElemAt(elem, 10, 10);
 
 			const { x, y } = elem.getBoundingClientRect();
-			const targetX = x + 10;
-			const targetY = y + 10;
-			expect(clickPos.x).to.equal(targetX);
-			expect(clickPos.y).to.equal(targetY);
+			const expectedX = x + 10;
+			const expectedY = y + 10;
+			expect(clickPos.x).to.equal(expectedX);
+			expect(clickPos.y).to.equal(expectedY);
 			window.removeEventListener('click', onClick);
 		});
 
@@ -84,7 +84,7 @@ describe('commands', () => {
 			window.removeEventListener('mousemove', onMouseMove);
 		});
 
-		it('should hover at top-left by default', async() => {
+		it('should hover top-left by default', async() => {
 			const mousePos = { x: 0, y: 0 };
 			function onMouseMove(e) {
 				mousePos.x = e.clientX;
@@ -93,9 +93,9 @@ describe('commands', () => {
 			window.addEventListener('mousemove', onMouseMove);
 			await hoverElemAt(elem);
 
-			const { x: targetX, y: targetY } = elem.getBoundingClientRect();
-			expect(mousePos.x).to.equal(targetX);
-			expect(mousePos.y).to.equal(targetY);
+			const { x: expectedX, y: expectedY } = elem.getBoundingClientRect();
+			expect(mousePos.x).to.equal(expectedX);
+			expect(mousePos.y).to.equal(expectedY);
 			window.removeEventListener('mousemove', onMouseMove);
 		});
 
@@ -109,10 +109,10 @@ describe('commands', () => {
 			await hoverElemAt(elem, { x: 10, y: 10 });
 
 			const { x, y } = elem.getBoundingClientRect();
-			const targetX = x + 10;
-			const targetY = y + 10;
-			expect(mousePos.x).to.equal(targetX);
-			expect(mousePos.y).to.equal(targetY);
+			const expectedX = x + 10;
+			const expectedY = y + 10;
+			expect(mousePos.x).to.equal(expectedX);
+			expect(mousePos.y).to.equal(expectedY);
 			window.removeEventListener('mousemove', onMouseMove);
 		});
 	});
@@ -199,10 +199,10 @@ describe('commands', () => {
 		[
 			{ command: 'clickElem', action: (elem) => clickElem(elem) },
 			{ command: 'clickAt', action: () => clickAt(5, 10) },
-			{ command: 'clickElemAt', action: (elem) => clickElemAt(elem, { x: 10, y: 10 }) },
+			{ command: 'clickElemAt', action: (elem) => clickElemAt(elem, 10, 10) },
 			{ command: 'hoverElem', action: (elem) => hoverElem(elem) },
 			{ command: 'hoverAt', action: () => hoverAt(5, 10) },
-			{ command: 'hoverElemAt', action: (elem) => hoverElemAt(elem, { x: 10, y: 10 }) },
+			{ command: 'hoverElemAt', action: (elem) => hoverElemAt(elem, 10, 10) },
 		].forEach(({ command, action }) => {
 			it(`should reset mouse position after ${command}`, async() => {
 				await action(elem);
