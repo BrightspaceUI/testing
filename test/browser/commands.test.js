@@ -6,15 +6,21 @@ describe('commands', () => {
 
 	describe('click/hover', () => {
 
-		let clickPos, elem;
+		let clickPos, elem, mousePos;
 		function onClick(e) {
 			clickPos.x = e.clientX;
 			clickPos.y = e.clientY;
 		}
 
+		function onMouseMove(e) {
+			mousePos.x = e.clientX;
+			mousePos.y = e.clientY;
+		}
+
 		beforeEach(async() => {
 			elem = await fixture(html`<button>text</button>`);
 			clickPos = { x: 0, y: 0 };
+			mousePos = { x: 0, y: 0 };
 		});
 
 		it('should click on element', async() => {
@@ -63,11 +69,6 @@ describe('commands', () => {
 		});
 
 		it('should hover at position', async() => {
-			const mousePos = { x: 0, y: 0 };
-			function onMouseMove(e) {
-				mousePos.x = e.clientX;
-				mousePos.y = e.clientY;
-			}
 			window.addEventListener('mousemove', onMouseMove);
 			await hoverAt(50, 100);
 			expect(mousePos.x).to.equal(50);
@@ -76,11 +77,6 @@ describe('commands', () => {
 		});
 
 		it('should hover top-left by default', async() => {
-			const mousePos = { x: 0, y: 0 };
-			function onMouseMove(e) {
-				mousePos.x = e.clientX;
-				mousePos.y = e.clientY;
-			}
 			window.addEventListener('mousemove', onMouseMove);
 			await hoverElemAt(elem);
 
@@ -91,11 +87,6 @@ describe('commands', () => {
 		});
 
 		it('should hover at 10x10 offset from element origin', async() => {
-			const mousePos = { x: 0, y: 0 };
-			function onMouseMove(e) {
-				mousePos.x = e.clientX;
-				mousePos.y = e.clientY;
-			}
 			window.addEventListener('mousemove', onMouseMove);
 			await hoverElemAt(elem, 10, 10);
 
