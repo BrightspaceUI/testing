@@ -26,9 +26,9 @@ export async function clickElem(elem) {
 	return clickAt(position.x, position.y);
 }
 
-export async function clickElemAt(elem, offset = { x: 0, y: 0 }) {
+export async function clickElemAt(elem, offsetX = 0, offsetY = 0) {
 	const position = getElementPosition(elem);
-	return clickAt(position.left + offset.x, position.top + offset.y);
+	return clickAt(Math.floor(position.left + offsetX), Math.floor(position.top + offsetY));
 }
 
 export async function dragDropElems(elem, toElem) {
@@ -55,9 +55,9 @@ export async function hoverElem(elem) {
 	return hoverAt(position.x, position.y);
 }
 
-export async function hoverElemAt(elem, offset = { x: 0, y: 0 }) {
+export async function hoverElemAt(elem, offsetX = 0, offsetY = 0) {
 	const position = getElementPosition(elem);
-	return hoverAt(position.left + offset.x, position.top + offset.y);
+	return hoverAt(position.left + offsetX, position.top + offsetY);
 }
 
 export async function sendKeys(action, keys) {
