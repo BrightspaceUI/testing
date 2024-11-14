@@ -3,24 +3,30 @@ import { html } from 'lit';
 import { spy } from 'sinon';
 
 describe('commands', () => {
+	const buttonTemplate = html`<button>text</button>`;
+	const draggableTemplate = html`
+		<div>
+			<div id="dest" style="height: 100px; width: 100px;"></div>
+			<div id="source" draggable="true" style="height: 50px; width: 50px;"></div>
+		</div>`;
+	const emptyDivTemplate = html`<div></div>`;
+	const inputTemplate = html`<input type="text">`;
+
+	let elem;
+	const clickPos = { x: 0, y: 0 };
+	const mousePos = { x: 0, y: 0 };
+
+	function onClick(e) {
+		clickPos.x = e.clientX;
+		clickPos.y = e.clientY;
+	}
+
+	function onMouseMove(e) {
+		mousePos.x = e.clientX;
+		mousePos.y = e.clientY;
+	}
 
 	describe('click/hover', () => {
-
-		let elem;
-		const buttonTemplate = html`<button>text</button>`;
-		const clickPos = { x: 0, y: 0 };
-		const mousePos = { x: 0, y: 0 };
-
-		function onClick(e) {
-			clickPos.x = e.clientX;
-			clickPos.y = e.clientY;
-		}
-
-		function onMouseMove(e) {
-			mousePos.x = e.clientX;
-			mousePos.y = e.clientY;
-		}
-
 		before(() => {
 			window.addEventListener('click', onClick);
 			window.addEventListener('mousemove', onMouseMove);
@@ -105,17 +111,15 @@ describe('commands', () => {
 	});
 
 	describe('keyboard/focus', async() => {
-
-		let elem;
 		beforeEach(async() => {
-			elem = await fixture(html`<input type="text">`);
+			elem = await fixture(inputTemplate);
 		});
 
 		it('should focus on element', async() => {
-			let focussed = false;
-			elem.addEventListener('focus', () => focussed = true);
+			let focused = false;
+			elem.addEventListener('focus', () => focused = true);
 			await focusElem(elem);
-			expect(focussed).to.be.true;
+			expect(focused).to.be.true;
 		});
 
 		it('should send keys to element', async() => {
@@ -139,11 +143,7 @@ describe('commands', () => {
 	describe('drag & drop', () => {
 
 		it('should drag & drop element', (done) => {
-			fixture(html`<div>
-				<div id="dest" style="height: 100px; width: 100px;"></div>
-				<div id="source" draggable="true" style="height: 50px; width: 50px;"></div>
-			</div>`).then(rootElem => {
-
+			fixture(draggableTemplate).then(rootElem => {
 				let dragSource;
 				const sourceElem = rootElem.querySelector('#source');
 				sourceElem.addEventListener('dragstart', e => dragSource = e.target);
@@ -164,15 +164,6 @@ describe('commands', () => {
 	});
 
 	describe('mouseReset', () => {
-
-		let elem;
-		const buttonTemplate = html`<button>text</button>`;
-		const mousePos = { x: 0, y: 0 };
-		function onMouseMove(e) {
-			mousePos.x = e.clientX;
-			mousePos.y = e.clientY;
-		}
-
 		before(() => {
 			window.addEventListener('mousemove', onMouseMove);
 		});
@@ -207,7 +198,7 @@ describe('commands', () => {
 	describe('viewport', () => {
 
 		beforeEach(async() => {
-			await fixture(html`<div></div>`);
+			await fixture(emptyDivTemplate);
 		});
 
 		it('should set width and height', async() => {
