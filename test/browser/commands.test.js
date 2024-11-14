@@ -12,13 +12,20 @@ describe('commands', () => {
 	const emptyDivTemplate = html`<div></div>`;
 	const inputTemplate = html`<input type="text">`;
 
-	let elem;
+	let elem, key, keys;
 	const clickPos = { x: 0, y: 0 };
 	const mousePos = { x: 0, y: 0 };
 
 	function onClick(e) {
 		clickPos.x = e.clientX;
 		clickPos.y = e.clientY;
+	}
+
+	function onKeyDown(e) {
+		key = e.key;
+		if (Array.isArray(keys)) {
+			keys.push(key);
+		};
 	}
 
 	function onMouseMove(e) {
@@ -28,11 +35,13 @@ describe('commands', () => {
 
 	before(() => {
 		window.addEventListener('click', onClick);
+		window.addEventListener('keydown', onKeyDown);
 		window.addEventListener('mousemove', onMouseMove);
 	});
 
 	after(() => {
 		window.removeEventListener('click', onClick);
+		window.removeEventListener('keydown', onKeyDown);
 		window.removeEventListener('mousemove', onMouseMove);
 	});
 
@@ -123,19 +132,18 @@ describe('commands', () => {
 		});
 
 		it('should send keys to element', async() => {
+			key = undefined, keys = [];
+
 			await sendKeysElem(elem, 'type', 'Hello');
 			expect(elem.value).to.equal('Hello');
+			expect(keys).to.include('Shift');
 		});
 
 		it('should send keys to browser', async() => {
-			let key = undefined;
-			function onKeyDown(e) {
-				key = e.key;
-			}
-			window.addEventListener('keydown', onKeyDown);
+			key = undefined;
+
 			await sendKeys('press', 'Escape');
 			expect(key).to.equal('Escape');
-			window.removeEventListener('keydown', onKeyDown);
 		});
 
 	});
