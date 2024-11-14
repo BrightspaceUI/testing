@@ -10,9 +10,13 @@ describe('commands', () => {
 			<div id="source" draggable="true" style="height: 50px; width: 50px;"></div>
 		</div>`;
 	const emptyDivTemplate = html`<div></div>`;
-	const inputTemplate = html`<input type="text">`;
+	const focusTemplate = html`
+		<div>
+			<input type="text">
+			<button>text</button>
+		</div>`;
 
-	let elem, key, keys;
+	let elem, focusSource, key, keys;
 	const clickPos = { x: 0, y: 0 };
 	const mousePos = { x: 0, y: 0 };
 
@@ -26,6 +30,10 @@ describe('commands', () => {
 		if (Array.isArray(keys)) {
 			keys.push(key);
 		};
+	}
+
+	function onFocus(e) {
+		focusSource = e.target;
 	}
 
 	function onMouseMove(e) {
@@ -86,14 +94,28 @@ describe('commands', () => {
 
 		it('should hover over element', async() => {
 			let hovered = false;
-			elem.addEventListener('mouseover', () => hovered = true);
-			elem.addEventListener('mouseout', () => hovered = false);
+
+			function onMouseOver() {
+				hovered = true;
+			}
+
+			function onMouseOut() {
+				hovered = false;
+			}
+
+			elem.addEventListener('mouseover', onMouseOver);
+			elem.addEventListener('mouseout', onMouseOut);
+
 			await hoverElem(elem);
 			expect(hovered).to.be.true;
+
+			elem.removeEventListener('mouseover', onMouseOver);
+			elem.removeEventListener('mouseout', onMouseOut);
 		});
 
 		it('should hover at position', async() => {
 			await hoverAt(50, 100);
+
 			expect(mousePos.x).to.equal(50);
 			expect(mousePos.y).to.equal(100);
 		});
@@ -120,22 +142,40 @@ describe('commands', () => {
 	});
 
 	describe('keyboard/focus', async() => {
+		let buttonElem, inputElem;
+
 		beforeEach(async() => {
-			elem = await fixture(inputTemplate);
+			elem = await fixture(focusTemplate).then(rootElem => {
+				buttonElem = rootElem.querySelector('button');
+				inputElem = rootElem.querySelector('input');
+			});
+			buttonElem.addEventListener('focus', onFocus);
+			inputElem.addEventListener('focus', onFocus);
 		});
 
-		it('should focus on element', async() => {
-			let focused = false;
-			elem.addEventListener('focus', () => focused = true);
-			await focusElem(elem);
-			expect(focused).to.be.true;
+		afterEach(() => {
+			buttonElem.removeEventListener('focus', onFocus);
+			inputElem.removeEventListener('focus', onFocus);
+		});
+
+		it('should focus on button then input element', async() => {
+			await focusElem(buttonElem);
+			expect(focusSource).to.equal(buttonElem);
+
+			await focusElem(inputElem);
+			expect(focusSource).to.equal(inputElem);
+		});
+
+		it('should move focus via key press', async() => {
+			await sendKeysElem(elem, 'press', 'Tab');
+			expect(focusSource).to.be(inputElem);
 		});
 
 		it('should send keys to element', async() => {
 			key = undefined, keys = [];
 
-			await sendKeysElem(elem, 'type', 'Hello');
-			expect(elem.value).to.equal('Hello');
+			await sendKeysElem(inputElem, 'type', 'Hello');
+			expect(inputElem.value).to.equal('Hello');
 			expect(keys).to.include('Shift');
 		});
 
