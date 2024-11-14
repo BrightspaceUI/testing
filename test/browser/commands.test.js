@@ -26,19 +26,19 @@ describe('commands', () => {
 		mousePos.y = e.clientY;
 	}
 
-	describe('click/hover', () => {
-		before(() => {
-			window.addEventListener('click', onClick);
-			window.addEventListener('mousemove', onMouseMove);
-		});
+	before(() => {
+		window.addEventListener('click', onClick);
+		window.addEventListener('mousemove', onMouseMove);
+	});
 
+	after(() => {
+		window.removeEventListener('click', onClick);
+		window.removeEventListener('mousemove', onMouseMove);
+	});
+
+	describe('click/hover', () => {
 		beforeEach(async() => {
 			elem = await fixture(buttonTemplate);
-		});
-
-		after(() => {
-			window.removeEventListener('click', onClick);
-			window.removeEventListener('mousemove', onMouseMove);
 		});
 
 		it('should click on element', async() => {
@@ -164,16 +164,8 @@ describe('commands', () => {
 	});
 
 	describe('mouseReset', () => {
-		before(() => {
-			window.addEventListener('mousemove', onMouseMove);
-		});
-
 		beforeEach(async() => {
 			elem = await fixture(buttonTemplate);
-		});
-
-		after(() => {
-			window.removeEventListener('mousemove', onMouseMove);
 		});
 
 		[
