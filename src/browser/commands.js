@@ -5,6 +5,8 @@ export { setViewport } from './reset.js';
 function getElementPosition(elem) {
 	const { x, y, width, height } = elem.getBoundingClientRect();
 	return {
+		left: Math.floor(x + window.scrollX),
+		top: Math.floor(y + window.scrollY),
 		x: Math.floor(x + window.scrollX + width / 2),
 		y: Math.floor(y + window.scrollY + height / 2),
 	};
@@ -22,6 +24,11 @@ export async function clickAt(x, y) {
 export async function clickElem(elem) {
 	const position = getElementPosition(elem);
 	return clickAt(position.x, position.y);
+}
+
+export async function clickElemAt(elem, offsetX = 0, offsetY = 0) {
+	const position = getElementPosition(elem);
+	return clickAt(Math.floor(position.left + offsetX), Math.floor(position.top + offsetY));
 }
 
 export async function dragDropElems(elem, toElem) {
@@ -46,6 +53,11 @@ export async function hoverAt(x, y) {
 export async function hoverElem(elem) {
 	const position = getElementPosition(elem);
 	return hoverAt(position.x, position.y);
+}
+
+export async function hoverElemAt(elem, offsetX = 0, offsetY = 0) {
+	const position = getElementPosition(elem);
+	return hoverAt(Math.floor(position.left + offsetX), Math.floor(position.top + offsetY));
 }
 
 export async function sendKeys(action, keys) {
