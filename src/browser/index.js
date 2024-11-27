@@ -4,3 +4,4 @@ export { assert, aTimeout, defineCE, expect, html, nextFrame, oneDefaultPrevente
 export { clickAt, clickElem, clickElemAt, dragDropElems, focusElem, hoverAt, hoverElem, hoverElemAt, sendKeys, sendKeysElem, setViewport } from './commands.js';
 export { fixture } from './fixture.js';
 export { runConstructor } from './constructor.js';
+export { waitUntilSettled } from './wait.js';
