@@ -27,7 +27,7 @@
     "chai": "^5",
     "eslint": "^9",
     "eslint-config-brightspace": "^2.0.0",
-    "mocha": "^10",
+    "mocha": "^11",
     "sinon": "^19",
     "globals": "^15"
   },
