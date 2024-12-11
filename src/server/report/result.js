@@ -125,6 +125,9 @@ export const RESULT_STYLE = css`
 	.result-duration {
 		flex: 0 0 auto;
 	}
+	.breadcrumb-arrow {
+		user-select: none;
+	}
 `;
 
 function renderBrowserInfo(browser) {
@@ -247,7 +250,7 @@ export function renderBrowserResults(browser, tests, options) {
 		return acc.push(html`
 			<div class="item-container">
 				<div class="result-test-name">
-					<h3>${t.name}</h3>
+					<h3>${t.name.split(' > ').flatMap(p => [html`<span class="breadcrumb-arrow"> ></span> `, p]).slice(1)}</h3>
 					${pixelsDiff}
 					<div class="result-duration">${renderStatusText(`${resultData.duration}ms`, status)}</div>
 				</div>
