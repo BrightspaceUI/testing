@@ -496,8 +496,6 @@ Use the `grep` option to filter by test name. Only tests whose names match the p
 
 For example, `d2l-test-runner --grep foo` will run any test whose test suite(s) or name contains "foo".
 
-> **Note:** unfortunately, tests which do not match the grep value will be reported as failed instead of skipped.
-
 ### Debugging Tests
 
 When tests don't go as expected, the next step is usually to debug them using the browser's built-in developer tools.
