@@ -15,7 +15,7 @@
     "test:browser:ctor": "npx d2l-test-runner --config ./test/browser/ctor.config.js",
     "test:server": "mocha './test/server/**/*.test.js'",
     "test:vdiff": "npx d2l-test-runner vdiff $npm_config_sub --config ./test/browser/vdiff.config.js",
-    "postinstall": "node ./bin/build-browsers.js"
+    "postinstall": "echo 'Updating browser revisions...' && node ./bin/build-browsers.js"
   },
   "bin": {
     "d2l-test-runner": "./bin/d2l-test-runner.js",

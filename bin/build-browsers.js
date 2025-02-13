@@ -15,4 +15,4 @@ const newRevisions = browsers.reduce((acc, { name, revision, browserVersion: ver
 	return acc;
 }, revisions);
 
-await writeFile('./src/browser-revisions.js', `export default ${JSON.stringify(newRevisions, null, '\t')}`);
+await writeFile('./src/browser-revisions.js', `export default ${JSON.stringify(newRevisions, null, '\t')}\n`);
