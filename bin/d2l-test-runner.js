@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import commandLineArgs from 'command-line-args';
 import process from 'node:process';
+import { exec } from 'node:child_process';
 import { runner } from '../src/server/cli/test-runner.js';
 
 const { argv, stdout } = process;
@@ -21,6 +22,15 @@ if (cli.subcommand === 'vdiff') {
 	} else {
 		stdout.write(`\nfatal: unknown subcommand: ${vdiff.subcommand}\n`);
 	}
+} else if (cli.subcommand === 'install-browsers') {
+	const version = cli._unknown[0];
+	exec(`npm i playwright-core@${version} --no-save && npx playwright install --with-deps && npm i playwright-core`, { stdio: "inherit" }, (err, stdo, stde) => {
+		if (err) {
+			stdout.write(err.message.replace(/Command failed:.*/, ''));
+		} else {
+			stdout.write(`\n${stdo}\n`);
+		}
+	});
 } else {
 	runTests();
 }
