@@ -8,7 +8,7 @@ const newRevisions = browsers.reduce((acc, { name, revision, browserVersion }) =
 	return (
 		!acc.find(i => i.name === name && i.revision === revision)
 		&& BROWSERS.includes(name)
-		&& acc.push({ name, revision, version: browserVersion.split('.')[0] })
+		&& acc.push({ name, revision, version: browserVersion })
 		&& acc
 	) || acc;
 }, revisions);

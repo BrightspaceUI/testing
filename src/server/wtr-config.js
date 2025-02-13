@@ -236,7 +236,7 @@ export class WTRConfig {
 			let [product, version] = b.split('-');
 			let revision;
 			if (version) {
-				revision = revisions.find(r => r.name === product && r.version === version).revision;
+				revision = revisions.find(r => r.name === product && r.version.startsWith(version)).revision;
 			}
 
 			return playwrightLauncher({
