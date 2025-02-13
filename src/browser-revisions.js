@@ -1,33 +1,28 @@
 export default [
 	{
 		"name": "chromium",
-		"revision": "1155",
-		"version": "133.0.6943.16"
+		"revision": "1091",
+		"version": "120.0.6099.28"
 	},
 	{
 		"name": "firefox",
-		"revision": "1471",
-		"version": "134.0"
+		"revision": "1429",
+		"version": "119.0"
 	},
 	{
 		"name": "webkit",
-		"revision": "2123",
-		"version": "18.2"
+		"revision": "2035",
+		"version": "17.4"
 	},
 	{
 		"name": "chromium",
-		"revision": "1140",
-		"version": "130.0.6723.31"
+		"revision": "1097",
+		"version": "121.0.6167.57"
 	},
 	{
 		"name": "firefox",
-		"revision": "1465",
-		"version": "131.0"
-	},
-	{
-		"name": "webkit",
-		"revision": "2083",
-		"version": "18.0"
+		"revision": "1438",
+		"version": "121.0"
 	},
 	{
 		"name": "chromium",
@@ -70,11 +65,6 @@ export default [
 		"version": "128.0"
 	},
 	{
-		"name": "webkit",
-		"revision": "2051",
-		"version": "18.0"
-	},
-	{
 		"name": "chromium",
 		"revision": "1134",
 		"version": "129.0.6668.29"
@@ -85,34 +75,14 @@ export default [
 		"version": "130.0"
 	},
 	{
-		"name": "webkit",
-		"revision": "2070",
-		"version": "18.0"
-	},
-	{
 		"name": "chromium",
-		"revision": "1097",
-		"version": "121.0.6167.57"
+		"revision": "1140",
+		"version": "130.0.6723.31"
 	},
 	{
 		"name": "firefox",
-		"revision": "1438",
-		"version": "121.0"
-	},
-	{
-		"name": "chromium",
-		"revision": "1091",
-		"version": "120.0.6099.28"
-	},
-	{
-		"name": "firefox",
-		"revision": "1429",
-		"version": "119.0"
-	},
-	{
-		"name": "webkit",
-		"revision": "2035",
-		"version": "17.4"
+		"revision": "1465",
+		"version": "131.0"
 	},
 	{
 		"name": "chromium",
@@ -123,5 +93,25 @@ export default [
 		"name": "firefox",
 		"revision": "1466",
 		"version": "132.0"
+	},
+	{
+		"name": "webkit",
+		"revision": "2083",
+		"version": "18.0"
+	},
+	{
+		"name": "chromium",
+		"revision": "1155",
+		"version": "133.0.6943.16"
+	},
+	{
+		"name": "firefox",
+		"revision": "1471",
+		"version": "134.0"
+	},
+	{
+		"name": "webkit",
+		"revision": "2123",
+		"version": "18.2"
 	}
 ]
