@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import commandLineArgs from 'command-line-args';
 import process from 'node:process';
+import { join } from 'node:path';
 import { exec } from 'node:child_process';
 import { runner } from '../src/server/cli/test-runner.js';
 
@@ -24,7 +25,11 @@ if (cli.subcommand === 'vdiff') {
 	}
 } else if (cli.subcommand === 'install-browsers') {
 	const version = cli._unknown[0];
-	exec(`npm i playwright-core@${version} --no-save && npx playwright install --with-deps && npm i playwright-core`, { stdio: "inherit" }, (err, stdo, stde) => {
+	// 1. Install the temporary package
+	// 2. Install the browsers
+	// 3. Uninstall the temporary package
+	// 4. Reset .bin links
+	exec(`npm i pw-temp@npm:playwright-core@${version} --no-save && npx playwright-core install --with-deps && npm uninstall pw-temp && npm unlink playwright-core`, { stdio: "inherit" }, (err, stdo, stde) => {
 		if (err) {
 			stdout.write(err.message.replace(/Command failed:.*/, ''));
 		} else {
