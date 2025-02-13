@@ -114,4 +114,4 @@ export default [
 		"revision": "2123",
 		"version": "18.2"
 	}
-]
+];

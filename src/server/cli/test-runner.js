@@ -143,7 +143,7 @@ async function getTestRunnerOptions(argv = []) {
 					.map(o => {
 						const longAlias = optionDefinitions.find(clone => clone !== o && clone.longAlias === o.name)?.name;
 						if (longAlias) o.name += `, --${longAlias}`;
-						if (o.type?.name === 'type') o.type = { name: '[string]' };
+						if (o.type?.name === 'boolStr') o.type = { name: '[string]' };
 						return o;
 					})
 					.filter(o => 'order' in o)
