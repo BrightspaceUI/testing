@@ -5,12 +5,12 @@ const BROWSERS = ['chromium', 'firefox', 'webkit'];
 const { browsers } = JSON.parse(await readFile('./node_modules/playwright-core/browsers.json', { encoding: 'utf8' }));
 
 const newRevisions = browsers.reduce((acc, { name, revision, browserVersion }) => {
-	return (
-		!acc.find(i => i.name === name && i.revision === revision)
-		&& BROWSERS.includes(name)
-		&& acc.push({ name, revision, version: browserVersion })
-		&& acc
-	) || acc;
+	const noRevision = !acc.find(i => i.name === name && i.revision === revision);
+	if (noRevision && BROWSERS.includes(name)) {
+		acc = acc.filter(r => r.name !== name || r.version !== browserVersion);
+		acc.push({ name, revision, version: browserVersion });
+	}
+	return acc;
 }, revisions);
 
 await writeFile('./src/browser-revisions.js', `export default ${JSON.stringify(newRevisions, null, '\t')}`);
