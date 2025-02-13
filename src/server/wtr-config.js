@@ -236,7 +236,8 @@ export class WTRConfig {
 			let [product, version] = b.split('-');
 			let revision;
 			if (version) {
-				revision = revisions.find(r => r.name === product && r.version.startsWith(version)).revision;
+				revision = revisions.findLast(r => r.name === product && r.version.startsWith(version))?.revision;
+				!revision && console.warn(`Unknown browser revision: ${product} ${version}`);
 			}
 
 			return playwrightLauncher({
