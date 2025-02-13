@@ -1,10 +1,13 @@
 import { defaultReporter } from '@web/test-runner';
-import { env } from 'node:process';
+import { env, platform } from 'node:process';
 import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { reporter as testReportingReporter } from 'd2l-test-reporting/reporters/web-test-runner.js';
 import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
+import { join } from 'node:path';
+import { registryDirectory } from 'playwright-core/lib/server';
+import revisions from '../browser-revisions.js';
 
 const defaultReporterGrep = () => {
 	const dr = defaultReporter();
@@ -46,6 +49,23 @@ const BROWSER_MAP = {
 };
 const ALLOWED_BROWSERS = Object.keys(BROWSER_MAP);
 const DEFAULT_BROWSERS = [...new Set(Object.values(BROWSER_MAP))];
+const EXECUTABLE_PATHS = {
+  'chromium': {
+    'linux': ['chrome-linux', 'chrome'],
+    'darwin': ['chrome-mac', 'Chromium.app', 'Contents', 'MacOS', 'Chromium'],
+    'win32': ['chrome-win', 'chrome.exe'],
+  },
+  'firefox': {
+    'linux': ['firefox', 'firefox'],
+    'darwin': ['firefox', 'Nightly.app', 'Contents', 'MacOS', 'firefox'],
+    'win32': ['firefox', 'firefox.exe'],
+  },
+  'webkit': {
+    'linux': ['pw_run.sh'],
+    'darwin': ['pw_run.sh'],
+    'win32': ['Playwright.exe'],
+  }
+};
 const TIMEZONE = '{&quot;name&quot;:&quot;Canada - Toronto&quot;,&quot;identifier&quot;:&quot;America/Toronto&quot;}';
 const FONT_ASSETS = 'https://s.brightspace.com/lib/fonts/0.6.1/assets/';
 const TEST_PAGE = '<script>window.isD2LTestPage = true;</script>';
@@ -65,7 +85,7 @@ export class WTRConfig {
 	constructor(cliArgs) {
 		this.#cliArgs = cliArgs || {};
 		this.#cliArgs.group ??= 'test';
-		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs?.[b]);
+		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs && Object.hasOwn(cliArgs, b)).map(b => cliArgs?.[b] ? `${b}-${cliArgs[b]}` : b);
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
 	}
 	get visualDiffGroup() {
@@ -206,21 +226,32 @@ export class WTRConfig {
 		return config;
 	}
 	getBrowsers(browsers, deviceScaleFactor) {
-		browsers = (this.#requestedBrowsers || browsers || DEFAULT_BROWSERS).map(b => BROWSER_MAP[b] || BROWSER_MAP.chrome);
-
+		browsers = (this.#requestedBrowsers || browsers || DEFAULT_BROWSERS).map(b => {
+			const [product, version] = b.split('-');
+			return `${BROWSER_MAP[product]}${version ? `-${version}` : ''}` || BROWSER_MAP.chrome;
+		});
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 
-		return [...new Set(browsers)].map((b) => playwrightLauncher({
-			concurrency: b === BROWSER_MAP.firefox || this.#cliArgs.open ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
-			product: b,
-			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor, reducedMotion: 'reduce' }),
-			launchOptions: {
-				headless: !this.#cliArgs.open,
-				devtools: false,
-				slowMo: this.#cliArgs.slowmo || 0,
-				args: b === BROWSER_MAP.chrome ? ['--disable-gpu-rasterization'] : []
+		return [...new Set(browsers)].map((b) => {
+			let [product, version] = b.split('-');
+			let revision;
+			if (version) {
+				revision = revisions.find(r => r.name === product && r.version === version).revision;
 			}
-		}));
+
+			return playwrightLauncher({
+				concurrency: product === BROWSER_MAP.firefox || this.#cliArgs.open ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
+				product,
+				createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor, reducedMotion: 'reduce' }),
+				launchOptions: {
+					...(revision && { executablePath: join(registryDirectory, `${product}-${revision}`, ...EXECUTABLE_PATHS[product][platform]) }),
+					headless: !this.#cliArgs.open,
+					devtools: false,
+					slowMo: this.#cliArgs.slowmo || 0,
+					args: product === BROWSER_MAP.chrome ? ['--disable-gpu-rasterization'] : []
+				}
+			});
+		});
 	}
 	#cliArgs;
 

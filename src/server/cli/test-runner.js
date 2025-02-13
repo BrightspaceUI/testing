@@ -37,7 +37,7 @@ async function getTestRunnerOptions(argv = []) {
 		// d2l-test-runner options
 		{
 			name: 'chromium',
-			type: Boolean,
+			type: v => v,
 			description: 'Run tests in Chromium',
 			order: 2
 		},
@@ -63,7 +63,7 @@ async function getTestRunnerOptions(argv = []) {
 		},
 		{
 			name: 'firefox',
-			type: Boolean,
+			type: v => v,
 			description: 'Run tests in Firefox',
 			order: 3
 		},
@@ -117,7 +117,7 @@ async function getTestRunnerOptions(argv = []) {
 		},
 		{
 			name: 'webkit',
-			type: Boolean,
+			type: v => v,
 			description: 'Run tests in Webkit',
 			order: 4
 		}
