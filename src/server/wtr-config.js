@@ -1,13 +1,13 @@
-import { defaultReporter } from '@web/test-runner';
 import { env, platform } from 'node:process';
+import { defaultReporter } from '@web/test-runner';
 import { headedMode } from './headed-mode-plugin.js';
+import { join } from 'node:path';
 import { playwrightLauncher } from '@web/test-runner-playwright';
+import { registryDirectory } from 'playwright-core/lib/server';
+import revisions from '../browser-revisions.js';
 import { reporter as testReportingReporter } from 'd2l-test-reporting/reporters/web-test-runner.js';
 import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
-import { join } from 'node:path';
-import { registryDirectory } from 'playwright-core/lib/server';
-import revisions from '../browser-revisions.js';
 
 const defaultReporterGrep = () => {
 	const dr = defaultReporter();
@@ -50,21 +50,21 @@ const BROWSER_MAP = {
 const ALLOWED_BROWSERS = Object.keys(BROWSER_MAP);
 const DEFAULT_BROWSERS = [...new Set(Object.values(BROWSER_MAP))];
 const EXECUTABLE_PATHS = {
-  'chromium': {
-    'linux': ['chrome-linux', 'chrome'],
-    'darwin': ['chrome-mac', 'Chromium.app', 'Contents', 'MacOS', 'Chromium'],
-    'win32': ['chrome-win', 'chrome.exe'],
-  },
-  'firefox': {
-    'linux': ['firefox', 'firefox'],
-    'darwin': ['firefox', 'Nightly.app', 'Contents', 'MacOS', 'firefox'],
-    'win32': ['firefox', 'firefox.exe'],
-  },
-  'webkit': {
-    'linux': ['pw_run.sh'],
-    'darwin': ['pw_run.sh'],
-    'win32': ['Playwright.exe'],
-  }
+	'chromium': {
+		'linux': ['chrome-linux', 'chrome'],
+		'darwin': ['chrome-mac', 'Chromium.app', 'Contents', 'MacOS', 'Chromium'],
+		'win32': ['chrome-win', 'chrome.exe'],
+	},
+	'firefox': {
+		'linux': ['firefox', 'firefox'],
+		'darwin': ['firefox', 'Nightly.app', 'Contents', 'MacOS', 'firefox'],
+		'win32': ['firefox', 'firefox.exe'],
+	},
+	'webkit': {
+		'linux': ['pw_run.sh'],
+		'darwin': ['pw_run.sh'],
+		'win32': ['Playwright.exe'],
+	}
 };
 const TIMEZONE = '{&quot;name&quot;:&quot;Canada - Toronto&quot;,&quot;identifier&quot;:&quot;America/Toronto&quot;}';
 const FONT_ASSETS = 'https://s.brightspace.com/lib/fonts/0.6.1/assets/';
@@ -85,7 +85,7 @@ export class WTRConfig {
 	constructor(cliArgs) {
 		this.#cliArgs = cliArgs || {};
 		this.#cliArgs.group ??= 'test';
-		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs && Object.hasOwn(cliArgs, b)).map(b => cliArgs?.[b] ? `${b}-${cliArgs[b]}` : b);
+		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs && Object.hasOwn(cliArgs, b)).map(b => (cliArgs?.[b] ? `${b}-${cliArgs[b]}` : b));
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
 	}
 	get visualDiffGroup() {
@@ -233,7 +233,7 @@ export class WTRConfig {
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 
 		return [...new Set(browsers)].map((b) => {
-			let [product, version] = b.split('-');
+			const [product, version] = b.split('-');
 			let revision;
 			if (version) {
 				revision = revisions.findLast(r => r.name === product && r.version.startsWith(version))?.revision;
