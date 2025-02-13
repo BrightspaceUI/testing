@@ -40,11 +40,6 @@ export default [
 		"version": "124.0"
 	},
 	{
-		"name": "webkit",
-		"revision": "1992",
-		"version": "17.4"
-	},
-	{
 		"name": "chromium",
 		"revision": "1117",
 		"version": "125.0.6422.26"
@@ -55,11 +50,6 @@ export default [
 		"version": "125.0.1"
 	},
 	{
-		"name": "webkit",
-		"revision": "2003",
-		"version": "17.4"
-	},
-	{
 		"name": "chromium",
 		"revision": "1124",
 		"version": "127.0.6533.17"
@@ -68,11 +58,6 @@ export default [
 		"name": "firefox",
 		"revision": "1454",
 		"version": "127.0"
-	},
-	{
-		"name": "webkit",
-		"revision": "2035",
-		"version": "17.4"
 	},
 	{
 		"name": "chromium",
@@ -103,5 +88,20 @@ export default [
 		"name": "webkit",
 		"revision": "2070",
 		"version": "18.0"
+	},
+	{
+		"name": "chromium",
+		"revision": "1097",
+		"version": "121.0.6167.57"
+	},
+	{
+		"name": "firefox",
+		"revision": "1438",
+		"version": "121.0"
+	},
+	{
+		"name": "webkit",
+		"revision": "1967",
+		"version": "17.4"
 	}
 ]
