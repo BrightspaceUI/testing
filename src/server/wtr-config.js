@@ -228,7 +228,7 @@ export class WTRConfig {
 	getBrowsers(browsers, deviceScaleFactor) {
 		browsers = (this.#requestedBrowsers || browsers || DEFAULT_BROWSERS).map(b => {
 			const [product, version] = b.split('-');
-			return `${BROWSER_MAP[product]}${version ? `-${version}` : ''}` || BROWSER_MAP.chrome;
+			return BROWSER_MAP[product] ? `${BROWSER_MAP[product]}${version ? `-${version}` : ''}` : BROWSER_MAP.chrome;
 		});
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
 
