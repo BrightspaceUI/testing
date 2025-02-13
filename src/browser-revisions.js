@@ -58,5 +58,20 @@ export default [
 		"name": "webkit",
 		"revision": "2003",
 		"version": "17.4"
+	},
+	{
+		"name": "chromium",
+		"revision": "1124",
+		"version": "127.0.6533.17"
+	},
+	{
+		"name": "firefox",
+		"revision": "1454",
+		"version": "127.0"
+	},
+	{
+		"name": "webkit",
+		"revision": "2035",
+		"version": "17.4"
 	}
 ]
