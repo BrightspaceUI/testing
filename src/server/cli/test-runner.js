@@ -6,6 +6,10 @@ import { execSync } from 'node:child_process';
 import process from 'node:process';
 import { startTestRunner } from '@web/test-runner';
 
+function boolStr(v) {
+	return typeof v === 'string' ? v : null;
+}
+
 async function getTestRunnerOptions(argv = []) {
 
 	const DISALLOWED_OPTIONS = ['--browsers', '--playwright', '--puppeteer', '--groups', '--manual'];
@@ -37,14 +41,13 @@ async function getTestRunnerOptions(argv = []) {
 		// d2l-test-runner options
 		{
 			name: 'chromium',
-			type: v => v,
-			description: 'Run tests in Chromium',
+			type: boolStr,
+			description: 'Run tests in Chromium, optionally specifying a version',
 			order: 2
 		},
 		{
 			name: 'chrome',
-			longAlias: 'chromium',
-			type: Boolean
+			longAlias: 'chromium'
 		},
 		{
 			name: 'config',
@@ -63,8 +66,8 @@ async function getTestRunnerOptions(argv = []) {
 		},
 		{
 			name: 'firefox',
-			type: v => v,
-			description: 'Run tests in Firefox',
+			type: boolStr,
+			description: 'Run tests in Firefox, optionally specifying a version',
 			order: 3
 		},
 		{
@@ -92,8 +95,7 @@ async function getTestRunnerOptions(argv = []) {
 		},
 		{
 			name: 'safari',
-			longAlias: 'webkit',
-			type: Boolean
+			longAlias: 'webkit'
 		},
 		{
 			name: 'slow',
@@ -117,8 +119,8 @@ async function getTestRunnerOptions(argv = []) {
 		},
 		{
 			name: 'webkit',
-			type: v => v,
-			description: 'Run tests in Webkit',
+			type: boolStr,
+			description: 'Run tests in Webkit, optionally specifying a version',
 			order: 4
 		}
 	];
@@ -141,6 +143,7 @@ async function getTestRunnerOptions(argv = []) {
 					.map(o => {
 						const longAlias = optionDefinitions.find(clone => clone !== o && clone.longAlias === o.name)?.name;
 						if (longAlias) o.name += `, --${longAlias}`;
+						if (o.type?.name === 'type') o.type = { name: '[string]' };
 						return o;
 					})
 					.filter(o => 'order' in o)
@@ -159,6 +162,10 @@ async function getTestRunnerOptions(argv = []) {
 				{
 					example: 'vdiff golden',
 					desc: 'Generate new golden screenshots'
+				},
+				{
+					example: 'install-browsers <playwright-version>',
+					desc: 'Install browsers from a given Playwright version'
 				}]
 			}
 		]);
