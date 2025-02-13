@@ -36,7 +36,8 @@
     ".": "./src/browser/index.js"
   },
   "files": [
-    "/src"
+    "/src",
+    "/bin"
   ],
   "publishConfig": {
     "access": "public"
