@@ -4,11 +4,13 @@ import revisions from '../src/browser-revisions.js';
 const BROWSERS = ['chromium', 'firefox', 'webkit'];
 const { browsers } = JSON.parse(await readFile('./node_modules/playwright-core/browsers.json', { encoding: 'utf8' }));
 
-const newRevisions = browsers.reduce((acc, { name, revision, browserVersion }) => {
+const newRevisions = browsers.reduce((acc, { name, revision, browserVersion: version }) => {
 	const noRevision = !acc.find(i => i.name === name && i.revision === revision);
 	if (noRevision && BROWSERS.includes(name)) {
-		acc = acc.filter(r => r.name !== name || r.version !== browserVersion);
-		acc.push({ name, revision, version: browserVersion });
+		acc = acc.filter(r => r.name !== name || r.version !== version || r.revision > revision);
+		if (!acc.find(i => i.name === name && i.version === version && i.revision > revision)) {
+			acc.push({ name, revision, version });
+		}
 	}
 	return acc;
 }, revisions);
