@@ -166,6 +166,10 @@ async function getTestRunnerOptions(argv = []) {
 				{
 					example: 'install-browsers <playwright-version>',
 					desc: 'Install browsers from a given Playwright version'
+				},
+				{
+					example: 'version',
+					desc: 'Print the version of d2l-test-runner'
 				}]
 			}
 		]);

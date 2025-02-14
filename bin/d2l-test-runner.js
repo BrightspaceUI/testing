@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --no-warnings
 import commandLineArgs from 'command-line-args';
 import { exec } from 'node:child_process';
 import process from 'node:process';
@@ -35,6 +35,9 @@ if (cli.subcommand === 'vdiff') {
 			stdout.write(stdo);
 		}
 	});
+} else if (cli.subcommand === 'version') {
+	const { version } = (await import('../package.json', { with: { type: 'json' } })).default;
+	stdout.write(`v${version}\n`);
 } else {
 	runTests();
 }
