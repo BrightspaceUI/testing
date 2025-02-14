@@ -1,7 +1,9 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { env } from 'node:process';
+import { env, exit } from 'node:process';
 import { join } from 'node:path';
 import revisions from '../src/browser-revisions.js';
+
+if (env.npm_command === 'link') exit();
 
 const BROWSERS = [ 'chromium', 'firefox', 'webkit' ];
 

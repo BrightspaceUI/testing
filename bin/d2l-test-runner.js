@@ -4,7 +4,7 @@ import { exec } from 'node:child_process';
 import process from 'node:process';
 import { runner } from '../src/server/cli/test-runner.js';
 
-const { argv, stdout } = process;
+const { argv, exit, stderr, stdout } = process;
 const cli = commandLineArgs({ name: 'subcommand', defaultOption: true }, { stopAtFirstUnknown: true, argv });
 
 if (cli.subcommand === 'vdiff') {
@@ -24,16 +24,19 @@ if (cli.subcommand === 'vdiff') {
 	}
 } else if (cli.subcommand === 'install-browsers') {
 	const version = cli._unknown[0];
-	// 1. Install the temporary package
-	// 2. Install the browsers
-	// 3. Uninstall the temporary package
-	// 4. Reset .bin links
-	exec(`npm i pw-temp@npm:playwright-core@${version} --no-save && npx playwright-core install --with-deps && npm uninstall pw-temp && npm unlink playwright-core`, { stdio: 'inherit' }, (err, stdo) => {
-		if (err) {
-			stdout.write(err.message.replace(/Command failed:.*/, ''));
-		} else {
-			stdout.write(stdo);
-		}
+	// Install the temporary package
+	const pw = exec(`npm i pw-temp@npm:playwright-core@${version} --no-save`, { stdio: 'pipe' }, err => err && stderr.write(err.message.replace(/Command failed:.*/, '')));
+	pw.on('close', code => {
+		if (code) exit(code);
+		// Install the browsers
+		const i = exec(`PLAYWRIGHT_SKIP_BROWSER_GC=1 npx playwright-core@${version} install  --with-deps chromium firefox webkit`, { stdio: 'pipe' }, err => err && stderr.write(err.message.replace(/Command failed:.*/, '')));
+		i.stdout.on('data', data => {
+			stdout.write(data);
+		});
+		i.on('close', () => {
+			// Uninstall the temporary package and reset .bin links
+			exec(`npm uninstall pw-temp && npm unlink playwright-core`, { stdio: 'ignore' });
+		});
 	});
 } else if (cli.subcommand === 'version') {
 	const { version } = (await import('../package.json', { with: { type: 'json' } })).default;
