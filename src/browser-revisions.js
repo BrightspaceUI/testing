@@ -1,117 +1,31 @@
-export default [
-	{
-		"name": "chromium",
-		"revision": "1091",
-		"version": "120.0.6099.28"
-	},
-	{
-		"name": "firefox",
-		"revision": "1429",
-		"version": "119.0"
-	},
-	{
-		"name": "webkit",
-		"revision": "2035",
-		"version": "17.4"
-	},
-	{
-		"name": "chromium",
-		"revision": "1097",
-		"version": "121.0.6167.57"
-	},
-	{
-		"name": "firefox",
-		"revision": "1438",
-		"version": "121.0"
-	},
-	{
-		"name": "chromium",
-		"revision": "1112",
-		"version": "124.0.6367.29"
-	},
-	{
-		"name": "firefox",
-		"revision": "1447",
-		"version": "124.0"
-	},
-	{
-		"name": "chromium",
-		"revision": "1117",
-		"version": "125.0.6422.26"
-	},
-	{
-		"name": "firefox",
-		"revision": "1449",
-		"version": "125.0.1"
-	},
-	{
-		"name": "chromium",
-		"revision": "1124",
-		"version": "127.0.6533.17"
-	},
-	{
-		"name": "firefox",
-		"revision": "1454",
-		"version": "127.0"
-	},
-	{
-		"name": "chromium",
-		"revision": "1129",
-		"version": "128.0.6613.18"
-	},
-	{
-		"name": "firefox",
-		"revision": "1458",
-		"version": "128.0"
-	},
-	{
-		"name": "chromium",
-		"revision": "1134",
-		"version": "129.0.6668.29"
-	},
-	{
-		"name": "firefox",
-		"revision": "1463",
-		"version": "130.0"
-	},
-	{
-		"name": "chromium",
-		"revision": "1140",
-		"version": "130.0.6723.31"
-	},
-	{
-		"name": "firefox",
-		"revision": "1465",
-		"version": "131.0"
-	},
-	{
-		"name": "chromium",
-		"revision": "1148",
-		"version": "131.0.6778.33"
-	},
-	{
-		"name": "firefox",
-		"revision": "1466",
-		"version": "132.0"
-	},
-	{
-		"name": "webkit",
-		"revision": "2083",
-		"version": "18.0"
-	},
-	{
-		"name": "chromium",
-		"revision": "1155",
-		"version": "133.0.6943.16"
-	},
-	{
-		"name": "firefox",
-		"revision": "1471",
-		"version": "134.0"
-	},
-	{
-		"name": "webkit",
-		"revision": "2123",
-		"version": "18.2"
-	}
-];
+export default {
+	"chromium": [
+		[ "1091", "120.0.6099.28" ],
+		[ "1097", "121.0.6167.57" ],
+		[ "1112", "124.0.6367.29" ],
+		[ "1117", "125.0.6422.26" ],
+		[ "1124", "127.0.6533.17" ],
+		[ "1129", "128.0.6613.18" ],
+		[ "1134", "129.0.6668.29" ],
+		[ "1140", "130.0.6723.31" ],
+		[ "1148", "131.0.6778.33" ],
+		[ "1155", "133.0.6943.16" ]
+	],
+	"firefox": [
+		[ "1429", "119.0" ],
+		[ "1438", "121.0" ],
+		[ "1447", "124.0" ],
+		[ "1449", "125.0.1" ],
+		[ "1454", "127.0" ],
+		[ "1458", "128.0" ],
+		[ "1463", "130.0" ],
+		[ "1465", "131.0" ],
+		[ "1466", "132.0" ],
+		[ "1471", "134.0" ]
+	],
+	"webkit": [
+		[ "2035", "17.4" ],
+		[ "2083", "18.0" ],
+		[ "2123", "18.2" ]
+	]
+};

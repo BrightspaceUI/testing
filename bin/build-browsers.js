@@ -3,18 +3,30 @@ import { env } from 'node:process';
 import { join } from 'node:path';
 import revisions from '../src/browser-revisions.js';
 
-const BROWSERS = ['chromium', 'firefox', 'webkit'];
+const BROWSERS = [ 'chromium', 'firefox', 'webkit' ];
+
 const { browsers } = JSON.parse(await readFile(join(env.INIT_CWD, 'node_modules/playwright-core/browsers.json'), { encoding: 'utf8' }));
 
 const newRevisions = browsers.reduce((acc, { name, revision, browserVersion: version }) => {
-	const noRevision = !acc.find(i => i.name === name && i.revision === revision);
-	if (noRevision && BROWSERS.includes(name)) {
-		acc = acc.filter(r => r.name !== name || r.version !== version || r.revision > revision);
-		if (!acc.find(i => i.name === name && i.version === version && i.revision > revision)) {
-			acc.push({ name, revision, version });
+	if (BROWSERS.includes(name)) {
+		const found = acc[name]?.find(([r]) => r === revision);
+		if (!found) {
+			acc[name] = acc[name].filter(([r, v]) => v !== version || r > revision);
+			if (!acc[name].find(([r, v]) => v === version && r > revision)) {
+				acc[name].push([ revision, version ]);
+			}
 		}
 	}
 	return acc;
 }, revisions);
 
-await writeFile('./src/browser-revisions.js', `export default ${JSON.stringify(newRevisions, null, '\t')};\n`);
+Object.entries(newRevisions).forEach(([k, v]) => {
+	newRevisions[k] = v.sort(([a], [b]) => a - b);
+})
+
+await writeFile('./src/browser-revisions.js', `export default ${
+	JSON.stringify(newRevisions, null, '\t')
+		.replace(/\[\s+"/g, '[ "')
+		.replace(/"\s+\]/g, '" ]')
+		.replace(/",\s+"/g, '", "')
+};\n`);
