@@ -1,5 +1,5 @@
-import { readFile, writeFile } from 'node:fs/promises';
 import { env, exit } from 'node:process';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import revisions from '../src/browser-revisions.js';
 
@@ -24,7 +24,7 @@ const newRevisions = browsers.reduce((acc, { name, revision, browserVersion: ver
 
 Object.entries(newRevisions).forEach(([k, v]) => {
 	newRevisions[k] = v.sort(([a], [b]) => a - b);
-})
+});
 
 await writeFile('./src/browser-revisions.js', `export default ${
 	JSON.stringify(newRevisions, null, '\t')

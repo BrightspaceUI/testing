@@ -35,7 +35,7 @@ if (cli.subcommand === 'vdiff') {
 		});
 		i.on('close', () => {
 			// Uninstall the temporary package and reset .bin links
-			exec(`npm uninstall pw-temp && npm unlink playwright-core`, { stdio: 'ignore' });
+			exec('npm uninstall pw-temp && npm unlink playwright-core', { stdio: 'ignore' });
 		});
 	});
 } else if (cli.subcommand === 'version') {

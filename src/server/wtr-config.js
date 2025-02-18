@@ -236,7 +236,7 @@ export class WTRConfig {
 			const [product, version] = b.split('-');
 			let revision;
 			if (version) {
-				revision = revisions[product]?.findLast(([r, v]) => v.startsWith(version))?.[0];
+				revision = revisions[product]?.findLast(([gc, v]) => v.startsWith(version))?.[0];
 				!revision && console.warn(`Unknown browser revision: ${product} ${version}`);
 			}
 
