@@ -205,7 +205,7 @@ async function getTestRunnerOptions(argv = []) {
 }
 
 function installDeps() {
-	execSync('npx playwright install --with-deps', { stdio: 'pipe' });
+	execSync('npx playwright install --with-deps', { stdio: 'pipe', env: { ...process.env, PLAYWRIGHT_SKIP_BROWSER_GC: 1 }});
 }
 
 export const runner = {
