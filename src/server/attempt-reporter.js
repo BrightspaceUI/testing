@@ -42,7 +42,7 @@ export function attemptReporter() {
 			await access(reportDir).catch(async err => err && await mkdir(reportDir).catch(() => {}));
 			console.log('WRITING ATTEMPT REPORT:');/* eslint-disable-line */
 			console.log(failedData);/* eslint-disable-line */
-			await writeFile(join(reportDir, '.attempt-report.js'), `export default ${JSON.stringify(failedData, null, '\t')}\n`);
+			await writeFile(join(reportDir, '.attempt-report.js'), `/* eslint-disable */\n\nexport default ${JSON.stringify(failedData, null, '\t')}\n`);
 		},
 	};
 }
