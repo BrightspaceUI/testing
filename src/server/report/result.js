@@ -63,6 +63,18 @@ export const RESULT_STYLE = css`
 		position: absolute;
 		top: 0;
 	}
+	.result-overlay img:active {
+		filter:
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red)
+			drop-shadow(0 0 0.5px red);
+	}
 	.result-part-info {
 		align-items: center;
 		display: flex;
@@ -112,6 +124,9 @@ export const RESULT_STYLE = css`
 	}
 	.result-duration {
 		flex: 0 0 auto;
+	}
+	.breadcrumb-arrow {
+		user-select: none;
 	}
 `;
 
@@ -175,7 +190,7 @@ function renderResult(resultData, options) {
 		let newPart;
 		if (resultData.passed) {
 			newPart = html`<div class="result-graphic padding">${ICON_TADA}<p>Hooray! No changes here.</p></div>`;
-		} else if (!resultData.info.diff && resultData.info.pixelsDiff === 0) {
+		} else if (resultData.bytediff) {
 			newPart = html`<div class="result-graphic padding">${ICON_BYTES}
 				<p>No pixels have changed, but the bytes are different.</p>
 				<p class="details">
@@ -207,7 +222,8 @@ export function renderBrowserResults(browser, tests, options) {
 
 		const resultData = t.results.find(r => r.name === browser.name);
 		if (resultData.passed && options.filterStatus === FILTER_STATUS.FAILED ||
-			!resultData.passed && options.filterStatus === FILTER_STATUS.PASSED) {
+			!resultData.passed && options.filterStatus === FILTER_STATUS.PASSED ||
+			resultData.bytediff && options.filterHideByteDiff) {
 			return acc;
 		}
 
@@ -234,7 +250,7 @@ export function renderBrowserResults(browser, tests, options) {
 		return acc.push(html`
 			<div class="item-container">
 				<div class="result-test-name">
-					<h3>${t.name}</h3>
+					<h3>${t.name.split(' > ').flatMap(p => [html`<span class="breadcrumb-arrow"> ></span> `, p]).slice(1)}</h3>
 					${pixelsDiff}
 					<div class="result-duration">${renderStatusText(`${resultData.duration}ms`, status)}</div>
 				</div>

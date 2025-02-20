@@ -11,6 +11,7 @@ import page from 'page';
 class App extends LitElement {
 	static properties = {
 		_files: { state: true },
+		_filterHideByteDiff: { state: true },
 		_filterFile: { state: true },
 		_filterTest: { state: true },
 		_fullMode: { state: true },
@@ -59,6 +60,9 @@ class App extends LitElement {
 			text-align: left;
 			white-space: normal;
 			width: 100%;
+		}
+		td.byte-diff {
+			background-color: #fbf9c6;
 		}
 		td.passed {
 			background-color: #efffd9;
@@ -121,6 +125,7 @@ class App extends LitElement {
 	constructor() {
 		super();
 		this._filterBrowsers = data.browsers.map(b => b.name);
+		this._filterHideByteDiff = false;
 		this._filterStatus = data.numFailed > 0 ? FILTER_STATUS.FAILED : FILTER_STATUS.ALL;
 		this._fullMode = FULL_MODE.GOLDEN.value;
 		this._layout = LAYOUTS.SPLIT.value;
@@ -146,12 +151,15 @@ class App extends LitElement {
 			}
 			if (searchParams.has('status')) {
 				let filterStatus = searchParams.get('status');
-				if (filterStatus === FILTER_STATUS.FAILED && data.numFailed === 0) filterStatus = FILTER_STATUS.ALL;
+				if (filterStatus === FILTER_STATUS.FAILED && data.numFailed === 0) {
+					filterStatus = FILTER_STATUS.ALL;
+				}
 				this._filterStatus = filterStatus;
 			}
 			if (searchParams.has('browsers')) {
 				this._filterBrowsers = searchParams.get('browsers').split(',');
 			}
+			this._filterHideByteDiff = searchParams.has('bytediff');
 			this._updateFiles();
 		});
 		page();
@@ -176,6 +184,9 @@ class App extends LitElement {
 			}
 		});
 		this._updateSearchParams({ browsers: browsers.join(',') });
+	}
+	_handleFilterByteDiffChange(e) {
+		this._updateSearchParams({ bytediff: !e.target.checked ? undefined : '1' });
 	}
 	_handleFilterStatusChange(e) {
 		this._updateSearchParams({ status: e.target.value });
@@ -243,14 +254,42 @@ class App extends LitElement {
 			</div>
 		` : nothing;
 
+		const systemDiffs = Object.entries(data.system).reduce((acc, [k, v]) => {
+			const previous = data.system.previous[k] || 'unknown';
+			if (k === 'previous' || previous === v) {
+				return acc;
+			}
+			return acc.push(html`
+				<li>${k}: <strong>${data.system.previous[k]}</strong> to <strong>${v}</strong></li>
+			`) && acc;
+		}, []);
+		const systemDiffInfo = systemDiffs.length ? html`
+			<div class="browser-diff">
+				<div class="browser-diff-title">System Changes</div>
+				<ul>${systemDiffs}</ul>
+			</div>
+		` : nothing;
+
+		const byteDiffFilter = (data.numByteDiff > 0) ? html`
+			<fieldset>
+				<legend>Byte Diffs</legend>
+				<label>
+					<input type="checkbox" ?checked="${this._filterHideByteDiff}" @change="${this._handleFilterByteDiffChange}">
+					Hide tests with only file size differences (${data.numByteDiff})
+				</label>
+			</fieldset>
+		` : nothing;
+
 		return html`
 			<fieldset>
 				<legend>Test Status</legend>
 				${statusFilters.map(f => renderStatusFilter(f))}
 				(${data.numSkipped} skipped)
 			</fieldset>
+			${byteDiffFilter}
 			${browserFilter}
 			${browserDiffInfo}
+			${systemDiffInfo}
 		`;
 
 	}
@@ -286,7 +325,7 @@ class App extends LitElement {
 			if (!this._filterBrowsers.includes(b.name)) return nothing;
 			const result = test.results.find(r => r.name === b.name);
 			const passed = (result !== undefined) ? result.passed : true;
-			const text = passed ? 'passed' : 'failed';
+			const text = passed ? 'passed' : (result.bytediff ? 'byte-diff' : 'failed');
 			return html`<td class="${text}">${text}</td>`;
 		});
 		const searchParams = new URLSearchParams(window.location.search);
@@ -378,7 +417,7 @@ class App extends LitElement {
 		const tabs = browsers.map((b) => {
 			const numPassed = browserResults.get(b.name);
 			return {
-				content: renderBrowserResults(b, tests, { filterStatus: this._filterStatus, fullMode: this._fullMode, layout: this._layout, showOverlay: this._overlay }),
+				content: renderBrowserResults(b, tests, { filterHideByteDiff: this._filterHideByteDiff, filterStatus: this._filterStatus, fullMode: this._fullMode, layout: this._layout, showOverlay: this._overlay }),
 				label: b.name,
 				id: b.name.toLowerCase(),
 				selected: b.name === selectedBrowser.name,
@@ -433,9 +472,10 @@ class App extends LitElement {
 				let numStatusMatch = 0;
 				t.results.forEach(r => {
 					if (this._filterBrowsers.includes(r.name) &&
+						((!r.bytediff || !this._filterHideByteDiff) &&
 						(this._filterStatus === FILTER_STATUS.ALL ||
 						r.passed && this._filterStatus === FILTER_STATUS.PASSED ||
-						!r.passed && this._filterStatus === FILTER_STATUS.FAILED)) numStatusMatch++;
+						!r.passed && this._filterStatus === FILTER_STATUS.FAILED))) numStatusMatch++;
 				});
 				if (numStatusMatch > 0) {
 					if (lookingForNextTest) {

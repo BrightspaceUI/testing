@@ -1,9 +1,12 @@
+import * as os from 'node:os';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { extractTestPartsFromName, getTestInfo, PATHS, tryMoveFile } from './visual-diff-plugin.js';
 import { env } from 'node:process';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { getTestInfo } from './visual-diff-plugin.js';
+import { PATHS } from './paths.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const isCI = !!env['CI'];
@@ -28,6 +31,7 @@ function createData(rootDir, updateGoldens, sessions) {
 			const prevBrowser = metadata.browsers?.find(b => b.name === browserName);
 			browsers.set(browserName, {
 				name: browserName,
+				numByteDiff: 0,
 				numFailed: 0,
 				version: parseInt(s.browser.browser.version()),
 				previousVersion: prevBrowser?.version
@@ -37,14 +41,14 @@ function createData(rootDir, updateGoldens, sessions) {
 
 		const fileName = s.testFile.substring(rootDir.length + 1);
 		if (!files.has(fileName)) {
-			files.set(fileName, { name: fileName, numFailed: 0, numSkipped: 0, tests: new Map() });
+			files.set(fileName, { name: fileName, numByteDiff: 0, numFailed: 0, numSkipped: 0, tests: new Map() });
 		}
 		const fileData = files.get(fileName);
 		flattenResults(s, browserData, fileData);
 
 	});
 
-	let numTests = 0, numFailed = 0, numSkipped = 0;
+	let numTests = 0, numFailed = 0, numByteDiff = 0, numSkipped = 0;
 	files.forEach(f => {
 		numTests += f.tests.size;
 		f.tests.forEach(t => {
@@ -52,21 +56,32 @@ function createData(rootDir, updateGoldens, sessions) {
 				f.numFailed++;
 				numFailed++;
 			}
-			if (t.numSkipped === t.numFailed) {
-				f.numSkipped++;
-				numSkipped++;
+			if (t.numByteDiff > 0) {
+				f.numByteDiff++;
+				numByteDiff++;
+        numSkipped++;
 			}
 		});
 	});
+
+	const system = {
+		platform: os.platform(),
+		release: os.release(),
+		arch: os.arch()
+	};
 
 	if (isCI || updateGoldens) {
 		metadata.browsers = Array.from(browsers.values()).map(b => {
 			return { name: b.name, version: b.version };
 		});
-		writeFileSync(metadataPath, JSON.stringify(metadata, undefined, '\t'));
+		metadata.system = system;
+		writeFileSync(metadataPath, `${JSON.stringify(metadata, undefined, '\t')}\n`);
 	}
 
-	return { browsers, files, numFailed, numTests, numSkipped };
+	const { previous: gc, ...previous } = metadata.system;
+	system.previous = previous;
+
+	return { browsers, files, numByteDiff, numFailed, numSkipped, numTests, system };
 
 }
 
@@ -95,17 +110,23 @@ function flattenResults(session, browserData, fileData) {
 			if (!fileData.tests.has(testName)) {
 				fileData.tests.set(testName, {
 					name: testName,
+					numByteDiff: 0,
 					numFailed: 0,
 					numSkipped: 0,
 					results: []
 				});
 			}
 			const testData = fileData.tests.get(testName);
+			const bytediff = !t.passed && !!info?.diff && info?.pixelsDiff === 0;
 			if (!t.passed) {
 				if (t.skipped) {
 					browserData.numSkipped++;
 					testData.numSkipped++;
 				} else {
+					if (bytediff) {
+						browserData.numByteDiff++;
+						testData.numByteDiff++;
+					}
 					browserData.numFailed++;
 					testData.numFailed++;
 				}
@@ -116,7 +137,8 @@ function flattenResults(session, browserData, fileData) {
 				error: t.error?.message,
 				passed: t.passed,
 				skipped: t.skipped,
-				info: info
+				bytediff,
+				info
 			});
 		});
 	}

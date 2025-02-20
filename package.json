@@ -2,11 +2,11 @@
   "name": "@brightspace-ui/testing",
   "description": "Utilities for testing front-end components and applications",
   "type": "module",
-  "version": "1.13.3",
+  "version": "1.27.0",
   "repository": "https://github.com/BrightspaceUI/testing.git",
   "scripts": {
     "lint": "npm run lint:eslint && npm run lint:style",
-    "lint:eslint": "eslint . --ext .js",
+    "lint:eslint": "eslint .",
     "lint:style": "stylelint \"**/*.{js,html}\" --ignore-path .gitignore",
     "test": "npm run lint && npm run test:bin && npm run test:server && npm run test:browser",
     "test:bin": "mocha './test/bin/**/*.test.js'",
@@ -14,7 +14,7 @@
     "test:browser:other": "npx d2l-test-runner --files \"./test/browser/**/*.test.js\"",
     "test:browser:ctor": "npx d2l-test-runner --config ./test/browser/ctor.config.js",
     "test:server": "mocha './test/server/**/*.test.js'",
-    "test:vdiff": "npx d2l-test-runner vdiff --config ./test/browser/vdiff.config.js"
+    "test:vdiff": "npx d2l-test-runner vdiff $npm_config_sub --config ./test/browser/vdiff.config.js"
   },
   "bin": {
     "d2l-test-runner": "./bin/d2l-test-runner.js",
@@ -25,11 +25,11 @@
   "devDependencies": {
     "@brightspace-ui/stylelint-config": "^1",
     "chai": "^5",
-    "eslint": "^8",
-    "eslint-config-brightspace": "^1",
-    "mocha": "^10",
-    "sinon": "^17",
-    "stylelint": "^16"
+    "eslint": "^9",
+    "eslint-config-brightspace": "^2.0.0",
+    "mocha": "^11",
+    "sinon": "^19",
+    "globals": "^15"
   },
   "exports": {
     ".": "./src/browser/index.js"
@@ -43,20 +43,26 @@
   "dependencies": {
     "@brightspace-ui/intl": "^3",
     "@open-wc/testing": "^4",
-    "@rollup/plugin-node-resolve": "^15",
+    "@rollup/plugin-node-resolve": "^16",
     "@web/config-loader": "^0.3",
     "@web/dev-server": "^0.4",
     "@web/rollup-plugin-html": "^2",
     "@web/test-runner": "^0.18",
     "@web/test-runner-commands": "^0.9",
     "@web/test-runner-playwright": "^0.11",
-    "command-line-args": "^5",
+    "command-line-args": "^6",
     "command-line-usage": "^7",
-    "glob": "^10",
-    "lit": "^2",
+    "d2l-test-reporting": "^4",
+    "glob": "^11",
+    "lit": "^2 || ^3",
     "page": "^1",
-    "pixelmatch": "^5",
+    "pixelmatch": "^6",
     "pngjs": "^7",
     "rollup": "^4"
+  },
+  "overrides": {
+    "page": {
+      "path-to-regexp": "^1.9.0"
+    }
   }
 }

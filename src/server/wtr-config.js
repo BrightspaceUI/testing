@@ -2,35 +2,44 @@ import { argv } from 'node:process';
 import { attemptPlugin } from './attempt-plugin.js';
 import { attemptReporter } from '../../src/server/attempt-reporter.js';
 import { defaultReporter } from '@web/test-runner';
+import { env } from 'node:process';
 import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
+import { reporter as testReportingReporter } from 'd2l-test-reporting/reporters/web-test-runner.js';
 import { visualDiff } from './visual-diff-plugin.js';
 import { visualDiffReporter } from './visual-diff-reporter.js';
 
 const defaultReporterGrep = () => {
 	const dr = defaultReporter();
-
 	const removeGrepFailures = results => {
+		let passed = true;
 		results.tests?.forEach(test => {
-			if (!test.passed && !test.error) {
+			if (test.error) {
+				passed = false;
+			} else if (!test.passed) {
 				test.skipped = true;
 			}
 		});
 
-		results.suites?.forEach(suite => removeGrepFailures(suite));
+		const passedStates = results.suites?.map(suite => removeGrepFailures(suite));
+		const nestedPassed = !passedStates?.includes(false);
+		return passed && nestedPassed;
 	};
 
-	return { ...dr, ...{
-		reportTestFileResults({ sessionsForTestFile, ...others }) {
-			sessionsForTestFile.forEach(session => {
-				removeGrepFailures(session.testResults);
+	return { ...dr,
+		getTestProgress({ sessions, ...others }) {
+			sessions.forEach(session => {
+				if (session.testResults) {
+					session.passed = removeGrepFailures(session.testResults) && !session.errors.length;
+				}
 			});
-			return dr.reportTestFileResults({ sessionsForTestFile, ...others });
+			return dr.getTestProgress({ sessions, ...others });
 		}
-	} };
+	};
 };
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
+const DEFAULT_TEST_REPORTING = !!env['CI'];
 const BROWSER_MAP = {
 	chrome: 'chromium',
 	chromium: 'chromium',
@@ -42,6 +51,7 @@ const ALLOWED_BROWSERS = Object.keys(BROWSER_MAP);
 const DEFAULT_BROWSERS = [...new Set(Object.values(BROWSER_MAP))];
 const TIMEZONE = '{&quot;name&quot;:&quot;Canada - Toronto&quot;,&quot;identifier&quot;:&quot;America/Toronto&quot;}';
 const FONT_ASSETS = 'https://s.brightspace.com/lib/fonts/0.6.1/assets/';
+const TEST_PAGE = '<script>window.isD2LTestPage = true;</script>';
 const SUPPRESS_RESIZE_OBSERVER_ERRORS = `
 	<script>
 	window.addEventListener('error', (err) => {
@@ -153,66 +163,18 @@ export class WTRConfig {
 						</style>
 					</head>
 					<body>
+						${TEST_PAGE}
 						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
 						<script type="module" src="${testFramework}"></script>
 					</body>
 				</html>`
 		};
 	}
-
-	#filterFiles(files) {
-		return this.#cliArgs.filter.map(filterStr => {
-			// replace everything after the last forward slash
-			return files
-				.filter(f => !f.startsWith('!')) // don't filter exclusions
-				.map(f => f.replace(/[^/]*$/, fileGlob => {
-					// create a new glob for each wildcard
-					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
-						const arr = fileGlob.split('');
-						arr.splice(index, 1, filterStr);
-						return arr.join('');
-					});
-					return `+(${fileGlobs.join('|') || fileGlob})`;
-				}));
-		})
-			.flat()
-			.concat(files.filter(f => f.startsWith('!')));
-	}
-
-	#getMochaConfig(group, slowConfig, timeoutConfig) {
-		const {
-			timeout = timeoutConfig,
-			grep,
-			open,
-			slow = slowConfig,
-			watch
-		} = this.#cliArgs;
-
-		if (typeof timeout !== 'undefined' && typeof timeout !== 'number') throw new TypeError('timeout must be a number');
-		if (typeof slow !== 'undefined' && typeof slow !== 'number') throw new TypeError('slow must be a number');
-
-		const config = {};
-
-		if (timeout) {
-			config.timeout = String(timeout);
-		} else if (group === 'vdiff') {
-			config.timeout = '5000';
-		}
-		if (open || watch) config.timeout = '0';
-		if (grep) config.grep = grep;
-		if (slow) {
-			config.slow = String(slow);
-		} else if (group === 'vdiff') {
-			config.slow = String(DEFAULT_VDIFF_SLOW);
-		}
-
-		return Object.keys(config).length && { testFramework: { config } };
-	}
-
 	create({
 		pattern = DEFAULT_PATTERN,
 		slow,
 		timeout,
+		testReporting = DEFAULT_TEST_REPORTING,
 		...passthroughConfig
 	} = {}) {
 
@@ -263,8 +225,12 @@ export class WTRConfig {
 			config.groups.push(this.visualDiffGroup);
 		}
 
+		if (testReporting) {
+			config.reporters.push(testReportingReporter());
+		}
+
 		// convert all browsers to playwright
-		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers));
+		config.groups.forEach(g => g.browsers = this.getBrowsers(g.browsers, g.name === 'vdiff' ? 2 : 1));
 
 		if (open || watch) {
 			config.testsFinishTimeout = 15 * 60 * 1000;
@@ -287,8 +253,7 @@ export class WTRConfig {
 
 		return config;
 	}
-
-	getBrowsers(browsers) {
+	getBrowsers(browsers, deviceScaleFactor) {
 		browsers = (this.#requestedBrowsers || browsers || DEFAULT_BROWSERS).map(b => BROWSER_MAP[b] || BROWSER_MAP.chrome);
 
 		if (!Array.isArray(browsers)) throw new TypeError('browsers must be an array');
@@ -296,7 +261,7 @@ export class WTRConfig {
 		return [...new Set(browsers)].map((b) => playwrightLauncher({
 			concurrency: b === BROWSER_MAP.firefox || this.#cliArgs.open ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
 			product: b,
-			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor: 2, reducedMotion: 'reduce' }),
+			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor, reducedMotion: 'reduce' }),
 			launchOptions: {
 				headless: !this.#cliArgs.open,
 				devtools: false,
@@ -304,6 +269,87 @@ export class WTRConfig {
 				args: b === BROWSER_MAP.chrome ? ['--disable-gpu-rasterization'] : []
 			}
 		}));
+	}
+	#cliArgs;
+
+	#requestedBrowsers;
+
+	get #defaultConfig() {
+		return {
+			browserStartTimeout: 60 * 1000,
+			groups: [],
+			nodeResolve: {
+				exportConditions: ['default']
+			},
+			testRunnerHtml: testFramework =>
+				`<!DOCTYPE html>
+				<html lang="en" data-timezone='${TIMEZONE}'>
+					<body>
+						${TEST_PAGE}
+						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
+						<script type="module" src="${testFramework}"></script>
+					</body>
+				</html>`,
+		};
+	}
+
+	get #pattern() {
+		const files = [ this.#cliArgs.files || this.pattern(this.#cliArgs.group), '!**/node_modules/**/*' ].flat();
+
+		if (this.#cliArgs.filter) {
+			return this.#filterFiles(files);
+		}
+
+		return files;
+	}
+
+	#filterFiles(files) {
+		return this.#cliArgs.filter.map(filterStr => {
+			// replace everything after the last forward slash
+			return files
+				.filter(f => !f.startsWith('!')) // don't filter exclusions
+				.map(f => f.replace(/[^/]*$/, fileGlob => {
+					// create a new glob for each wildcard
+					const fileGlobs = Array.from(fileGlob.matchAll(/(?<!\*)\*(?!\*)/g)).map(({ index }) => {
+						const arr = fileGlob.split('');
+						arr.splice(index, 1, filterStr);
+						return arr.join('');
+					});
+					return `+(${fileGlobs.join('|') || fileGlob})`;
+				}));
+		})
+			.flat()
+			.concat(files.filter(f => f.startsWith('!')));
+	}
+
+	#getMochaConfig(group, slowConfig, timeoutConfig) {
+		const {
+			timeout = timeoutConfig,
+			grep,
+			open,
+			slow = slowConfig,
+			watch
+		} = this.#cliArgs;
+
+		if (typeof timeout !== 'undefined' && typeof timeout !== 'number') throw new TypeError('timeout must be a number');
+		if (typeof slow !== 'undefined' && typeof slow !== 'number') throw new TypeError('slow must be a number');
+
+		const config = {};
+
+		if (timeout) {
+			config.timeout = String(timeout);
+		} else if (group === 'vdiff') {
+			config.timeout = '5000';
+		}
+		if (open || watch) config.timeout = '0';
+		if (grep) config.grep = grep;
+		if (slow) {
+			config.slow = String(slow);
+		} else if (group === 'vdiff') {
+			config.slow = String(DEFAULT_VDIFF_SLOW);
+		}
+
+		return Object.keys(config).length && { testFramework: { config } };
 	}
 
 }
