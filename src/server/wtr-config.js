@@ -1,8 +1,7 @@
-import { argv } from 'node:process';
+import { argv, env } from 'node:process';
 import { attemptPlugin } from './attempt-plugin.js';
 import { attemptReporter } from '../../src/server/attempt-reporter.js';
 import { defaultReporter } from '@web/test-runner';
-import { env } from 'node:process';
 import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { reporter as testReportingReporter } from 'd2l-test-reporting/reporters/web-test-runner.js';
@@ -65,10 +64,6 @@ export const DEFAULT_VDIFF_SLOW = 500;
 
 export class WTRConfig {
 
-	#attemptFiles;
-	#cliArgs;
-	#requestedBrowsers;
-
 	constructor(cliArgs, previousAttemptReport = {}) {
 		this.#cliArgs = cliArgs || {};
 		this.#cliArgs.group ??= 'test';
@@ -76,37 +71,6 @@ export class WTRConfig {
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
 		const files = previousAttemptReport[argv.join(' ')];
 		if (files && Object.keys(files).length) this.#attemptFiles = files;
-	}
-
-	get #defaultConfig() {
-		return {
-			browserStartTimeout: 60 * 1000,
-			groups: [],
-			nodeResolve: {
-				exportConditions: ['default']
-			},
-			testRunnerHtml: testFramework =>
-				`<!DOCTYPE html>
-				<html lang="en" data-timezone='${TIMEZONE}'>
-					<body>
-						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
-						<script type="module" src="${testFramework}"></script>
-					</body>
-				</html>`,
-		};
-	}
-
-	get #pattern() {
-		const files = [ this.#cliArgs.files || this.pattern(this.#cliArgs.group), '!**/node_modules/**/*' ].flat();
-
-		if (this.#attemptFiles) {
-			return Object.keys(this.#attemptFiles);
-		}
-		else if (this.#cliArgs.filter) {
-			return this.#filterFiles(files);
-		}
-
-		return files;
 	}
 
 	get visualDiffGroup() {
@@ -270,8 +234,9 @@ export class WTRConfig {
 			}
 		}));
 	}
-	#cliArgs;
 
+	#attemptFiles;
+	#cliArgs;
 	#requestedBrowsers;
 
 	get #defaultConfig() {
@@ -292,11 +257,13 @@ export class WTRConfig {
 				</html>`,
 		};
 	}
-
 	get #pattern() {
 		const files = [ this.#cliArgs.files || this.pattern(this.#cliArgs.group), '!**/node_modules/**/*' ].flat();
 
-		if (this.#cliArgs.filter) {
+		if (this.#attemptFiles) {
+			return Object.keys(this.#attemptFiles);
+		}
+		else if (this.#cliArgs.filter) {
 			return this.#filterFiles(files);
 		}
 

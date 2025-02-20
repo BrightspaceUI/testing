@@ -1,11 +1,10 @@
 import * as os from 'node:os';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { extractTestPartsFromName, getTestInfo, PATHS, tryMoveFile } from './visual-diff-plugin.js';
+import { extractTestPartsFromName, getTestInfo, tryMoveFile } from './visual-diff-plugin.js';
 import { env } from 'node:process';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { getTestInfo } from './visual-diff-plugin.js';
 import { PATHS } from './paths.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -59,7 +58,7 @@ function createData(rootDir, updateGoldens, sessions) {
 			if (t.numByteDiff > 0) {
 				f.numByteDiff++;
 				numByteDiff++;
-        numSkipped++;
+				numSkipped++;
 			}
 		});
 	});
