@@ -38,7 +38,7 @@ const defaultReporterGrep = () => {
 };
 
 const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
-const DEFAULT_TEST_REPORTING = !!env['CI'];
+const DEFAULT_TEST_REPORTING = !!env.CI;
 const BROWSER_MAP = {
 	chrome: 'chromium',
 	chromium: 'chromium',
@@ -178,7 +178,11 @@ export class WTRConfig {
 			});
 		}
 
-		config.reporters ??= [ defaultReporterGrep(), attemptReporter() ];
+		config.reporters ??= [ defaultReporterGrep() ];
+
+		if (env.CI) {
+			config.reporters.push(attemptReporter());
+		}
 
 		if (group === 'test') {
 			config.groups.push({
