@@ -3,6 +3,7 @@ import { DEFAULT_VDIFF_SLOW, WTRConfig } from '../wtr-config.js';
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
 import { execSync } from 'node:child_process';
+import { join } from 'node:path';
 import process from 'node:process';
 import { startTestRunner } from '@web/test-runner';
 
@@ -176,7 +177,13 @@ async function getTestRunnerOptions(argv = []) {
 		}
 	}) || {};
 
-	const wtrConfig = new WTRConfig(cliArgs);
+	let attemptReport = {};
+	if (process.env.GITHUB_RUN_ATTEMPT > 1 || cliArgs._unknown?.includes('--flake-mode')) {
+		const reportPath = join(process.cwd(), '.d2l-test', '.attempt-report.js');
+		attemptReport = (await import(reportPath).catch(() => {}))?.default;
+	}
+
+	const wtrConfig = new WTRConfig(cliArgs, attemptReport);
 	const config = wtrConfig.create(testConfig);
 
 	argv = [
