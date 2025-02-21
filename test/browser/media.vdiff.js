@@ -10,7 +10,7 @@ const mediaTag = defineCE(
 				}
 				@media print {
 					:host {
-						color: red;
+						color: blue;
 					}
 				}
 			`;
