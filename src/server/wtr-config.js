@@ -1,5 +1,7 @@
+import { argv, env, exit } from 'node:process';
+import { attemptPlugin } from './attempt-plugin.js';
+import { attemptReporter } from '../../src/server/attempt-reporter.js';
 import { defaultReporter } from '@web/test-runner';
-import { env } from 'node:process';
 import { headedMode } from './headed-mode-plugin.js';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { reporter as testReportingReporter } from 'd2l-test-reporting/reporters/web-test-runner.js';
@@ -62,12 +64,22 @@ export const DEFAULT_VDIFF_SLOW = 500;
 
 export class WTRConfig {
 
-	constructor(cliArgs) {
+	constructor(cliArgs, previousAttemptReport = {}) {
 		this.#cliArgs = cliArgs || {};
 		this.#cliArgs.group ??= 'test';
 		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs?.[b]);
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
+		const files = previousAttemptReport[argv.join(' ')];
+		if (files) {
+			if (Object.keys(files).length) {
+				this.#attemptFiles = files;
+			} else {
+				console.log('Previous attempt passed. Skipping...'); // eslint-disable-line no-console
+				exit(0);
+			}
+		}
 	}
+
 	get visualDiffGroup() {
 		return {
 			name: 'vdiff',
@@ -166,7 +178,7 @@ export class WTRConfig {
 			});
 		}
 
-		config.reporters ??= [ defaultReporterGrep() ];
+		config.reporters ??= [ defaultReporterGrep(), attemptReporter() ];
 
 		if (group === 'test') {
 			config.groups.push({
@@ -203,6 +215,13 @@ export class WTRConfig {
 			}));
 		}
 
+		if (this.#attemptFiles) {
+			config.plugins ??= [];
+			config.plugins.push(attemptPlugin({
+				files: this.#attemptFiles
+			}));
+		}
+
 		return config;
 	}
 	getBrowsers(browsers, deviceScaleFactor) {
@@ -222,8 +241,9 @@ export class WTRConfig {
 			}
 		}));
 	}
-	#cliArgs;
 
+	#attemptFiles;
+	#cliArgs;
 	#requestedBrowsers;
 
 	get #defaultConfig() {
@@ -244,14 +264,15 @@ export class WTRConfig {
 				</html>`,
 		};
 	}
-
 	get #pattern() {
 		const files = [ this.#cliArgs.files || this.pattern(this.#cliArgs.group), '!**/node_modules/**/*' ].flat();
 
-		if (this.#cliArgs.filter) {
+		if (this.#attemptFiles) {
+			return Object.keys(this.#attemptFiles);
+		}
+		else if (this.#cliArgs.filter) {
 			return this.#filterFiles(files);
 		}
-
 		return files;
 	}
 
