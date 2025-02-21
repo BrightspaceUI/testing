@@ -74,7 +74,7 @@ export class WTRConfig {
 			if (Object.keys(files).length) {
 				this.#attemptFiles = files;
 			} else {
-				console.log('Previous attempt passed. Skipping...');
+				console.log('Previous attempt passed. Skipping...'); // eslint-disable-line no-console
 				exit(0);
 			}
 		}
