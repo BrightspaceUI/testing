@@ -39,10 +39,11 @@ export function attemptReporter() {
 			});
 
 			const reportDir = join(cwd(), '.d2l-test');
+			const attemptReportPath = join(reportDir, '.attempt-report.js');
 			await access(reportDir).catch(async err => err && await mkdir(reportDir).catch(() => {}));
-			console.log('WRITING ATTEMPT REPORT:');/* eslint-disable-line */
-			console.log(failedData);/* eslint-disable-line */
-			await writeFile(join(reportDir, '.attempt-report.js'), `/* eslint-disable */\n\nexport default ${JSON.stringify(failedData, null, '\t')}\n`);
+			const attemptReport = (await import(attemptReportPath).catch(() => ({ default: {} }))).default;
+			const mergedReport = { ...attemptReport, ...failedData };
+			await writeFile(attemptReportPath, `/* eslint-disable */\n\nexport default ${JSON.stringify(mergedReport, null, '\t')}\n`);
 		},
 	};
 }

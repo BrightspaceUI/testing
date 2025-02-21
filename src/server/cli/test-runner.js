@@ -181,8 +181,6 @@ async function getTestRunnerOptions(argv = []) {
 	if (process.env.GITHUB_RUN_ATTEMPT > 1 || cliArgs._unknown?.includes('--flake-mode')) {
 		const reportPath = join(process.cwd(), '.d2l-test', '.attempt-report.js');
 		attemptReport = (await import(reportPath).catch(() => {}))?.default;
-		console.log('READING ATTEMPT REPORT:');/* eslint-disable-line */
-		console.log(attemptReport);/* eslint-disable-line */
 	}
 
 	const wtrConfig = new WTRConfig(cliArgs, attemptReport);

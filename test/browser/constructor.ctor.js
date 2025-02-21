@@ -4,7 +4,7 @@ describe('constructor', () => {
 
 	it('should fail if element is not defined', () => {
 		expect(() => runConstructor('not-defined'))
-			.to.not.throw('expected undefined not to be undefined');
+			.to.throw('expected undefined not to be undefined');
 	});
 
 	it('should fail if element\'s constructor throws', async() => {

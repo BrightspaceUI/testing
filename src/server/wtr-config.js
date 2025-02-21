@@ -1,4 +1,4 @@
-import { argv, env } from 'node:process';
+import { argv, env, exit } from 'node:process';
 import { attemptPlugin } from './attempt-plugin.js';
 import { attemptReporter } from '../../src/server/attempt-reporter.js';
 import { defaultReporter } from '@web/test-runner';
@@ -70,7 +70,14 @@ export class WTRConfig {
 		const requestedBrowsers = ALLOWED_BROWSERS.filter(b => cliArgs?.[b]);
 		this.#requestedBrowsers = requestedBrowsers.length && requestedBrowsers;
 		const files = previousAttemptReport[argv.join(' ')];
-		if (files && Object.keys(files).length) this.#attemptFiles = files;
+		if (files) {
+			if (Object.keys(files).length) {
+				this.#attemptFiles = files;
+			} else {
+				console.log('Previous attempt passed. Skipping...');
+				exit(0);
+			}
+		}
 	}
 
 	get visualDiffGroup() {
@@ -266,7 +273,6 @@ export class WTRConfig {
 		else if (this.#cliArgs.filter) {
 			return this.#filterFiles(files);
 		}
-
 		return files;
 	}
 
