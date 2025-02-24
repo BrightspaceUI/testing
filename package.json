@@ -56,7 +56,7 @@
     "glob": "^11",
     "lit": "^2 || ^3",
     "page": "^1",
-    "pixelmatch": "^6",
+    "pixelmatch": "^7",
     "pngjs": "^7",
     "rollup": "^4"
   },
