@@ -1,2 +1,4 @@
+.DS_Store
 node_modules/
 .vdiff/
+.d2l-test/

@@ -1,14 +1,16 @@
 import * as os from 'node:os';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { extractTestPartsFromName, getTestInfo, tryMoveFile } from './visual-diff-plugin.js';
 import { env } from 'node:process';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { getTestInfo } from './visual-diff-plugin.js';
 import { PATHS } from './paths.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const isCI = !!env['CI'];
+
+let rootDir;
 
 function createData(rootDir, updateGoldens, sessions) {
 
@@ -38,14 +40,14 @@ function createData(rootDir, updateGoldens, sessions) {
 
 		const fileName = s.testFile.substring(rootDir.length + 1);
 		if (!files.has(fileName)) {
-			files.set(fileName, { name: fileName, numByteDiff: 0, numFailed: 0, tests: new Map() });
+			files.set(fileName, { name: fileName, numByteDiff: 0, numFailed: 0, numSkipped: 0, tests: new Map() });
 		}
 		const fileData = files.get(fileName);
 		flattenResults(s, browserData, fileData);
 
 	});
 
-	let numTests = 0, numFailed = 0, numByteDiff = 0;
+	let numTests = 0, numFailed = 0, numByteDiff = 0, numSkipped = 0;
 	files.forEach(f => {
 		numTests += f.tests.size;
 		f.tests.forEach(t => {
@@ -56,6 +58,7 @@ function createData(rootDir, updateGoldens, sessions) {
 			if (t.numByteDiff > 0) {
 				f.numByteDiff++;
 				numByteDiff++;
+				numSkipped++;
 			}
 		});
 	});
@@ -77,7 +80,7 @@ function createData(rootDir, updateGoldens, sessions) {
 	const { previous: gc, ...previous } = metadata.system;
 	system.previous = previous;
 
-	return { browsers, files, numByteDiff, numFailed, numTests, system };
+	return { browsers, files, numByteDiff, numFailed, numSkipped, numTests, system };
 
 }
 
@@ -90,33 +93,51 @@ function flattenResults(session, browserData, fileData) {
 			const info = getTestInfo(session, testKey);
 
 			// tests missing info but with no error were skipped via grep, so exclude them
-			if (!info && !t.error) return;
+			if (!info && !t.error) {
+
+				const browser = session.browser.name.toLowerCase();
+				const { dir, newName } = extractTestPartsFromName(testKey);
+				const testPath = dirname(session.testFile).replace(rootDir, '');
+				const newPath = join(rootDir, PATHS.VDIFF_ROOT, testPath, dir);
+				const goldenFileName = `${join(newPath, PATHS.GOLDEN, browser, newName)}.png`;
+				const passFileName = `${join(newPath, PATHS.PASS, browser, newName)}.png`;
+
+				tryMoveFile(goldenFileName, passFileName);
+				t.skipped = true;
+			}
 
 			if (!fileData.tests.has(testName)) {
 				fileData.tests.set(testName, {
 					name: testName,
 					numByteDiff: 0,
 					numFailed: 0,
+					numSkipped: 0,
 					results: []
 				});
 			}
 			const testData = fileData.tests.get(testName);
 			const bytediff = !t.passed && !!info?.diff && info?.pixelsDiff === 0;
 			if (!t.passed) {
-				if (bytediff) {
-					browserData.numByteDiff++;
-					testData.numByteDiff++;
+				if (t.skipped) {
+					browserData.numSkipped++;
+					testData.numSkipped++;
+				} else {
+					if (bytediff) {
+						browserData.numByteDiff++;
+						testData.numByteDiff++;
+					}
+					browserData.numFailed++;
+					testData.numFailed++;
 				}
-				browserData.numFailed++;
-				testData.numFailed++;
 			}
 			testData.results.push({
 				name: browserData.name,
 				duration: t.duration,
 				error: t.error?.message,
 				passed: t.passed,
+				skipped: t.skipped,
 				bytediff,
-				info: info
+				info
 			});
 		});
 	}
@@ -133,7 +154,6 @@ function flattenResults(session, browserData, fileData) {
 }
 
 export function visualDiffReporter({ updateGoldens } = {}) {
-	let rootDir;
 	return {
 		start({ config }) {
 			rootDir = config.rootDir;
