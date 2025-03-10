@@ -1,5 +1,8 @@
 name: CI
 on: pull_request
+env:
+  LANG: en_US.UTF-8
+
 jobs:
   test:
     name: Test
