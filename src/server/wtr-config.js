@@ -215,6 +215,7 @@ export class WTRConfig {
 			product: b,
 			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor, reducedMotion: 'reduce' }),
 			launchOptions: {
+				env: { ...env, LANG: 'en_US.UTF-8' },
 				headless: !this.#cliArgs.open,
 				devtools: false,
 				slowMo: this.#cliArgs.slowmo || 0,
