@@ -1,6 +1,10 @@
 import { chai, expect } from '@open-wc/testing';
 import { executeServerCommand } from '@web/test-runner-commands';
 
+/* eslint-disable */
+console.log('Document lang:', document.documentElement.lang);
+console.log('Navigator lang:', navigator.language);
+
 // start loading fonts early
 [...document.fonts].forEach(font => font.load());
 
