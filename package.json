@@ -28,7 +28,7 @@
     "eslint": "^9",
     "eslint-config-brightspace": "^2.0.0",
     "mocha": "^11",
-    "sinon": "^19",
+    "sinon": "^20",
     "globals": "^16"
   },
   "exports": {
