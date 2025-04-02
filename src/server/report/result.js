@@ -65,7 +65,6 @@ export const RESULT_STYLE = css`
 		top: 0;
 	}
 	.result-overlay img + img {
-		inset: 0;
 		filter:
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red)
@@ -76,6 +75,7 @@ export const RESULT_STYLE = css`
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red);
+		inset: 0;
 		opacity: 0.003;
 		position: absolute;
 	}
