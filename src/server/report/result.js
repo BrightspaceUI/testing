@@ -59,15 +59,13 @@ export const RESULT_STYLE = css`
 	}
 	.result-overlay {
 		background: hsla(0, 0%, 100%, 0.8);
+		cursor: zoom-in;
 		left: 0;
 		position: absolute;
 		top: 0;
-		cursor: zoom-in;
 	}
 	.result-overlay img + img {
-		position: absolute;
 		inset: 0;
-		opacity: 0.003;
 		filter:
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red)
@@ -78,6 +76,8 @@ export const RESULT_STYLE = css`
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red);
+		opacity: 0.003;
+		position: absolute;
 	}
 	.result-overlay img + img:active {
 		opacity: 1;
