@@ -59,11 +59,12 @@ export const RESULT_STYLE = css`
 	}
 	.result-overlay {
 		background: hsla(0, 0%, 100%, 0.8);
+		cursor: zoom-in;
 		left: 0;
 		position: absolute;
 		top: 0;
 	}
-	.result-overlay img:active {
+	.result-overlay img + img {
 		filter:
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red)
@@ -74,6 +75,12 @@ export const RESULT_STYLE = css`
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red);
+		inset: 0;
+		opacity: 0.003;
+		position: absolute;
+	}
+	.result-overlay img + img:active {
+		opacity: 1;
 	}
 	.result-part-info {
 		align-items: center;
@@ -180,7 +187,11 @@ function renderResult(resultData, options) {
 	const goldenExists = (resultData.info.golden !== undefined);
 
 	const overlay = (goldenExists && options.showOverlay && !resultData.passed && resultData.info.diff) ?
-		html`<div class="result-overlay"><img src="../${resultData.info.diff}" loading="lazy" alt=""></div>` : nothing;
+		html`
+		<div class="result-overlay">
+			<img src="../${resultData.info.diff}" loading="lazy" alt="">
+			<img src="../${resultData.info.diff}" loading="lazy" alt="">
+		</div>` : nothing;
 
 	const goldenPart = !goldenExists ?
 		html`<div class="result-graphic padding">${ICON_NO_GOLDEN}<p>No golden exists for this test... yet.</p></div>` :
