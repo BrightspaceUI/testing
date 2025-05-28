@@ -81,14 +81,16 @@ export class WTRConfig {
 						<link rel="preload" href="${FONT_ASSETS}Lato-700.woff2" as="font" type="font/woff2" crossorigin>
 						<style>
 
-							* {
+							html {
 								--d2l-document-direction: ltr;
 								--d2l-mirror-transform: none;
+								--d2l-inline-end: right;
 							}
 
 							html[dir="rtl"] * {
 								--d2l-document-direction: rtl;
 								--d2l-mirror-transform: scale(-1, 1);
+								--d2l-inline-end: left;
 							}
 
 							@font-face {
