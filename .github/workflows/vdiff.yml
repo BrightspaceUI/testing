@@ -20,3 +20,5 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           test-config: ./test/browser/vdiff.config.js
+        env:
+          DO_NOT_EXPECT_DIFFERENCES: true
