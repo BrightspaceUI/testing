@@ -5,13 +5,14 @@ import { PATHS } from '../../src/server/paths.js';
 import { PNG } from 'pngjs';
 
 const isCI = !!env['CI'];
+const doNotExpectDifferences = !!env['DO_NOT_EXPECT_DIFFERENCES'];
 
 function getGoldenFlag() {
 	return {
-		name: 'vdiff-get-golden-flag',
+		name: 'vdiff-expect-differences',
 		async executeCommand({ command }) {
-			if (command !== 'vdiff-get-golden-flag') return;
-			return argv.indexOf('--golden') > -1;
+			if (command !== 'vdiff-expect-differences') return;
+			return !(doNotExpectDifferences || argv.indexOf('--golden') > -1);
 		}
 	};
 }

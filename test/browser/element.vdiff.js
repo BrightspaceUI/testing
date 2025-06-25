@@ -180,9 +180,9 @@ describe('element-matches', () => {
 });
 
 describe('element-different', () => {
-	let isGolden;
+	let expectDifferences;
 	before(async() => {
-		isGolden = await executeServerCommand('vdiff-get-golden-flag');
+		expectDifferences = await executeServerCommand('vdiff-expect-differences');
 	});
 
 	[
@@ -211,7 +211,7 @@ describe('element-different', () => {
 	].forEach(({ name, action }) => {
 		it(name, async() => {
 			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
-			if (!isGolden) {
+			if (expectDifferences) {
 				await action(elem);
 				await elem.updateComplete;
 			}
@@ -223,9 +223,9 @@ describe('element-different', () => {
 				fail = true;
 			}
 
-			expect(fail, 'current and golden images to be different').equal(!isGolden);
+			expect(fail, 'current and golden images to be different').equal(expectDifferences);
 
-			if (!isGolden) {
+			if (expectDifferences) {
 				await executeServerCommand('vdiff-revert-golden-file', { testCategory: 'element-different', fileName: `${name}.png` });
 			}
 		});
@@ -240,7 +240,7 @@ describe('element-different', () => {
 			fail = true;
 		}
 
-		if (!isGolden) {
+		if (expectDifferences) {
 			expect(fail, 'current and golden images to have different byte size').equal(true);
 			await executeServerCommand('vdiff-revert-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png' });
 		} else {
