@@ -1,5 +1,5 @@
 import { argv, env } from 'node:process';
-import { copyFile, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { PATHS } from '../../src/server/paths.js';
 import { PNG } from 'pngjs';
@@ -36,6 +36,9 @@ function modifyGolden() {
 			const png = PNG.sync.read(data);
 			const buffer = PNG.sync.write(png, { inputHasAlpha: false });
 			await writeFile(fullPath, buffer);
+			if (isCI) {
+				await rename(fullPath, join(filePath, PATHS.PASS, browser, payload.fileName));
+			}
 			return true;
 		}
 	};
