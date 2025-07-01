@@ -3,12 +3,20 @@ import { FILTER_STATUS, FULL_MODE, LAYOUTS, renderEmpty, renderStatusText, STATU
 import { ICON_BROWSERS, ICON_BYTES, ICON_NO_GOLDEN, ICON_TADA } from './icons.js';
 import data from './data.js';
 
+function handleImageLoad(e) {
+	// the natural width must be divided by the devicePixelRatio of the capturing device
+	e.target.style.width = `${e.target.naturalWidth / 2}px`;
+	this.updateElemSticky(e.composedPath().find(el => el.classList.contains('result-split')));
+}
+
 export const RESULT_STYLE = css`
 	.result-browser {
 		align-items: center;
 		border-bottom: 4px solid #e3e9f1;
 		display: flex;
 		gap: 10px;
+		position: sticky;
+    	left: 0px;
 	}
 	.result-browser > svg {
 		flex: 0 0 auto;
@@ -26,36 +34,51 @@ export const RESULT_STYLE = css`
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
+		justify-content: center;
+		min-width: max-content;
+		border-bottom: 4px solid #e3e9f1;
 	}
-	.result-split > .result-part {
-		flex: 0 1 auto;
+
+	:host([fit]) {
+		min-width: unset;
+	}
+
+	.result-split > div:nth-child(odd) {
+		width: 50%;
+		box-sizing: border-box;
+		min-width: fit-content;
 	}
 	.result-split-divider {
-		border-right: 4px dashed #007bff;
+		border-right: 2px solid #007bff;
 		flex: 0 0 auto;
 	}
 	.result-part {
 		display: inline-block;
 	}
 	.result-diff-container img {
+		image-rendering: pixelated;
 		max-width: 100%;
+		transition: width 0.3s ease-in-out;
+	}
+	.result-diff-container:has(> img:not([style])) {
+		height: 0;
+		width: 0;
 	}
 	.result-diff-container {
 		background: repeating-conic-gradient(#cdd5dc 0% 25%, #ffffff 0% 50%) 50% / 20px 20px;
+		background-clip: content-box;
 		background-position: 0 0;
 		border: 2px dashed #90989d;
 		display: inline-block;
 		line-height: 0;
 		position: relative;
+		margin: 30px;
 	}
 	.result-split > .result-part:first-of-type > .result-part-wrapper {
 		text-align: right;
 	}
-	.result-split > .result-part:first-of-type > div > .result-diff-container {
-		border-right: none;
-	}
-	.result-split > .result-part:last-of-type > div > .result-diff-container {
-		border-left: none;
+	.result-split > .result-part:last-of-type > .result-part-wrapper {
+		text-align: left;
 	}
 	.result-overlay {
 		background: hsla(0, 0%, 100%, 0.8);
@@ -63,6 +86,9 @@ export const RESULT_STYLE = css`
 		left: 0;
 		position: absolute;
 		top: 0;
+	}
+	.result-overlay img {
+		max-width: 100%;
 	}
 	.result-overlay img + img {
 		filter:
@@ -87,10 +113,9 @@ export const RESULT_STYLE = css`
 		display: flex;
 		gap: 5px;
 		padding: 5px;
-	}
-	.result-part-info-spacer,
-	.result-part-info-size {
-		flex: 1 0 0%;
+		justify-content: center;
+		border-bottom: 1px solid #ccc;
+		background-color: #eee;
 	}
 	.result-part-info-name {
 		flex: 0 0 auto;
@@ -106,7 +131,9 @@ export const RESULT_STYLE = css`
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
+		max-width: 600px;
 		min-width: 210px;
+		padding: 40px 30px 30px;
 	}
 	.result-graphic > p {
 		color: #90989d;
@@ -123,11 +150,14 @@ export const RESULT_STYLE = css`
 		align-items: center;
 		display: flex;
 		gap: 10px;
-		padding-bottom: 10px;
+		position: sticky;
+    	left: 0;
+    	padding: 50px 20px 30px;
+     	flex-wrap: wrap;
 	}
 	.result-test-name > h3 {
-		flex: 1 0 auto;
 		margin: 0;
+		flex-grow: 1;
 	}
 	.result-duration {
 		flex: 0 0 auto;
@@ -173,12 +203,11 @@ function renderResult(resultData, options) {
 		return html`
 			<div class="result-part">
 				<div class="result-part-info">
-					<div class="result-part-info-spacer"></div>
 					<div class="result-part-info-name">${label}</div>
 					<div class="result-part-info-size">(${partInfo.width} x ${partInfo.height})</div>
 				</div>
 				<div class="result-part-wrapper">
-					<div class="result-diff-container"><img src="../${partInfo.path}" loading="lazy" alt="">${overlay}</div>
+					<div class="result-diff-container" @click="${this._handleDiffContainerClick}"><img src="../${partInfo.path}" loading="lazy" alt="" @load="${handleImageLoad}">${overlay}</div>
 				</div>
 			</div>
 		`;
@@ -194,20 +223,35 @@ function renderResult(resultData, options) {
 		</div>` : nothing;
 
 	const goldenPart = !goldenExists ?
-		html`<div class="result-graphic padding">${ICON_NO_GOLDEN}<p>No golden exists for this test... yet.</p></div>` :
+		html`<div>
+			<div class="result-part-info">&nbsp;</div>
+			<div class="result-graphic padding">
+				${ICON_NO_GOLDEN}
+				<p>No golden exists for this test... yet.</p>
+			</div>
+		</div>` :
 		renderPart('golden', resultData.info.golden, options.layout === LAYOUTS.SPLIT.value ? undefined : overlay);
 
 	if (options.layout === LAYOUTS.SPLIT.value) {
 		let newPart;
 		if (resultData.passed) {
-			newPart = html`<div class="result-graphic padding">${ICON_TADA}<p>Hooray! No changes here.</p></div>`;
+			newPart = html`<div>
+				<div class="result-part-info">&nbsp;</div>
+				<div class="result-graphic padding">
+					${ICON_TADA}
+					<p>Hooray! No changes here.</p>
+				</div>
+			</div>`;
 		} else if (resultData.bytediff) {
-			newPart = html`<div class="result-graphic padding">${ICON_BYTES}
-				<p>No pixels have changed, but the bytes are different.</p>
-				<p class="details">
-					Golden size: ${resultData.info.golden.byteSize} bytes<br />
-					New size: ${resultData.info.new.byteSize} bytes
-				</p>
+			newPart = html`<div>
+				<div class="result-part-info">&nbsp;</div>
+				<div class="result-graphic padding">${ICON_BYTES}
+					<p>No pixels have changed, but the bytes are different.</p>
+					<p class="details">
+						Golden size: ${resultData.info.golden.byteSize} bytes<br />
+						New size: ${resultData.info.new.byteSize} bytes
+					</p>
+				</div>
 			</div>`;
 		} else {
 			newPart = renderPart('new', resultData.info.new, overlay);
@@ -265,7 +309,7 @@ export function renderBrowserResults(browser, tests, options) {
 					${pixelsDiff}
 					<div class="result-duration">${renderStatusText(`${resultData.duration}ms`, status)}</div>
 				</div>
-				${renderResult(resultData, options)}
+				${renderResult.call(this, resultData, options)}
 			</div>
 		`) && acc;
 
