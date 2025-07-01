@@ -1,7 +1,7 @@
 import './button.js';
 import { COMMON_STYLE, FILTER_STATUS, FULL_MODE, LAYOUTS, renderEmpty, renderTestStatus } from './common.js';
 import { css, html, LitElement, nothing } from 'lit';
-import { ICON_HAMBURGER, ICON_NEXT, ICON_PREV } from './icons.js';
+import { ICON_CLOSE, ICON_HAMBURGER, ICON_NEXT, ICON_PREV } from './icons.js';
 import { RADIO_STYLE, renderRadio } from './radio.js';
 import { renderBrowserResults, RESULT_STYLE } from './result.js';
 import { renderTabButtons, renderTabPanel, TAB_STYLE } from './tabs.js';
@@ -167,12 +167,11 @@ class App extends LitElement {
 			text-align: center;
 		}
 
-		#viewer:has(:nth-child(2)) {
+		#viewer:has(> :nth-child(2)) {
 			display: flow;
 		}
 
 		#viewer p {
-			text-align: end;
     		position: sticky;
      		left: 0;
 		}
@@ -264,7 +263,11 @@ class App extends LitElement {
 			</aside>
 			<main @click="${this._handleMainClick}">${this._renderMainView()}</main>
 			<section id="viewer">
-				<p><button @click="${this._handleCloseViewerClick}">close</button></p>
+				<p>
+					<d2l-vdiff-report-button text="Close" @click="${this._handleCloseViewerClick}">
+						${ICON_CLOSE}
+					</d2l-vdiff-report-button>
+				</p>
 			</section>
 		`;
 	}

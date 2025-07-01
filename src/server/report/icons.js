@@ -1,5 +1,15 @@
 import { svg } from 'lit';
 
+export const ICON_CLOSE = svg`
+	<svg width="24" height="24" viewBox="0 0 24 24"
+	    fill="none" stroke="currentColor" stroke-width="2"
+	    stroke-linecap="round" stroke-linejoin="round"
+	    aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+		<line x1="18" y1="6" x2="6" y2="18"></line>
+		<line x1="6" y1="6" x2="18" y2="18"></line>
+	</svg>
+`;
+
 export const ICON_EMPTY = svg`
 	<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 		<path fill="currentColor" d="M5 22.12a3.1 3.1 0 0 0 2.21-.91l4.2-4.21-1.5-1.5.9-.9a7 7 0 1 0-1.41-1.42l-.9.9L7 12.59l-4.21 4.2A3.12 3.12 0 0 0 5 22.12ZM15 4a5 5 0 1 1-5 5 5 5 0 0 1 5-5ZM4.21 18.21 7 15.41 8.59 17l-2.8 2.79a1.15 1.15 0 0 1-1.59 0 1.12 1.12 0 0 1 0-1.59Z"/>

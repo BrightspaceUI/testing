@@ -56,9 +56,9 @@ export const RESULT_STYLE = css`
 		display: inline-block;
 	}
 	.result-diff-container img {
+		cursor: zoom-in;
 		image-rendering: pixelated;
 		max-width: 100%;
-		transition: width 0.3s ease-in-out;
 	}
 	.result-diff-container:has(> img:not([style])) {
 		height: 0;
@@ -82,13 +82,15 @@ export const RESULT_STYLE = css`
 	}
 	.result-overlay {
 		background: hsla(0, 0%, 100%, 0.8);
-		cursor: zoom-in;
 		left: 0;
 		position: absolute;
 		top: 0;
 	}
 	.result-overlay img {
 		max-width: 100%;
+	}
+	#viewer .result-diff-container > img {
+		cursor: auto;
 	}
 	.result-overlay img + img {
 		filter:
@@ -105,7 +107,7 @@ export const RESULT_STYLE = css`
 		opacity: 0.003;
 		position: absolute;
 	}
-	.result-overlay img + img:active {
+	#viewer .result-overlay img + img:active {
 		opacity: 1;
 	}
 	.result-part-info {
