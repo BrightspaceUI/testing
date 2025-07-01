@@ -1,3 +1,5 @@
+/* eslint-disable no-invalid-this */
+
 import { css, html, nothing } from 'lit';
 import { FILTER_STATUS, FULL_MODE, LAYOUTS, renderEmpty, renderStatusText, STATUS_TYPE } from './common.js';
 import { ICON_BROWSERS, ICON_BYTES, ICON_NO_GOLDEN, ICON_TADA } from './icons.js';
