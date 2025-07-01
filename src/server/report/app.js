@@ -29,21 +29,21 @@ class App extends LitElement {
 			background-color: #ffffff;
 			border-right: 1px solid #e6e6e6;
 			box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
-			order: 0;
 			flex-shrink: 0;
-			transition: width 0.2s ease-in-out;
+			order: 0;
 			overflow: hidden;
+			transition: width 0.2s ease-in-out;
 			width: 315px;
 		}
 		aside[hidden] {
-			width: 0;
-			padding: 0;
 			display: unset;
+			padding: 0;
+			width: 0;
 		}
 		aside > :first-child {
-			width: 315px;
-			padding: 20px;
 			box-sizing: border-box;
+			padding: 20px;
+			width: 315px;
 		}
 		aside d2l-vdiff-report-button {
 			display: none;
@@ -51,9 +51,9 @@ class App extends LitElement {
 		main {
 			background-color: #fafafa;
 			flex-grow: 1;
-			overflow: auto;
 			isolation: isolate;
 			order: 0;
+			overflow: auto;
 		}
 		.list-file-title {
 			padding-bottom: 20px;
@@ -100,8 +100,8 @@ class App extends LitElement {
 		}
 		.test-results {
 			display: flex;
-			height: 100vh;
 			flex-direction: column;
+			height: 100vh;
 		}
 		.header {
 			background-color: #f0f0f0;
@@ -109,18 +109,18 @@ class App extends LitElement {
 			box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
 		}
 		.tab-panels {
-			overflow: auto;
-		    flex-grow: 1;
 			display: flex;
-    		flex-direction: column;
+			flex-direction: column;
+			flex-grow: 1;
+			overflow: auto;
 		}
 		.title {
 			align-items: center;
 			display: flex;
+			flex-wrap: wrap;
 			font-size: 1.5rem;
 			gap: 10px;
 			padding: 20px 20px 0 20px;
-			flex-wrap: wrap;
 		}
 		.title h2 {
 			font-size: inherit;
@@ -157,13 +157,13 @@ class App extends LitElement {
 		}
 
 		#viewer {
-			position: fixed;
-			inset: 0;
-			background-color: rgba(0, 0, 0, 0.65);
 			backdrop-filter: blur(10px) saturate(0%);
+			background-color: rgba(0, 0, 0, 0.65);
 			display: none;
+			inset: 0;
 			overflow: auto;
 			padding: 20px;
+			position: fixed;
 			text-align: center;
 		}
 
@@ -172,21 +172,21 @@ class App extends LitElement {
 		}
 
 		#viewer p {
-    		position: sticky;
-     		left: 0;
+			left: 0;
+			position: sticky;
 		}
 
 		#viewer img {
-			width: unset !important;
 			max-width: unset;
+			width: unset !important;
 		}
 
 		@media (max-width: 1000px) {
 			aside {
+				bottom: 0;
+				left: 0;
 				position: fixed;
-	    		left: 0;
-	        	bottom: 0px;
-	         	top: 0px;
+				top: 0;
 			}
 			main {
 				order: -1;

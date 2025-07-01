@@ -17,8 +17,8 @@ export const RESULT_STYLE = css`
 		border-bottom: 4px solid #e3e9f1;
 		display: flex;
 		gap: 10px;
+		left: 0;
 		position: sticky;
-    	left: 0px;
 	}
 	.result-browser > svg {
 		flex: 0 0 auto;
@@ -33,12 +33,12 @@ export const RESULT_STYLE = css`
 		font-weight: bold;
 	}
 	.result-split {
+		border-bottom: 4px solid #e3e9f1;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
 		justify-content: center;
 		min-width: max-content;
-		border-bottom: 4px solid #e3e9f1;
 	}
 
 	:host([fit]) {
@@ -46,9 +46,9 @@ export const RESULT_STYLE = css`
 	}
 
 	.result-split > div:nth-child(odd) {
-		width: 50%;
 		box-sizing: border-box;
 		min-width: fit-content;
+		width: 50%;
 	}
 	.result-split-divider {
 		border-right: 2px solid #007bff;
@@ -73,8 +73,8 @@ export const RESULT_STYLE = css`
 		border: 2px dashed #90989d;
 		display: inline-block;
 		line-height: 0;
-		position: relative;
 		margin: 30px;
+		position: relative;
 	}
 	.result-split > .result-part:first-of-type > .result-part-wrapper {
 		text-align: right;
@@ -114,12 +114,12 @@ export const RESULT_STYLE = css`
 	}
 	.result-part-info {
 		align-items: center;
+		background-color: #eeeeee;
+		border-bottom: 1px solid #cccccc;
 		display: flex;
 		gap: 5px;
-		padding: 5px;
 		justify-content: center;
-		border-bottom: 1px solid #ccc;
-		background-color: #eee;
+		padding: 5px;
 	}
 	.result-part-info-name {
 		flex: 0 0 auto;
@@ -153,15 +153,15 @@ export const RESULT_STYLE = css`
 	.result-test-name {
 		align-items: center;
 		display: flex;
+		flex-wrap: wrap;
 		gap: 10px;
+		left: 0;
+		padding: 50px 20px 30px;
 		position: sticky;
-    	left: 0;
-    	padding: 50px 20px 30px;
-     	flex-wrap: wrap;
 	}
 	.result-test-name > h3 {
-		margin: 0;
 		flex-grow: 1;
+		margin: 0;
 	}
 	.result-duration {
 		flex: 0 0 auto;

@@ -54,12 +54,12 @@ export const COMMON_STYLE = css`
 		margin: 0;
 	}
 	.item-container {
+		left: 0;
 		position: sticky;
-    	left: 0;
 	}
 	.item-container.no-sticky {
+		display: contents;
 		position: static;
-    	display: contents;
 	}
 	.item-container:last-of-type {
 		border-bottom: none;
