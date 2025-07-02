@@ -7,8 +7,12 @@ import data from './data.js';
 
 function handleImageLoad(e) {
 	// the natural width must be divided by the devicePixelRatio of the capturing device
-	e.target.style.width = `${e.target.naturalWidth / 2}px`;
-	this.updateElemSticky(e.composedPath().find(el => el.classList.contains('result-split')));
+	const actualWidth =`${e.target.naturalWidth / 2}px`;
+	e.target.style.width = actualWidth;
+	const splitElem = e.composedPath().find(el => el.classList.contains('result-split'));
+	const graphic = splitElem.querySelector('.result-graphic');
+	if (graphic) graphic.style.maxWidth = `${actualWidth}px`;
+	this.updateElemSticky(splitElem);
 }
 
 export const RESULT_STYLE = css`
@@ -87,6 +91,12 @@ export const RESULT_STYLE = css`
 	.result-split > .result-part:last-of-type > .result-part-wrapper {
 		text-align: left;
 	}
+	.result-split > :first-of-type .result-graphic {
+		justify-self: right;
+	}
+	.result-split > :last-of-type .result-graphic {
+		justify-self: left;
+	}
 	.result-overlay {
 		background: hsla(0, 0%, 100%, 0.8);
 		left: 0;
@@ -137,12 +147,17 @@ export const RESULT_STYLE = css`
 	}
 	.result-graphic {
 		align-items: center;
+		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
-		max-width: 600px;
-		min-width: 210px;
+		height: calc(100% - 30px);
+		justify-content: center;
+		max-height: 300px;
+		max-width: 500px;
+		min-width: 250px;
 		padding: 40px 30px 30px;
+		width: 100%;
 	}
 	.result-graphic > p {
 		color: #90989d;
