@@ -93,7 +93,7 @@ const nestedElementTag = defineCE(
 	class extends LitElement {
 		render() {
 			return html`${unsafeHTML(`
-				<${fixedElementTag} class="vdiff-target"><${elementTag} text="Visual Difference!"></${elementTag}></${fixedElementTag}>
+				<${fixedElementTag} class="vdiff-target"><${elementTag} text="Visual Difference!!"></${elementTag}></${fixedElementTag}>
 				<slot></slot>
 			`)}`;
 		}

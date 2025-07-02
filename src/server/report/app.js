@@ -8,6 +8,10 @@ import { renderTabButtons, renderTabPanel, TAB_STYLE } from './tabs.js';
 import data from './data.js';
 import page from 'page';
 
+let cancelClickTO;
+let cancelClick = false;
+addEventListener('mouseup', () => setTimeout(() => cancelClick = false, 0));
+
 class App extends LitElement {
 	static properties = {
 		_files: { state: true },
@@ -28,15 +32,21 @@ class App extends LitElement {
 		aside {
 			background-color: #ffffff;
 			border-right: 1px solid #e6e6e6;
-			box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
+			box-shadow: 0 0 0 rgba(0, 0, 0, 0);
 			flex-shrink: 0;
 			order: 0;
 			overflow: hidden;
-			transition: width 0.2s ease-in-out;
+			transition:
+				width 0.2s ease-in-out,
+				box-shadow 0.2s ease-in-out;
 			width: 315px;
 		}
 		aside[hidden] {
+			box-shadow:
+				0 0 0 100vw rgba(0, 0, 0, 0),
+				0 0 10px rgba(0, 0, 0, 0.6);
 			display: unset;
+			left: -1px;
 			padding: 0;
 			width: 0;
 		}
@@ -183,6 +193,9 @@ class App extends LitElement {
 		@media (max-width: 1000px) {
 			aside {
 				bottom: 0;
+				box-shadow:
+					rgba(0, 0, 0, 0.5) 0 0 0 100vw,
+					rgba(0, 0, 0, 0.6) 0 0 10px;
 				left: 0;
 				position: fixed;
 				top: 0;
@@ -261,7 +274,7 @@ class App extends LitElement {
 				</div>
 			</aside>
 			<main @click="${this._handleMainClick}">${this._renderMainView()}</main>
-			<section id="viewer">
+			<section id="viewer" @click="${this._handleViewerClick}">
 				<p>
 					<d2l-vdiff-report-button text="Close" @click="${this._handleCloseViewerClick}">
 						${ICON_CLOSE}
@@ -289,13 +302,22 @@ class App extends LitElement {
 	#viewer;
 
 	_handleCloseViewerClick() {
-		this.#viewer.lastChild.remove();
+		[...this.#viewer.children].forEach((n, idx) => idx && n.remove());
 	}
 
 	_handleDiffContainerClick(e) {
+		if (cancelClick) {
+			cancelClick = false;
+			return false;
+		}
+		clearTimeout(cancelClickTO);
+		this._handleCloseViewerClick();
 		const container = e.currentTarget;
 		const clone = container.cloneNode(true);
 		this.#viewer.insertAdjacentElement('beforeend', clone);
+	}
+	_handleDiffContainerMouseDown() {
+		cancelClickTO = setTimeout(() => cancelClick = true, 300);
 	}
 	_handleFilterBrowserChange(e) {
 		const browsers = data.browsers.map(b => b.name).filter(b => {
@@ -332,6 +354,9 @@ class App extends LitElement {
 	_handlePrevClick() {
 		this._updateSearchParams(this._prev);
 		this._scrollToTop();
+	}
+	_handleViewerClick(e) {
+		e.target === this.#viewer && this._handleCloseViewerClick();
 	}
 	_renderError(message, source) {
 		return html`<div class="padding"><p>${message}: <b>${source}</b>.</p></div>`;

@@ -114,7 +114,7 @@ export const RESULT_STYLE = css`
 		opacity: 0.003;
 		position: absolute;
 	}
-	#viewer .result-overlay img + img:active {
+	.result-overlay img + img:active {
 		opacity: 1;
 	}
 	.result-part-info {
@@ -216,7 +216,7 @@ function renderResult(resultData, options) {
 					<div class="result-part-info-size">(${partInfo.width} x ${partInfo.height})</div>
 				</div>
 				<div class="result-part-wrapper">
-					<div class="result-diff-container" @click="${this._handleDiffContainerClick}"><img src="../${partInfo.path}" loading="lazy" alt="" @load="${handleImageLoad}">${overlay}</div>
+					<div class="result-diff-container" @mouseup="${this._handleDiffContainerMouseUp}" @mousedown="${this._handleDiffContainerMouseDown}" @click="${this._handleDiffContainerClick}"><img src="../${partInfo.path}" loading="lazy" alt="" @load="${handleImageLoad}">${overlay}</div>
 				</div>
 			</div>
 		`;
