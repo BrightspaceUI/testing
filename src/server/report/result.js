@@ -57,10 +57,15 @@ export const RESULT_STYLE = css`
 	.result-part {
 		display: inline-block;
 	}
+	.item-container > .result-part {
+		border-bottom: 4px solid #e3e9f1;
+		text-align: center;
+		width: 100%;
+		min-width: fit-content;
+	}
 	.result-diff-container img {
 		cursor: zoom-in;
 		image-rendering: pixelated;
-		max-width: 100%;
 	}
 	.result-diff-container:has(> img:not([style])) {
 		height: 0;

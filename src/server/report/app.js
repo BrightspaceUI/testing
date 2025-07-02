@@ -177,7 +177,6 @@ class App extends LitElement {
 		}
 
 		#viewer img {
-			max-width: unset;
 			width: unset !important;
 		}
 
