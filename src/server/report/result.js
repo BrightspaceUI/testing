@@ -59,9 +59,9 @@ export const RESULT_STYLE = css`
 	}
 	.item-container > .result-part {
 		border-bottom: 4px solid #e3e9f1;
+		min-width: fit-content;
 		text-align: center;
 		width: 100%;
-		min-width: fit-content;
 	}
 	.result-diff-container img {
 		cursor: zoom-in;
