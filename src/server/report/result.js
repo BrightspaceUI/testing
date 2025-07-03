@@ -41,6 +41,8 @@ export const RESULT_STYLE = css`
 		flex-wrap: nowrap;
 		justify-content: center;
 		min-width: max-content;
+		position: relative;
+		z-index: 1;
 	}
 
 	:host([fit]) {
@@ -66,8 +68,10 @@ export const RESULT_STYLE = css`
 	}
 	.item-container > .result-part {
 		min-width: fit-content;
+		position: relative;
 		text-align: center;
 		width: 100%;
+		z-index: 1;
 	}
 	.result-diff-container img {
 		cursor: zoom-in;
