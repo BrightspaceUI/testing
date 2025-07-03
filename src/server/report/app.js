@@ -222,6 +222,9 @@ class App extends LitElement {
 		const ro = new ResizeObserver(() => this.updateAllSticky());
 		ro.observe(this);
 	}
+	closeViewer() {
+		[...this.#viewer.children].forEach((n, idx) => idx && n.remove());
+	}
 	connectedCallback() {
 		super.connectedCallback();
 		this._root = new URL(window.location.href).pathname;
@@ -276,7 +279,7 @@ class App extends LitElement {
 			<main @click="${this._handleMainClick}">${this._renderMainView()}</main>
 			<section id="viewer" @click="${this._handleViewerClick}">
 				<p>
-					<d2l-vdiff-report-button text="Close" @click="${this._handleCloseViewerClick}">
+					<d2l-vdiff-report-button text="Close">
 						${ICON_CLOSE}
 					</d2l-vdiff-report-button>
 				</p>
@@ -302,17 +305,13 @@ class App extends LitElement {
 
 	#viewer;
 
-	_handleCloseViewerClick() {
-		[...this.#viewer.children].forEach((n, idx) => idx && n.remove());
-	}
-
 	_handleDiffContainerClick(e) {
 		if (cancelClick) {
 			cancelClick = false;
 			return false;
 		}
 		clearTimeout(cancelClickTO);
-		this._handleCloseViewerClick();
+		this.closeViewer();
 		const container = e.currentTarget;
 		const clone = container.cloneNode(true);
 		this.#viewer.insertAdjacentElement('beforeend', clone);
@@ -357,7 +356,7 @@ class App extends LitElement {
 		this._scrollToTop();
 	}
 	_handleViewerClick(e) {
-		e.target === this.#viewer && this._handleCloseViewerClick();
+		!e.composedPath().some(el => el.classList?.contains('result-diff-container')) && this.closeViewer();
 	}
 	_renderError(message, source) {
 		return html`<div class="padding"><p>${message}: <b>${source}</b>.</p></div>`;
