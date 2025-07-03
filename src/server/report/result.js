@@ -7,18 +7,17 @@ import data from './data.js';
 
 function handleImageLoad(e) {
 	// the natural width must be divided by the devicePixelRatio of the capturing device
-	const actualWidth =`${e.target.naturalWidth / 2}px`;
+	const actualWidth = `${e.target.naturalWidth / 2}px`;
 	e.target.style.width = actualWidth;
-	const splitElem = e.composedPath().find(el => el.classList.contains('result-split'));
-	const graphic = splitElem.querySelector('.result-graphic');
+	const elem = e.composedPath().findLast(el => el.classList?.contains('result-split') || el.classList?.contains('result-part'));
+	const graphic = elem?.querySelector('.result-graphic');
 	if (graphic) graphic.style.maxWidth = `${actualWidth}px`;
-	this.updateElemSticky(splitElem);
+	elem && this.updateElemSticky(elem);
 }
 
 export const RESULT_STYLE = css`
 	.result-browser {
 		align-items: center;
-		border-bottom: 4px solid #e3e9f1;
 		display: flex;
 		gap: 10px;
 		left: 0;
@@ -37,7 +36,6 @@ export const RESULT_STYLE = css`
 		font-weight: bold;
 	}
 	.result-split {
-		border-bottom: 4px solid #e3e9f1;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
@@ -55,14 +53,18 @@ export const RESULT_STYLE = css`
 		width: 50%;
 	}
 	.result-split-divider {
-		border-right: 2px solid #007bff;
+		border-right: 3px solid #007bff;
+		box-shadow: 0 -3px 0 3px #fafafa;
 		flex: 0 0 auto;
+		left: 3px;
+		position: sticky;
+		right: 3px;
+		z-index: 1;
 	}
 	.result-part {
 		display: inline-block;
 	}
 	.item-container > .result-part {
-		border-bottom: 4px solid #e3e9f1;
 		min-width: fit-content;
 		text-align: center;
 		width: 100%;
@@ -130,7 +132,6 @@ export const RESULT_STYLE = css`
 	.result-part-info {
 		align-items: center;
 		background-color: #eeeeee;
-		border-bottom: 1px solid #cccccc;
 		display: flex;
 		gap: 5px;
 		justify-content: center;
@@ -172,10 +173,14 @@ export const RESULT_STYLE = css`
 	}
 	.result-test-name {
 		align-items: center;
+		border-bottom: 30px solid #eeeeee;
+		border-top: 4px solid #e3e9f1;
+		box-shadow: 0 1px 0 0 #cccccc;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 10px;
 		left: 0;
+		margin-bottom: -30px;
 		padding: 50px 20px 30px;
 		position: sticky;
 	}

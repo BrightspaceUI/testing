@@ -284,7 +284,9 @@ class App extends LitElement {
 		`;
 	}
 	updateAllSticky() {
-		this.shadowRoot.querySelectorAll('.result-split').forEach(el => {
+		let elems = this.shadowRoot.querySelectorAll('.result-split');
+		elems = elems.length ? elems : this.shadowRoot.querySelectorAll('.result-part');
+		elems.forEach(el => {
 			this.updateElemSticky(el);
 		});
 	}
@@ -292,10 +294,9 @@ class App extends LitElement {
 		this.updateAllSticky();
 	}
 	updateElemSticky(el) {
+		el.parentElement.classList.remove('no-sticky');
 		if (el.offsetWidth > el.parentElement.offsetWidth) {
 			el.parentElement.classList.add('no-sticky');
-		} else {
-			el.parentElement.classList.remove('no-sticky');
 		}
 	}
 
