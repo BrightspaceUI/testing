@@ -182,7 +182,7 @@ export const RESULT_STYLE = css`
 		box-shadow: 0 1px 0 0 #cccccc;
 		display: flex;
 		flex-wrap: wrap;
-		gap: 10px;
+		gap: 20px;
 		left: 0;
 		margin-bottom: -30px;
 		padding: 50px 20px 30px;
@@ -191,6 +191,10 @@ export const RESULT_STYLE = css`
 	.result-test-name > h3 {
 		flex-grow: 1;
 		margin: 0;
+	}
+	.result-data {
+		display: flex;
+		gap: 10px;
 	}
 	.result-duration {
 		flex: 0 0 auto;
@@ -339,8 +343,10 @@ export function renderBrowserResults(browser, tests, options) {
 			<div class="item-container">
 				<div class="result-test-name">
 					<h3>${t.name.split(' > ').flatMap(p => [html`<span class="breadcrumb-arrow"> ></span> `, p]).slice(1)}</h3>
-					${pixelsDiff}
-					<div class="result-duration">${renderStatusText(`${resultData.duration}ms`, status)}</div>
+					<div class="result-data">
+						${pixelsDiff}
+						<div class="result-duration">${renderStatusText(`${resultData.duration}ms`, status)}</div>
+					</div>
 				</div>
 				${renderResult.call(this, resultData, options)}
 			</div>
