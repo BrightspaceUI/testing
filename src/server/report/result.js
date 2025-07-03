@@ -11,7 +11,7 @@ function handleImageLoad(e) {
 	e.target.style.width = actualWidth;
 	const elem = e.composedPath().findLast(el => el.classList?.contains('result-split') || el.classList?.contains('result-part'));
 	const graphic = elem?.querySelector('.result-graphic');
-	if (graphic) graphic.style.maxWidth = `${actualWidth}px`;
+	if (graphic) graphic.style.setProperty('max-width', actualWidth);
 	elem && this.updateElemSticky(elem);
 }
 
