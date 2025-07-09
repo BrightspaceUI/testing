@@ -1,12 +1,16 @@
 import './button.js';
 import { COMMON_STYLE, FILTER_STATUS, FULL_MODE, LAYOUTS, renderEmpty, renderTestStatus } from './common.js';
 import { css, html, LitElement, nothing } from 'lit';
-import { ICON_NEXT, ICON_PREV } from './icons.js';
+import { ICON_CLOSE, ICON_HAMBURGER, ICON_NEXT, ICON_PREV } from './icons.js';
 import { RADIO_STYLE, renderRadio } from './radio.js';
 import { renderBrowserResults, RESULT_STYLE } from './result.js';
 import { renderTabButtons, renderTabPanel, TAB_STYLE } from './tabs.js';
 import data from './data.js';
 import page from 'page';
+
+let cancelClickTO;
+let cancelClick = false;
+addEventListener('mouseup', () => setTimeout(() => cancelClick = false, 0));
 
 class App extends LitElement {
 	static properties = {
@@ -16,30 +20,56 @@ class App extends LitElement {
 		_filterTest: { state: true },
 		_fullMode: { state: true },
 		_layout: { state: true },
-		_overlay: { state: true }
+		_overlay: { state: true },
+		_menu: { state: true }
 	};
 	static styles = [COMMON_STYLE, RADIO_STYLE, RESULT_STYLE, TAB_STYLE, css`
 		:host {
-			display: grid;
-			grid-template-columns: 275px auto;
+			display: flex;
 			height: 100vh;
 			overflow: hidden;
 		}
 		aside {
 			background-color: #ffffff;
 			border-right: 1px solid #e6e6e6;
-			box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
+			box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+			flex-shrink: 0;
+			order: 0;
+			overflow: hidden;
+			transition:
+				width 0.2s ease-in-out,
+				box-shadow 0.2s ease-in-out;
+			width: 315px;
+		}
+		aside[hidden] {
+			box-shadow:
+				0 0 0 100vw rgba(0, 0, 0, 0),
+				0 0 10px rgba(0, 0, 0, 0.6);
+			display: unset;
+			left: -1px;
+			padding: 0;
+			width: 0;
+		}
+		aside > :first-child {
+			box-sizing: border-box;
 			padding: 20px;
+			width: 315px;
+		}
+		aside d2l-vdiff-report-button {
+			display: none;
 		}
 		main {
 			background-color: #fafafa;
-			overflow-y: scroll;
-		}
-		main > .item-container:first-child {
-			padding-top: 20px;
+			flex-grow: 1;
+			isolation: isolate;
+			order: 0;
+			overflow: auto;
 		}
 		.list-file-title {
 			padding-bottom: 20px;
+		}
+		.list-file-title > h2 {
+			line-break: anywhere;
 		}
 		table {
 			background-color: #ffffff;
@@ -79,8 +109,8 @@ class App extends LitElement {
 			font-weight: bold;
 		}
 		.test-results {
-			display: grid;
-			grid-template-rows: auto 1fr auto;
+			display: flex;
+			flex-direction: column;
 			height: 100vh;
 		}
 		.header {
@@ -89,21 +119,27 @@ class App extends LitElement {
 			box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
 		}
 		.tab-panels {
+			display: flex;
+			flex-direction: column;
+			flex-grow: 1;
 			overflow: auto;
 		}
 		.title {
 			align-items: center;
 			display: flex;
+			flex-wrap: wrap;
 			font-size: 1.5rem;
-			gap: 5px;
+			gap: 10px;
 			padding: 20px 20px 0 20px;
 		}
 		.title h2 {
 			font-size: inherit;
+			line-break: anywhere;
 		}
 		.settings {
 			align-items: center;
 			display: flex;
+			flex-wrap: wrap;
 			gap: 10px;
 			padding: 20px;
 		}
@@ -121,6 +157,56 @@ class App extends LitElement {
 			padding: 10px;
 			user-select: none;
 		}
+		.button-group, #menu-header {
+			align-items: center;
+			display: flex;
+			gap: 10px;
+		}
+		.hamburger-button {
+			margin-right: 10px;
+		}
+
+		#viewer {
+			backdrop-filter: blur(10px) saturate(0%);
+			background-color: rgba(0, 0, 0, 0.65);
+			display: none;
+			inset: 0;
+			overflow: auto;
+			padding: 20px;
+			position: fixed;
+			text-align: center;
+		}
+
+		#viewer:has(> :nth-child(2)) {
+			display: flow;
+		}
+
+		#viewer p {
+			left: 0;
+			position: sticky;
+		}
+
+		#viewer img {
+			width: unset !important;
+		}
+
+		@media (max-width: 1000px) {
+			aside {
+				bottom: 0;
+				box-shadow:
+					rgba(0, 0, 0, 0.5) 0 0 0 100vw,
+					rgba(0, 0, 0, 0.6) 0 0 10px;
+				left: 0;
+				position: fixed;
+				top: 0;
+			}
+			main {
+				order: -1;
+			}
+			aside d2l-vdiff-report-button {
+				display: unset;
+			}
+		}
 	`];
 	constructor() {
 		super();
@@ -130,7 +216,14 @@ class App extends LitElement {
 		this._fullMode = FULL_MODE.GOLDEN.value;
 		this._layout = LAYOUTS.SPLIT.value;
 		this._overlay = true;
+		this._menu = true;
 		this._selectedBrowserIndex = -1;
+
+		const ro = new ResizeObserver(() => this.updateAllSticky());
+		ro.observe(this);
+	}
+	closeViewer() {
+		[...this.#viewer.children].forEach((n, idx) => idx && n.remove());
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -164,16 +257,67 @@ class App extends LitElement {
 		});
 		page();
 	}
+	firstUpdated() {
+		this.#viewer = this.shadowRoot.querySelector('#viewer');
+		if (window.matchMedia('(max-width: 1000px)').matches) {
+			setTimeout(() => this._handleHamburgerClick(), 1000);
+		}
+	}
 	render() {
 		return html`
-			<aside>
+			<aside ?hidden="${!this._menu}">
 				<div>
-					<h1>Visual-Diff Report</h1>
+					<div id="menu-header">
+						<d2l-vdiff-report-button class="hamburger-button" @click="${this._handleHamburgerClick}">
+							${ICON_HAMBURGER}
+						</d2l-vdiff-report-button>
+						<h1>Visual-Diff Report</h1>
+					</div>
 					${this._renderFilters()}
 				</div>
 			</aside>
-			<main>${this._renderMainView()}</main>
+			<main @click="${this._handleMainClick}">${this._renderMainView()}</main>
+			<section id="viewer" @click="${this._handleViewerClick}">
+				<p>
+					<d2l-vdiff-report-button text="Close">
+						${ICON_CLOSE}
+					</d2l-vdiff-report-button>
+				</p>
+			</section>
 		`;
+	}
+	updateAllSticky() {
+		let elems = this.shadowRoot.querySelectorAll('.result-split');
+		elems = elems.length ? elems : this.shadowRoot.querySelectorAll('.result-part');
+		elems.forEach(el => {
+			this.updateElemSticky(el);
+		});
+	}
+	updated() {
+		this.updateAllSticky();
+	}
+	updateElemSticky(el) {
+		el.parentElement.classList.remove('no-sticky');
+		if (el.offsetWidth > el.parentElement.offsetWidth) {
+			el.parentElement.classList.add('no-sticky');
+		}
+	}
+
+	#viewer;
+
+	_handleDiffContainerClick(e) {
+		if (cancelClick) {
+			cancelClick = false;
+			return false;
+		}
+		clearTimeout(cancelClickTO);
+		this.closeViewer();
+		const container = e.currentTarget;
+		const clone = container.cloneNode(true);
+		this.#viewer.insertAdjacentElement('beforeend', clone);
+	}
+	_handleDiffContainerMouseDown() {
+		cancelClickTO = setTimeout(() => cancelClick = true, 300);
 	}
 	_handleFilterBrowserChange(e) {
 		const browsers = data.browsers.map(b => b.name).filter(b => {
@@ -191,6 +335,15 @@ class App extends LitElement {
 	_handleFilterStatusChange(e) {
 		this._updateSearchParams({ status: e.target.value });
 	}
+	_handleHamburgerClick(e) {
+		this._menu = !this._menu;
+		e?.stopPropagation();
+	}
+	_handleMainClick() {
+		if (window.matchMedia('(max-width: 1000px)').matches) {
+			this._menu = false;
+		}
+	}
 	_handleNextClick() {
 		this._updateSearchParams(this._next);
 		this._scrollToTop();
@@ -201,6 +354,9 @@ class App extends LitElement {
 	_handlePrevClick() {
 		this._updateSearchParams(this._prev);
 		this._scrollToTop();
+	}
+	_handleViewerClick(e) {
+		!e.composedPath().some(el => el.classList?.contains('result-diff-container')) && this.closeViewer();
 	}
 	_renderError(message, source) {
 		return html`<div class="padding"><p>${message}: <b>${source}</b>.</p></div>`;
@@ -301,7 +457,7 @@ class App extends LitElement {
 		searchParams.set('file', file.name);
 		searchParams.delete('test');
 		return html`
-			<div class="item-container">
+			<div class="item-container padding">
 				<div class="list-file-title">
 					<h2><a href="${this._root}?${searchParams.toString()}">${file.name}</a></h2>
 				</div>
@@ -343,7 +499,11 @@ class App extends LitElement {
 			if (this._files.length === 0) {
 				return renderEmpty();
 			} else {
-				return this._files.map(f => this._renderListFile(f));
+				return html`
+					<d2l-vdiff-report-button class="hamburger-button" @click="${this._handleHamburgerClick}" style="margin: 20px;">
+							${ICON_HAMBURGER}
+					</d2l-vdiff-report-button>
+					${this._files.map(f => this._renderListFile(f))}`;
 			}
 		}
 
@@ -416,7 +576,7 @@ class App extends LitElement {
 		const tabs = browsers.map((b) => {
 			const numPassed = browserResults.get(b.name);
 			return {
-				content: renderBrowserResults(b, tests, { filterHideByteDiff: this._filterHideByteDiff, filterStatus: this._filterStatus, fullMode: this._fullMode, layout: this._layout, showOverlay: this._overlay }),
+				content: renderBrowserResults.call(this, b, tests, { filterHideByteDiff: this._filterHideByteDiff, filterStatus: this._filterStatus, fullMode: this._fullMode, layout: this._layout, showOverlay: this._overlay }),
 				label: b.name,
 				id: b.name.toLowerCase(),
 				selected: b.name === selectedBrowser.name,
@@ -432,8 +592,11 @@ class App extends LitElement {
 			<div class="test-results">
 				<div class="header">
 					<div class="title">
+						<d2l-vdiff-report-button class="hamburger-button" @click="${this._handleHamburgerClick}">
+							${ICON_HAMBURGER}
+						</d2l-vdiff-report-button>
 						<a href="${this._root}?${homeSearchParams.toString()}">Home</a>
-						<span>&nbsp;&gt;&nbsp;</span>
+						<span>&gt;</span>
 						<h2>${fileData.name}</h2>
 					</div>
 					<div class="settings">
@@ -441,8 +604,10 @@ class App extends LitElement {
 						<label class="settings-box"><input type="checkbox" ?checked="${this._overlay}" @change="${this._handleOverlayChange}">Overlay Difference</label>
 						${fullMode}
 						<div class="spacer"></div>
-						<d2l-vdiff-report-button ?disabled="${this._prev === undefined}" text="Prev" @click="${this._handlePrevClick}">${ICON_PREV}</d2l-vdiff-report-button>
-						<d2l-vdiff-report-button ?disabled="${this._next === undefined}" text="Next" @click="${this._handleNextClick}">${ICON_NEXT}</d2l-vdiff-report-button>
+						<div class="button-group">
+							<d2l-vdiff-report-button ?disabled="${this._prev === undefined}" text="Prev" @click="${this._handlePrevClick}">${ICON_PREV}</d2l-vdiff-report-button>
+							<d2l-vdiff-report-button ?disabled="${this._next === undefined}" text="Next" @click="${this._handleNextClick}">${ICON_NEXT}</d2l-vdiff-report-button>
+						</div>
 					</div>
 					${this._renderTabButtons(tabs)}
 				</div>

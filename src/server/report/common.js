@@ -54,8 +54,12 @@ export const COMMON_STYLE = css`
 		margin: 0;
 	}
 	.item-container {
-		border-bottom: 4px solid #e3e9f1;
-		padding: 40px 20px;
+		left: 0;
+		position: sticky;
+	}
+	.item-container.no-sticky {
+		display: contents;
+		position: static;
 	}
 	.item-container:last-of-type {
 		border-bottom: none;

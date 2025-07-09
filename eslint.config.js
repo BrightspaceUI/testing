@@ -1,17 +1,22 @@
 import { browserConfig, nodeConfig, setDirectoryConfigs, testingConfig } from 'eslint-config-brightspace';
 import globals from 'globals';
 
-export default setDirectoryConfigs(
-	browserConfig,
+export default [
 	{
-		test: [
-			...nodeConfig,
-			{
-				languageOptions: {
-					globals: { ...globals.mocha }
+		ignores: ['.vdiff'],
+	},
+	...setDirectoryConfigs(
+		browserConfig,
+		{
+			test: [
+				...nodeConfig,
+				{
+					languageOptions: {
+						globals: { ...globals.mocha }
+					}
 				}
-			}
-		],
-		'test/browser': testingConfig
-	}
-);
+			],
+			'test/browser': testingConfig
+		}
+	)
+];
