@@ -78,7 +78,7 @@ function removeTestFiles() {
 
 			const goldenPath = join(filePath, PATHS.GOLDEN, browser, payload.fileName);
 			const failedPath = join(filePath, PATHS.FAIL, browser, payload.fileName);
-			const passedPath = join(filePath, PATHS.FAIL, browser, payload.fileName);
+			const passedPath = join(filePath, PATHS.PASS, browser, payload.fileName);
 
 			await rm(goldenPath);
 			await rm(failedPath);
