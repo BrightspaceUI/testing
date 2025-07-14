@@ -108,7 +108,7 @@ describe('element-matches', () => {
 		{ name: 'rtl', rtl: true },
 		{ name: 'hover', action: async(elem) => await hoverElem(elem) },
 		{ name: 'no-hover' }, // Test will fail if mouse reseting breaks
-		{ name: 'transition', action: elem => elem.style.opacity = '0.2' }
+		{ name: 'transition', action: elem => elem.style.opacity = '0.3' }
 	].forEach(({ name, rtl, action }) => {
 		it(name, async() => {
 			const elem = await fixture(defaultTemplate, { rtl });
@@ -189,12 +189,12 @@ describe('element-different', () => {
 
 	[
 		{ name: 'default', action: elem => {
-			//elem.style.borderColor = 'black';
-			//elem.text = 'Different Text';
+			elem.style.borderColor = 'black';
+			elem.text = 'Different Text';
 		} },
 		{ name: 'smaller', action: elem => {
-			elem.style.width = '200px';
-			elem.style.height = '50px';
+			//elem.style.width = '200px';
+			//elem.style.height = '50px';
 		} },
 		{ name: 'larger', action: elem => {
 			elem.style.width = '350px';
