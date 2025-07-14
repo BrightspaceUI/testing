@@ -81,8 +81,8 @@ function removeTestFiles() {
 			const passedPath = join(filePath, PATHS.PASS, browser, payload.fileName);
 
 			await rm(goldenPath);
-			await rm(failedPath);
-			await rm(passedPath);
+			await rm(failedPath, { force: true });
+			await rm(passedPath, { force: true });
 			return true;
 		}
 	};
