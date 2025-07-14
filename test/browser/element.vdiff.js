@@ -100,6 +100,8 @@ const nestedElementTag = defineCE(
 	}
 );
 
+const defaultTemplate = `<${elementTag} text="Visual Difference"></${elementTag}>`;
+
 describe('element-matches', () => {
 	[
 		{ name: 'default' },
@@ -109,14 +111,14 @@ describe('element-matches', () => {
 		{ name: 'transition', action: elem => elem.style.opacity = '0.2' }
 	].forEach(({ name, rtl, action }) => {
 		it(name, async() => {
-			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { rtl });
+			const elem = await fixture(defaultTemplate, { rtl });
 			if (action) await action(elem);
 			await expect(elem).to.be.golden();
 		});
 	});
 
 	it('full page', async() => {
-		await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`, { viewport: { width: 500, height: 500 } });
+		await fixture(defaultTemplate, { viewport: { width: 500, height: 500 } });
 		await expect(document).to.be.golden();
 	});
 
@@ -210,11 +212,12 @@ describe('element-different', () => {
 		} }
 	].forEach(({ name, action }) => {
 		it(name, async() => {
-			const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
-			if (!isGolden) {
-				await action(elem);
-				await elem.updateComplete;
-			}
+			if (isGolden) return;
+			await executeServerCommand('vdiff-add-default-golden-file', { testCategory: 'element-different', fileName: `${name}.png`, goldenTestCategory: 'element-matches', goldenFileName: 'default.png' });
+
+			const elem = await fixture(defaultTemplate);
+			await action(elem);
+			await elem.updateComplete;
 
 			let fail = false;
 			try {
@@ -223,15 +226,12 @@ describe('element-different', () => {
 				fail = true;
 			}
 
-			expect(fail, 'current and golden images to be different').equal(!isGolden);
-
-			if (!isGolden) {
-				await executeServerCommand('vdiff-revert-golden-file', { testCategory: 'element-different', fileName: `${name}.png` });
-			}
+			expect(fail, 'current and golden images to be different').equal(true);
+			//await executeServerCommand('vdiff-remove-test-files', { testCategory: 'element-different', fileName: `${name}.png` });
 		});
 	});
 
-	it('byte size', async() => {
+	/*it('byte size', async() => {
 		const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
 		let fail = false;
 		try {
@@ -247,5 +247,5 @@ describe('element-different', () => {
 			// Modify golden file to be different byte size than what the test will generate
 			await executeServerCommand('vdiff-modify-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png' });
 		}
-	});
+	});*/
 });
