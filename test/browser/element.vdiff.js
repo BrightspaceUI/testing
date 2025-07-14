@@ -108,7 +108,7 @@ describe('element-matches', () => {
 		{ name: 'rtl', rtl: true },
 		{ name: 'hover', action: async(elem) => await hoverElem(elem) },
 		{ name: 'no-hover' }, // Test will fail if mouse reseting breaks
-		{ name: 'transition', action: elem => elem.style.opacity = '0.3' }
+		{ name: 'transition', action: elem => elem.style.opacity = '0.2' }
 	].forEach(({ name, rtl, action }) => {
 		it(name, async() => {
 			const elem = await fixture(defaultTemplate, { rtl });
