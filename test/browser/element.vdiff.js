@@ -214,7 +214,12 @@ describe('element-different', () => {
 	].forEach(({ name, action }) => {
 		it(name, async() => {
 			if (isGolden) return;
-			await executeServerCommand('vdiff-add-default-golden-file', { testCategory: 'element-different', fileName: `${name}.png`, goldenTestCategory: 'element-matches', goldenFileName: 'default.png' });
+			await executeServerCommand('vdiff-add-default-golden-file', {
+				testCategory: 'element-different',
+				fileName: `${name}.png`,
+				goldenTestCategory: 'element-matches',
+				goldenFileName: 'default.png'
+			});
 
 			const elem = await fixture(defaultTemplate);
 			await action(elem);
@@ -234,7 +239,11 @@ describe('element-different', () => {
 
 	it('byte size', async() => {
 		if (isGolden) return;
-		await executeServerCommand('vdiff-add-default-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png', goldenTestCategory: 'element-matches', goldenFileName: 'default.png' });
+		await executeServerCommand('vdiff-add-default-golden-file', {
+			testCategory: 'element-different',
+			fileName: 'byte-size.png',
+			goldenTestCategory: 'element-matches',
+			goldenFileName: 'default.png' });
 
 		// Modify golden file to be different byte size than what the test will generate
 		await executeServerCommand('vdiff-modify-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png' });
