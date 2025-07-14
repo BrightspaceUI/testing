@@ -190,8 +190,8 @@ describe('element-different', () => {
 
 	[
 		{ name: 'default', action: elem => {
-			//elem.style.borderColor = 'black';
-			//elem.text = 'Different Text';
+			elem.style.borderColor = 'black';
+			elem.text = 'Different Text';
 		} },
 		{ name: 'smaller', action: elem => {
 			elem.style.width = '200px';
