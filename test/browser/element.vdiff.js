@@ -226,8 +226,8 @@ describe('element-different', () => {
 				fail = true;
 			}
 
-			expect(fail, 'current and golden images to be different').equal(true);
 			await executeServerCommand('vdiff-remove-test-files', { testCategory: 'element-different', fileName: `${name}.png` });
+			expect(fail, 'current and golden images to be different').equal(true);
 		});
 	});
 
