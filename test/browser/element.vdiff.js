@@ -227,7 +227,7 @@ describe('element-different', () => {
 			}
 
 			expect(fail, 'current and golden images to be different').equal(true);
-			//await executeServerCommand('vdiff-remove-test-files', { testCategory: 'element-different', fileName: `${name}.png` });
+			await executeServerCommand('vdiff-remove-test-files', { testCategory: 'element-different', fileName: `${name}.png` });
 		});
 	});
 
