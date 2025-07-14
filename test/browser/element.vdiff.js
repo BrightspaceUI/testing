@@ -181,6 +181,7 @@ describe('element-matches', () => {
 
 });
 
+const expectFailures = true; // Easy switch to create traditional report for debugging
 describe('element-different', () => {
 	let isGolden;
 	before(async() => {
@@ -193,8 +194,8 @@ describe('element-different', () => {
 			elem.text = 'Different Text';
 		} },
 		{ name: 'smaller', action: elem => {
-			//elem.style.width = '200px';
-			//elem.style.height = '50px';
+			elem.style.width = '200px';
+			elem.style.height = '50px';
 		} },
 		{ name: 'larger', action: elem => {
 			elem.style.width = '350px';
@@ -226,7 +227,7 @@ describe('element-different', () => {
 				fail = true;
 			}
 
-			expect(fail, 'current and golden images to be different').equal(true);
+			expect(fail, 'current and golden images to be different').equal(expectFailures);
 			await executeServerCommand('vdiff-remove-test-files', { testCategory: 'element-different', fileName: `${name}.png` });
 		});
 	});
@@ -246,7 +247,7 @@ describe('element-different', () => {
 			fail = true;
 		}
 
-		expect(fail, 'current and golden images to have different byte size').equal(true);
+		expect(fail, 'current and golden images to have different byte size').equal(expectFailures);
 		await executeServerCommand('vdiff-remove-test-files', { testCategory: 'element-different', fileName: 'byte-size.png' });
 	});
 });

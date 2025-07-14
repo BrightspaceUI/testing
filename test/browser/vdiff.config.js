@@ -70,7 +70,7 @@ function removeTestFiles() {
 		},
 		async executeCommand({ command, payload, session }) {
 			if (command !== 'vdiff-remove-test-files') return;
-			if (!isCI) return; // Leave files when running locally for debugging
+			if (!isCI) return true; // Leave files when running locally for debugging
 			const browser = session.browser.name.toLowerCase();
 			const testPath = dirname(session.testFile).replace(rootDir, '');
 			const filePath = join(rootDir, PATHS.VDIFF_ROOT, testPath, payload.testCategory);
