@@ -226,13 +226,19 @@ describe('element-different', () => {
 				fail = true;
 			}
 
-			await executeServerCommand('vdiff-remove-test-files', { testCategory: 'element-different', fileName: `${name}.png` });
 			expect(fail, 'current and golden images to be different').equal(true);
+			await executeServerCommand('vdiff-remove-test-files', { testCategory: 'element-different', fileName: `${name}.png` });
 		});
 	});
 
-	/*it('byte size', async() => {
-		const elem = await fixture(`<${elementTag} text="Visual Difference"></${elementTag}>`);
+	it('byte size', async() => {
+		if (isGolden) return;
+		await executeServerCommand('vdiff-add-default-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png', goldenTestCategory: 'element-matches', goldenFileName: 'default.png' });
+
+		// Modify golden file to be different byte size than what the test will generate
+		await executeServerCommand('vdiff-modify-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png' });
+
+		const elem = await fixture(defaultTemplate);
 		let fail = false;
 		try {
 			await expect(elem).to.be.golden();
@@ -240,12 +246,7 @@ describe('element-different', () => {
 			fail = true;
 		}
 
-		if (!isGolden) {
-			expect(fail, 'current and golden images to have different byte size').equal(true);
-			await executeServerCommand('vdiff-revert-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png' });
-		} else {
-			// Modify golden file to be different byte size than what the test will generate
-			await executeServerCommand('vdiff-modify-golden-file', { testCategory: 'element-different', fileName: 'byte-size.png' });
-		}
-	});*/
+		expect(fail, 'current and golden images to have different byte size').equal(true);
+		await executeServerCommand('vdiff-remove-test-files', { testCategory: 'element-different', fileName: 'byte-size.png' });
+	});
 });
