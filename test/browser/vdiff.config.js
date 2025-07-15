@@ -1,10 +1,32 @@
 import { argv, env } from 'node:process';
-import { copyFile, readFile, writeFile } from 'node:fs/promises';
+import { cp, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { PATHS } from '../../src/server/paths.js';
 import { PNG } from 'pngjs';
 
 const isCI = !!env['CI'];
+
+function addDefaultGolden() {
+	let rootDir;
+	return {
+		name: 'vdiff-add-default-golden-file',
+		async serverStart({ config }) {
+			rootDir = config.rootDir;
+		},
+		async executeCommand({ command, payload, session }) {
+			if (command !== 'vdiff-add-default-golden-file') return;
+			const browser = session.browser.name.toLowerCase();
+			const testPath = dirname(session.testFile).replace(rootDir, '');
+			const filePath = join(rootDir, PATHS.VDIFF_ROOT, testPath);
+
+			const defaultGoldenPath = join(filePath, payload.goldenTestCategory, PATHS.GOLDEN, browser, payload.goldenFileName);
+			const testGoldenPath = join(filePath, payload.testCategory, PATHS.GOLDEN, browser, payload.fileName);
+
+			await cp(defaultGoldenPath, testGoldenPath, { recursive: true });
+			return true;
+		}
+	};
+}
 
 function getGoldenFlag() {
 	return {
@@ -28,9 +50,8 @@ function modifyGolden() {
 			const browser = session.browser.name.toLowerCase();
 			const testPath = dirname(session.testFile).replace(rootDir, '');
 			const filePath = join(rootDir, PATHS.VDIFF_ROOT, testPath, payload.testCategory);
-			const fileLocation = isCI ? PATHS.FAIL : PATHS.GOLDEN;
 
-			const fullPath = join(filePath, fileLocation, browser, payload.fileName);
+			const fullPath = join(filePath, PATHS.GOLDEN, browser, payload.fileName);
 			const data = await readFile(fullPath);
 			const png = PNG.sync.read(data);
 			const buffer = PNG.sync.write(png, { inputHasAlpha: false });
@@ -40,23 +61,25 @@ function modifyGolden() {
 	};
 }
 
-function revertGolden() {
+function removeTestFiles() {
 	let rootDir;
 	return {
-		name: 'vdiff-revert-golden-file',
+		name: 'vdiff-remove-test-files',
 		async serverStart({ config }) {
 			rootDir = config.rootDir;
 		},
 		async executeCommand({ command, payload, session }) {
-			if (command !== 'vdiff-revert-golden-file') return;
+			if (command !== 'vdiff-remove-test-files') return;
+			if (!isCI) return true; // Leave files when running locally for debugging
 			const browser = session.browser.name.toLowerCase();
 			const testPath = dirname(session.testFile).replace(rootDir, '');
 			const filePath = join(rootDir, PATHS.VDIFF_ROOT, testPath, payload.testCategory);
 
-			const failedPath = join(filePath, PATHS.FAIL, browser, payload.fileName);
 			const goldenPath = join(filePath, PATHS.GOLDEN, browser, payload.fileName);
+			const failedPath = join(filePath, PATHS.FAIL, browser, payload.fileName);
 
-			await copyFile(goldenPath, failedPath, 2);
+			await rm(goldenPath);
+			await rm(failedPath);
 			return true;
 		}
 	};
@@ -64,5 +87,5 @@ function revertGolden() {
 
 export default {
 	pattern: () => 'test/browser/**/*.vdiff.js',
-	plugins: [getGoldenFlag(), modifyGolden(), revertGolden()]
+	plugins: [addDefaultGolden(), getGoldenFlag(), modifyGolden(), removeTestFiles()]
 };
