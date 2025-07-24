@@ -82,16 +82,22 @@ export class WTRConfig {
 						<style>
 
 							html {
+								--d2l-cursor-resize-inline-end: e-resize;
+								--d2l-cursor-resize-inline-start: w-resize;
 								--d2l-document-direction: ltr;
 								--d2l-inline-end: right;
 								--d2l-inline-start: left;
+								--d2l-length-factor: 1;
 								--d2l-mirror-transform: none;
 							}
 
 							html[dir="rtl"] * {
+								--d2l-cursor-resize-inline-end: w-resize;
+								--d2l-cursor-resize-inline-start: e-resize;
 								--d2l-document-direction: rtl;
 								--d2l-inline-end: left;
 								--d2l-inline-start: right;
+								--d2l-length-factor: -1;
 								--d2l-mirror-transform: scale(-1, 1);
 							}
 
