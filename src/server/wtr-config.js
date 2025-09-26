@@ -225,9 +225,8 @@ export class WTRConfig {
 		return [...new Set(browsers)].map((b) => playwrightLauncher({
 			concurrency: b === BROWSER_MAP.firefox || this.#cliArgs.open ? 1 : undefined, // focus in Firefox unreliable if concurrency > 1 (https://github.com/modernweb-dev/web/issues/238)
 			product: b,
-			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor, reducedMotion: 'reduce' }),
+			createBrowserContext: ({ browser }) => browser.newContext({ deviceScaleFactor, reducedMotion: 'reduce', locale: 'en-us' }),
 			launchOptions: {
-				env: { ...env, LANG: 'en_US.UTF-8' },
 				headless: !this.#cliArgs.open,
 				devtools: false,
 				slowMo: this.#cliArgs.slowmo || 0,
