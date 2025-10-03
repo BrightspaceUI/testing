@@ -64,7 +64,7 @@ export const RESULT_STYLE = css`
 		position: absolute;
 		top: 0;
 	}
-	.result-overlay img + img {
+	.result-overlay img:active {
 		filter:
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red)
@@ -75,12 +75,6 @@ export const RESULT_STYLE = css`
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red)
 			drop-shadow(0 0 0.5px red);
-		inset: 0;
-		opacity: 0.003;
-		position: absolute;
-	}
-	.result-overlay img + img:active {
-		opacity: 1;
 	}
 	.result-part-info {
 		align-items: center;
@@ -189,7 +183,6 @@ function renderResult(resultData, options) {
 	const overlay = (goldenExists && options.showOverlay && !resultData.passed && resultData.info.diff) ?
 		html`
 		<div class="result-overlay">
-			<img src="../${resultData.info.diff}" loading="lazy" alt="">
 			<img src="../${resultData.info.diff}" loading="lazy" alt="">
 		</div>` : nothing;
 
