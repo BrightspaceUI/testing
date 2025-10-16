@@ -6,7 +6,6 @@ import { RADIO_STYLE, renderRadio } from './radio.js';
 import { renderBrowserResults, RESULT_STYLE } from './result.js';
 import { renderTabButtons, renderTabPanel, TAB_STYLE } from './tabs.js';
 import data from './data.js';
-import page from 'page';
 
 class App extends LitElement {
 	static properties = {
@@ -124,6 +123,7 @@ class App extends LitElement {
 	`];
 	constructor() {
 		super();
+		this._files = [];
 		this._filterBrowsers = data.browsers.map(b => b.name);
 		this._filterHideByteDiff = false;
 		this._filterStatus = data.numFailed > 0 ? FILTER_STATUS.FAILED : FILTER_STATUS.ALL;
@@ -132,37 +132,18 @@ class App extends LitElement {
 		this._overlay = true;
 		this._selectedBrowserIndex = -1;
 	}
+
 	connectedCallback() {
 		super.connectedCallback();
+		window.addEventListener('click', this.#handleClickBound);
+		window.addEventListener('popstate', this.#handleLocationChangeBound);
+		this.#handleLocationChangeBound();
 		this._root = new URL(window.location.href).pathname;
-		page(this._root, (ctx) => {
-			const searchParams = new URLSearchParams(ctx.querystring);
-			if (searchParams.has('file')) {
-				this._filterFile = searchParams.get('file');
-				if (searchParams.has('test')) {
-					this._filterTest = searchParams.get('test');
-				} else {
-					this._filterTest = undefined;
-				}
-			} else {
-				this._filterFile = undefined;
-				this._filterTest = undefined;
-				this._selectedBrowserIndex = -1;
-			}
-			if (searchParams.has('status')) {
-				let filterStatus = searchParams.get('status');
-				if (filterStatus === FILTER_STATUS.FAILED && data.numFailed === 0) {
-					filterStatus = FILTER_STATUS.ALL;
-				}
-				this._filterStatus = filterStatus;
-			}
-			if (searchParams.has('browsers')) {
-				this._filterBrowsers = searchParams.get('browsers').split(',');
-			}
-			this._filterHideByteDiff = searchParams.has('bytediff');
-			this._updateFiles();
-		});
-		page();
+	}
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		window.removeEventListener('click', this.#handleClickBound);
+		window.removeEventListener('popstate', this.#handleLocationChangeBound);
 	}
 	render() {
 		return html`
@@ -175,6 +156,10 @@ class App extends LitElement {
 			<main>${this._renderMainView()}</main>
 		`;
 	}
+
+	#handleClickBound = this.#handleClick.bind(this);
+	#handleLocationChangeBound = this.#handleLocationChange.bind(this);
+
 	_handleFilterBrowserChange(e) {
 		const browsers = data.browsers.map(b => b.name).filter(b => {
 			if (b === e.target.value) {
@@ -522,7 +507,53 @@ class App extends LitElement {
 				searchParams.set(name, params[name]);
 			}
 		}
-		page.redirect(`${this._root}?${searchParams.toString()}`);
+		this.#navigate(`${this._root}?${searchParams.toString()}`);
+	}
+	#handleClick(e) {
+		if (e.metaKey || e.ctrlKey || e.shiftKey || e.defaultPrevented) return;
+
+		let el;
+		const eventPath = e.composedPath();
+		for (let i = 0; i < eventPath.length; i++) {
+			if (eventPath[i].nodeName?.toUpperCase() !== 'A' || !eventPath[i]?.href) continue;
+			el = eventPath[i];
+			break;
+		}
+		if (!el) return;
+
+		e.preventDefault();
+		this.#navigate(`${el.pathname}${el.search}`);
+	}
+	#handleLocationChange() {
+		const searchParams = new URLSearchParams(new URL(window.location.href).search);
+		if (searchParams.has('file')) {
+			this._filterFile = searchParams.get('file');
+			if (searchParams.has('test')) {
+				this._filterTest = searchParams.get('test');
+			} else {
+				this._filterTest = undefined;
+			}
+		} else {
+			this._filterFile = undefined;
+			this._filterTest = undefined;
+			this._selectedBrowserIndex = -1;
+		}
+		if (searchParams.has('status')) {
+			let filterStatus = searchParams.get('status');
+			if (filterStatus === FILTER_STATUS.FAILED && data.numFailed === 0) {
+				filterStatus = FILTER_STATUS.ALL;
+			}
+			this._filterStatus = filterStatus;
+		}
+		if (searchParams.has('browsers')) {
+			this._filterBrowsers = searchParams.get('browsers').split(',');
+		}
+		this._filterHideByteDiff = searchParams.has('bytediff');
+		this._updateFiles();
+	}
+	#navigate(path) {
+		window.history.pushState({}, '', path);
+		this.#handleLocationChange();
 	}
 }
 customElements.define('d2l-vdiff-report-app', App);
