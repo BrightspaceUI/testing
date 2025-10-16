@@ -512,14 +512,14 @@ class App extends LitElement {
 	#handleClick(e) {
 		if (e.metaKey || e.ctrlKey || e.shiftKey || e.defaultPrevented) return;
 
-		let el = e.target;
+		let el;
 		const eventPath = e.composedPath();
 		for (let i = 0; i < eventPath.length; i++) {
 			if (eventPath[i].nodeName?.toUpperCase() !== 'A' || !eventPath[i]?.href) continue;
 			el = eventPath[i];
 			break;
 		}
-		if (el?.nodeName.toUpperCase() !== 'A') return;
+		if (!el) return;
 
 		e.preventDefault();
 		this.#navigate(`${el.pathname}${el.search}`);
