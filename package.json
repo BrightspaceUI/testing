@@ -58,10 +58,5 @@
     "pixelmatch": "^7",
     "pngjs": "^7",
     "rollup": "^4"
-  },
-  "overrides": {
-    "page": {
-      "path-to-regexp": "^1.9.0"
-    }
   }
 }
