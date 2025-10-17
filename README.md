@@ -1,6 +1,6 @@
 # @brightspace-ui/testing
 
-Note: This version is testing out the new semantic-release beta.
+Note: This version is testing out the new semantic-release beta. Again!
 
 [![NPM version](https://img.shields.io/npm/v/@brightspace-ui/testing.svg)](https://www.npmjs.org/package/@brightspace-ui/testing)
 
