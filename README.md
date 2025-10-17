@@ -1,5 +1,7 @@
 # @brightspace-ui/testing
 
+Note: This version is testing out the new semantic-release beta.
+
 [![NPM version](https://img.shields.io/npm/v/@brightspace-ui/testing.svg)](https://www.npmjs.org/package/@brightspace-ui/testing)
 
 Testing utilities which are specifically designed and configured for Brightspace UI components and applications.
