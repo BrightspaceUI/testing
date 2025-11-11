@@ -47,7 +47,7 @@
     "@web/config-loader": "^0.3",
     "@web/dev-server": "^0.4",
     "@web/rollup-plugin-html": "^2",
-    "@web/test-runner": "^0.18",
+    "@web/test-runner": "^0.20",
     "@web/test-runner-commands": "^0.9",
     "@web/test-runner-playwright": "^0.11",
     "command-line-args": "^6",
