@@ -1,6 +1,9 @@
 import { nextFrame, fixture as wcFixture } from '@open-wc/testing';
 import { reset } from './reset.js';
 
+/**
+ * @param {*} node
+ */
 function getComposedChildren(node) {
 
 	if (node?.nodeType !== Node.ELEMENT_NODE) {
@@ -29,6 +32,10 @@ function getComposedChildren(node) {
 
 }
 
+/**
+ * @param {*} elem
+ * @param {boolean} awaitLoadingComplete
+ */
 async function waitForElem(elem, awaitLoadingComplete = true) {
 
 	if (!elem) return;
@@ -71,6 +78,19 @@ async function waitForElem(elem, awaitLoadingComplete = true) {
 
 }
 
+/**
+ *
+ * @param {*} element
+ * @param {{
+ *      awaitLoadingComplete: boolean,
+ * 		lang: string,
+ *		mathjax: {renderLatex: boolean},
+ *		rtl: boolean,
+ *		pagePadding: boolean,
+ *		media: string,
+ *      viewport: { height: number, width: number }
+ *	}} opts
+ */
 export async function fixture(element, opts = {}) {
 	await Promise.all([reset(opts), document.fonts.ready]);
 
