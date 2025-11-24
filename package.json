@@ -53,7 +53,7 @@
     "command-line-args": "^6",
     "command-line-usage": "^7",
     "d2l-test-reporting": "^4",
-    "glob": "^11",
+    "glob": "^12",
     "lit": "^2 || ^3",
     "pixelmatch": "^7",
     "pngjs": "^7",
