@@ -46,7 +46,7 @@
     "@rollup/plugin-node-resolve": "^16",
     "@web/config-loader": "^0.3",
     "@web/dev-server": "^0.4",
-    "@web/rollup-plugin-html": "^2",
+    "@web/rollup-plugin-html": "^3",
     "@web/test-runner": "^0.20",
     "@web/test-runner-commands": "^0.9",
     "@web/test-runner-playwright": "^0.11",
