@@ -26,10 +26,11 @@
     "@brightspace-ui/stylelint-config": "^2",
     "chai": "^6",
     "eslint": "^9",
-    "eslint-config-brightspace": "^2.0.0",
+    "eslint-config-brightspace": "^2",
+    "globals": "^17",
     "mocha": "^11",
     "sinon": "^21",
-    "globals": "^17"
+    "stylelint": "^17"
   },
   "exports": {
     ".": "./src/browser/index.js"
