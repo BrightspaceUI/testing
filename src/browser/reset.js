@@ -18,6 +18,7 @@ let
 	currentMathjaxRenderLatex = DEFAULT_MATHJAX_RENDER_LATEX,
 	currentMedia = DEFAULT_MEDIA,
 	currentRtl = false,
+	currentDark = false,
 	currentViewportHeight = 0,
 	currentViewportWidth = 0,
 	shouldResetMouse = false;
@@ -47,6 +48,7 @@ export async function reset(opts = {}) {
 		lang: DEFAULT_LANG,
 		mathjax: {},
 		rtl: !!opts.lang?.startsWith('ar'),
+		dark: false,
 		pagePadding: DEFAULT_PAGE_PADDING,
 		media: DEFAULT_MEDIA
 	};
@@ -87,6 +89,15 @@ export async function reset(opts = {}) {
 		}
 		awaitNextFrame = true;
 		currentRtl = opts.rtl;
+	}
+	if (opts.dark !== currentDark) {
+		if (!opts.dark) {
+			document.documentElement.removeAttribute('dark');
+		} else {
+			document.documentElement.setAttribute('dark', 'true');
+		}
+		awaitNextFrame = true;
+		currentDark = opts.dark;
 	}
 
 	opts.lang ??= '';

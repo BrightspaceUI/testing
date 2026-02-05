@@ -154,7 +154,7 @@ function renderBrowserInfo(browser) {
 	</div>`;
 }
 
-function renderResult(resultData, options) {
+function renderResult(resultData, options, altTest = null) {
 
 	if (!resultData.passed && resultData.info === undefined) {
 		return html`
@@ -168,7 +168,7 @@ function renderResult(resultData, options) {
 			<div class="result-part">
 				<div class="result-part-info">
 					<div class="result-part-info-spacer"></div>
-					<div class="result-part-info-name">${label}</div>
+					<div class="result-part-info-name">${label}${altTest ? ` (${altTest})` : ''}</div>
 					<div class="result-part-info-size">(${partInfo.width} x ${partInfo.height})</div>
 				</div>
 				<div class="result-part-wrapper">
@@ -177,33 +177,37 @@ function renderResult(resultData, options) {
 			</div>
 		`;
 	};
+	const newData = altTest ? resultData.info[altTest] : resultData.info.new;
+	const { diff } = altTest ? newData : resultData.info;
+	const goldenInfo = altTest ? newData.golden : resultData.info.golden;
+	const passed = altTest ? !diff && newData.byteSize === undefined : resultData.passed;
 
-	const goldenExists = (resultData.info.golden !== undefined);
+	const goldenExists = (goldenInfo !== undefined);
 
-	const overlay = (goldenExists && options.showOverlay && !resultData.passed && resultData.info.diff) ?
+	const overlay = (goldenExists && options.showOverlay && !passed && diff) ?
 		html`
 		<div class="result-overlay">
-			<img src="../${resultData.info.diff}" loading="lazy" alt="">
+			<img src="../${diff}" loading="lazy" alt="">
 		</div>` : nothing;
 
 	const goldenPart = !goldenExists ?
 		html`<div class="result-graphic padding">${ICON_NO_GOLDEN}<p>No golden exists for this test... yet.</p></div>` :
-		renderPart('golden', resultData.info.golden, options.layout === LAYOUTS.SPLIT.value ? undefined : overlay);
+		renderPart('golden', goldenInfo, options.layout === LAYOUTS.SPLIT.value ? undefined : overlay);
 
 	if (options.layout === LAYOUTS.SPLIT.value) {
 		let newPart;
-		if (resultData.passed) {
+		if (passed) {
 			newPart = html`<div class="result-graphic padding">${ICON_TADA}<p>Hooray! No changes here.</p></div>`;
-		} else if (resultData.bytediff) {
+		} else if (resultData.bytediff || newData.byteSize) {
 			newPart = html`<div class="result-graphic padding">${ICON_BYTES}
 				<p>No pixels have changed, but the bytes are different.</p>
 				<p class="details">
-					Golden size: ${resultData.info.golden.byteSize} bytes<br />
-					New size: ${resultData.info.new.byteSize} bytes
+					Golden size: ${goldenInfo.byteSize} bytes<br />
+					New size: ${newData.byteSize} bytes
 				</p>
 			</div>`;
 		} else {
-			newPart = renderPart('new', resultData.info.new, overlay);
+			newPart = renderPart('new', newData, overlay);
 		}
 		return html`
 			<div class="result-split">
@@ -215,7 +219,7 @@ function renderResult(resultData, options) {
 		if (options.fullMode === FULL_MODE.GOLDEN.value) {
 			return goldenPart;
 		} else {
-			return renderPart('new', resultData.info.new, overlay);
+			return renderPart('new', newData, overlay);
 		}
 	}
 
@@ -251,6 +255,8 @@ export function renderBrowserResults(browser, tests, options) {
 			`;
 		}
 
+		const altTests = ['dark'].filter(t => t in resultData.info).map(t => renderResult(resultData, options, t));
+
 		return acc.push(html`
 			<div class="item-container">
 				<div class="result-test-name">
@@ -259,6 +265,7 @@ export function renderBrowserResults(browser, tests, options) {
 					<div class="result-duration">${renderStatusText(`${resultData.duration}ms`, status)}</div>
 				</div>
 				${renderResult(resultData, options)}
+				${altTests}
 			</div>
 		`) && acc;
 

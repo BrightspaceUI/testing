@@ -90,10 +90,11 @@ async function ScreenshotAndCompare(opts = {}) {
 	}
 	const slowDuration = this.test.slow();
 
-	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration });
+	const alternativeTests = this.test.vdiffAlternativeTests || [];
+	this.test.timeout(0);
+	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration, alternativeTests });
 	if (result.resizeRequired) {
-		this.test.timeout(0);
-		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name });
+		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name, alternativeTests });
 	}
 
 	if (window.d2lTest) document.documentElement.classList.remove('screenshot');
