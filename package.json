@@ -25,7 +25,7 @@
   "devDependencies": {
     "@brightspace-ui/stylelint-config": "^2",
     "chai": "^6",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-brightspace": "^2",
     "globals": "^17",
     "mocha": "^11",
