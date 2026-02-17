@@ -18,6 +18,7 @@ let
 	currentMathjaxRenderLatex = DEFAULT_MATHJAX_RENDER_LATEX,
 	currentMedia = DEFAULT_MEDIA,
 	currentRtl = false,
+	currentTheme = 'light',
 	currentViewportHeight = 0,
 	currentViewportWidth = 0,
 	shouldResetMouse = false;
@@ -47,6 +48,7 @@ export async function reset(opts = {}) {
 		lang: DEFAULT_LANG,
 		mathjax: {},
 		rtl: !!opts.lang?.startsWith('ar'),
+		theme: 'light',
 		pagePadding: DEFAULT_PAGE_PADDING,
 		media: DEFAULT_MEDIA
 	};
@@ -87,6 +89,13 @@ export async function reset(opts = {}) {
 		}
 		awaitNextFrame = true;
 		currentRtl = opts.rtl;
+	}
+
+	if (opts.theme !== currentTheme) {
+		let theme = ['light', 'dark'].includes(opts.theme) ? opts.theme : 'light';
+		document.documentElement.dataset.theme = theme;
+		awaitNextFrame = true;
+		currentTheme = theme;
 	}
 
 	opts.lang ??= '';

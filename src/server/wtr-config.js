@@ -118,7 +118,7 @@ export class WTRConfig {
 								font-size: 20px;
 							}
 							body {
-								background-color: #ffffff;
+								background-color: var(--d2l-color-background-base);
 								color: var(--d2l-color-ferrite, #202122);
 								font-family: 'Lato', sans-serif;
 								letter-spacing: 0.01rem;
