@@ -92,7 +92,7 @@ export async function reset(opts = {}) {
 	}
 
 	if (opts.theme !== currentTheme) {
-		let theme = ['light', 'dark'].includes(opts.theme) ? opts.theme : 'light';
+		const theme = ['light', 'dark'].includes(opts.theme) ? opts.theme : 'light';
 		document.documentElement.dataset.theme = theme;
 		awaitNextFrame = true;
 		currentTheme = theme;
