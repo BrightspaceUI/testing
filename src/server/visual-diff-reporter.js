@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { env } from 'node:process';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { getTestInfo } from './visual-diff-plugin.js';
+import { getTestInfo } from './vdiff-test-info.js';
 import { PATHS } from './paths.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
