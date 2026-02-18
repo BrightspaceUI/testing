@@ -4,8 +4,8 @@ import { basename, dirname, join } from 'node:path';
 import { env } from 'node:process';
 import { PATHS } from './paths.js';
 import pixelmatch from 'pixelmatch';
-import { PNG } from 'pngjs';
 import { PlaywrightLauncher } from '@web/test-runner-playwright';
+import { PNG } from 'pngjs';
 import { TestInfoManager } from './vdiff-test-info.js';
 
 const isCI = !!env['CI'];
@@ -163,7 +163,7 @@ const FAILED_TEST = {
 	RESIZE: 'Images are not the same size.',
 	BYTES: 'Image diff is clean but the images do not have the same bytes.',
 	MOVE_FAILURE: 'Problem moving file to "pass" directory.'
-}
+};
 
 /**
  * @param {TestInfoManager} infoManager
@@ -217,7 +217,7 @@ async function runTest(infoManager, screenshotPath, goldenPath, passPath, rootLe
 		return null;
 	}
 
-	const {diff, pixelsDiff} = getPixelsDiff(screenshotImage, goldenImage);
+	const { diff, pixelsDiff } = getPixelsDiff(screenshotImage, goldenImage);
 
 	if (pixelsDiff !== 0) {
 		infoManager.set({
@@ -329,7 +329,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				const newGoldens = await createComparisonPNGs(goldenImage, newSize);
 
 				let bestIndex = 0;
-				let {diff: bestDiffImage, pixelsDiff } = getPixelsDiff(newScreenshots[0].png, newGoldens[0].png);
+				let { diff: bestDiffImage, pixelsDiff } = getPixelsDiff(newScreenshots[0].png, newGoldens[0].png);
 				for (let i = 1; i < newScreenshots.length; i++) {
 					const { diff: currentDiff, pixelsDiff: currentPixelsDiff } = getPixelsDiff(newScreenshots[i].png, newGoldens[i].png);
 

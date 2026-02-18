@@ -7,17 +7,6 @@
 /**@type {Map<string, TestInfo>} */
 const testInfoMap = new Map();
 
-
-
-/**
- * @param {TestSession} session
- * @param {string} fullTitle
- * @param {string} [alt]
- */
-export function getTestInfo(session, fullTitle, alt = '') {
-	return new TestInfoManager(session, fullTitle).get(alt);
-}
-
 export class TestInfoManager {
 	/**
 	 *
@@ -27,6 +16,12 @@ export class TestInfoManager {
 	constructor(session, fullTitle) {
 		this.key = `${session.browser.name.toLowerCase()}|${session.testFile}|${fullTitle}`;
 	}
+	/**@param {string} [alt] */
+	get(alt = '') {
+		const testKey = this.getKey(alt);
+		return testInfoMap.get(testKey);
+	}
+
 	/**@param {string} [alt] */
 	getKey(alt = '') {
 		return alt ? `${this.key}|${alt}` : this.key;
@@ -52,10 +47,13 @@ export class TestInfoManager {
 		}
 		testInfoMap.set(this.getKey(alt), testInfo);
 	}
+}
 
-	/**@param {string} [alt] */
-	get(alt = '') {
-		const testKey = this.getKey(alt);
-		return testInfoMap.get(testKey);
-	}
+/**
+ * @param {TestSession} session
+ * @param {string} fullTitle
+ * @param {string} [alt]
+ */
+export function getTestInfo(session, fullTitle, alt = '') {
+	return new TestInfoManager(session, fullTitle).get(alt);
 }
