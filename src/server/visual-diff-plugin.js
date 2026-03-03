@@ -1,4 +1,3 @@
-//@ts-check
 import { access, constants, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { env } from 'node:process';
@@ -11,7 +10,6 @@ import { TestInfoManager } from './vdiff-test-info.js';
 const isCI = !!env['CI'];
 const DEFAULT_TOLERANCE = 0; // TODO: Support tolerance override?
 
-/**@param {string} fileName */
 async function checkFileExists(fileName) {
 	try {
 		await access(fileName, constants.F_OK);
@@ -20,10 +18,6 @@ async function checkFileExists(fileName) {
 		return false;
 	}
 }
-/**
- * @param {boolean} updateGoldens
- * @param {string} path
- */
 async function clearDir(updateGoldens, path) {
 	if (updateGoldens) {
 		await rm(path, { force: true, recursive: true });
@@ -34,10 +28,6 @@ async function clearDir(updateGoldens, path) {
 		]);
 	}
 }
-/**
- * @param {boolean} updateGoldens
- * @param {string} vdiffPath
- */
 async function clearAllDirs(updateGoldens, vdiffPath) {
 	if (updateGoldens) {
 		await rm(vdiffPath, { force: true, recursive: true });
@@ -47,7 +37,6 @@ async function clearAllDirs(updateGoldens, vdiffPath) {
 	}
 }
 
-/**@param {string} dir */
 async function clearDiffPaths(dir) {
 	const paths = await readdir(dir, { withFileTypes: true });
 	for (const path of paths) {
@@ -61,12 +50,6 @@ async function clearDiffPaths(dir) {
 	}
 }
 
-/**
- * @param {string} xName
- * @param {string} yName
- * @param {import('pngjs').PNGWithMetadata} original
- * @param {{width: number, height: number}} newSize
- */
 function getResizedPng(xName, yName, original, newSize) {
 
 	let x = 0;
@@ -89,12 +72,7 @@ function getResizedPng(xName, yName, original, newSize) {
 	return resized;
 }
 
-/**
- * @param {import('pngjs').PNGWithMetadata} original
- * @param {{width: number, height: number}} newSize
- */
 async function createComparisonPNGs(original, newSize) {
-	/**@type {Array<{png: PNG, position: string}>} */
 	const resizedPNGs = [];
 	[ 'top', 'center', 'bottom' ].forEach(y => {
 		['left', 'center', 'right'].forEach(x => { // TODO: position added for reports, remove/adjust as needed
@@ -110,10 +88,6 @@ async function createComparisonPNGs(original, newSize) {
 	return resizedPNGs;
 }
 
-/**
- * @param {PNG} screenshotImage
- * @param {PNG} goldenImage
- */
 function getPixelsDiff(screenshotImage, goldenImage) {
 	const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
 	const pixelsDiff = pixelmatch(
@@ -122,10 +96,6 @@ function getPixelsDiff(screenshotImage, goldenImage) {
 	return { diff, pixelsDiff };
 }
 
-/**
- * @param {string} srcFileName
- * @param {string} destFileName
- */
 async function tryMoveFile(srcFileName, destFileName) {
 	await mkdir(dirname(destFileName), { recursive: true });
 	try {
@@ -137,7 +107,6 @@ async function tryMoveFile(srcFileName, destFileName) {
 	}
 }
 
-/**@param {string} name */
 function extractTestPartsFromName(name) {
 	name = name.toLowerCase();
 	const parts = name.split(/[\s*"/\\<>:|?]/);
@@ -156,7 +125,6 @@ function extractTestPartsFromName(name) {
 		newName: parts.join('-')
 	};
 }
-/**  @enum {string} */
 const FAILED_TEST = {
 	MISSING_GOLDEN: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.',
 	DIFF: 'Image does not match golden.',
@@ -165,15 +133,6 @@ const FAILED_TEST = {
 	MOVE_FAILURE: 'Problem moving file to "pass" directory.'
 };
 
-/**
- * @param {TestInfoManager} infoManager
- * @param {string} screenshotPath
- * @param {string} goldenPath
- * @param {string} passPath
- * @param {number} rootLength
- * @param {string} [alt]
- * @returns {Promise<FAILED_TEST | null>}
- */
 async function runTest(infoManager, screenshotPath, goldenPath, passPath, rootLength, alt) {
 	const suffix = alt ? `.${alt}` : '';
 	const screenshotFileName = `${screenshotPath}${suffix}.png`;
@@ -240,28 +199,19 @@ async function runTest(infoManager, screenshotPath, goldenPath, passPath, rootLe
 	}
 }
 
-/**
- * @typedef {Object} TestPayload
- * @property {string} name
- * @property {boolean} [fullPage]
- * @property {{ x: number, y: number, width: number, height: number }} [rect]
- * @property {number} [slowDuration]
- */
-/**@return {import('@web/test-runner').TestRunnerPlugin<TestPayload>} */
 export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 	let currentRun = 0,
-		/**@type {string} */ rootDir;
+		rootDir;
 	const clearedDirs = new Map();
 	return {
 		name: 'brightspace-visual-diff',
 		async serverStart({ config }) {
-			rootDir = /**@type {string}*/(config.rootDir);
+			rootDir = config.rootDir;
 
 			if (runSubset || isCI) return;
 			// Do a more complete cleanup to remove orphaned directories
 			await clearAllDirs(updateGoldens, join(rootDir, PATHS.VDIFF_ROOT));
 		},
-		/**@param {{ command: string, payload: TestPayload, session: import('@web/test-runner').TestSession }} param0 */
 		async executeCommand({ command, payload, session }) {
 
 			if (!(session.browser instanceof PlaywrightLauncher)) {
@@ -293,7 +243,6 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					}
 				}
 
-				/**@type {import('playwright').PageScreenshotOptions} */
 				const screenshotOpts = {
 					animations: 'disabled',
 					path: `${updateGoldens ? goldenFile : screenshotFile}.png`
