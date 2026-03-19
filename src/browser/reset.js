@@ -18,7 +18,7 @@ let
 	currentMathjaxRenderLatex = DEFAULT_MATHJAX_RENDER_LATEX,
 	currentMedia = DEFAULT_MEDIA,
 	currentRtl = false,
-	currentTheme = 'light',
+	currentColorMode = 'light',
 	currentViewportHeight = 0,
 	currentViewportWidth = 0,
 	shouldResetMouse = false;
@@ -48,7 +48,7 @@ export async function reset(opts = {}) {
 		lang: DEFAULT_LANG,
 		mathjax: {},
 		rtl: !!opts.lang?.startsWith('ar'),
-		theme: 'light',
+		colorMode: 'light',
 		pagePadding: DEFAULT_PAGE_PADDING,
 		media: DEFAULT_MEDIA
 	};
@@ -91,11 +91,11 @@ export async function reset(opts = {}) {
 		currentRtl = opts.rtl;
 	}
 
-	if (opts.theme !== currentTheme) {
-		const theme = ['light', 'dark'].includes(opts.theme) ? opts.theme : 'light';
-		document.documentElement.dataset.theme = theme;
+	if (opts.colorMode !== currentColorMode) {
+		const colorMode = ['light', 'dark'].includes(opts.colorMode) ? opts.colorMode : 'light';
+		document.documentElement.dataset.colorMode = colorMode;
 		awaitNextFrame = true;
-		currentTheme = theme;
+		currentColorMode = colorMode;
 	}
 
 	opts.lang ??= '';
