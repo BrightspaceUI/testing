@@ -181,6 +181,25 @@ describe('fixture', () => {
 			expect(window.innerWidth).to.equal(800);
 		});
 
+		it('should default data-color-mode to not set', async() => {
+			await fixture(html`<p>hello</p>`);
+			expect(document.documentElement.hasAttribute('data-color-mode')).to.be.false;
+		});
+
+		['light', 'dark'].forEach(colorMode => {
+			it(`should set data-color-mode to ${colorMode}`, async() => {
+				await fixture(html`<p>hello</p>`, { colorMode: colorMode });
+				expect(document.documentElement.getAttribute('data-color-mode')).to.equal(colorMode);
+			});
+		});
+
+		it('should reset color mode', async() => {
+			await fixture(html`<p>hello</p>`, { colorMode: 'dark' });
+			expect(document.documentElement.getAttribute('data-color-mode')).to.equal('dark');
+			await fixture(html`<p>hello</p>`);
+			expect(document.documentElement.hasAttribute('data-color-mode')).to.be.false;
+		});
+
 	});
 
 	describe('waitForElem', () => {

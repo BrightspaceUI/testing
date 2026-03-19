@@ -82,13 +82,14 @@ async function waitForElem(elem, awaitLoadingComplete = true) {
  *
  * @param {*} element
  * @param {{
- *      awaitLoadingComplete: boolean,
- * 		lang: string,
+ *		awaitLoadingComplete: boolean,
+ *		colorMode: string,
+ *		lang: string,
  *		mathjax: {renderLatex: boolean},
  *		rtl: boolean,
  *		pagePadding: boolean,
  *		media: string,
- *      viewport: { height: number, width: number }
+ *		viewport: { height: number, width: number }
  *	}} opts
  */
 export async function fixture(element, opts = {}) {

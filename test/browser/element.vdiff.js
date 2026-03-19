@@ -117,6 +117,16 @@ describe('element-matches', () => {
 		});
 	});
 
+	it('color-mode-light', async() => {
+		const elem = await fixture(defaultTemplate, { colorMode: 'light' });
+		await expect(elem).to.be.golden();
+	});
+
+	it('color-mode-dark', async() => {
+		const elem = await fixture(defaultTemplate, { colorMode: 'dark' });
+		await expect(elem).to.be.golden();
+	});
+
 	it('full page', async() => {
 		await fixture(defaultTemplate, { viewport: { width: 500, height: 500 } });
 		await expect(document).to.be.golden();

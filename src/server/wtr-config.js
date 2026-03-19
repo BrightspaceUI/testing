@@ -89,6 +89,9 @@ export class WTRConfig {
 								--d2l-inline-start: left;
 								--d2l-length-factor: 1;
 								--d2l-mirror-transform: none;
+								--d2l-theme-background-color-base: #ffffff;
+								--d2l-theme-text-color-static-standard: #202122;
+								font-size: 20px;
 							}
 
 							html[dir="rtl"] * {
@@ -99,6 +102,11 @@ export class WTRConfig {
 								--d2l-inline-start: right;
 								--d2l-length-factor: -1;
 								--d2l-mirror-transform: scale(-1, 1);
+							}
+
+							html[data-color-mode="dark"] {
+								--d2l-theme-background-color-base: #161718;
+								--d2l-theme-text-color-static-standard: #cdd5dc;
 							}
 
 							@font-face {
@@ -114,12 +122,9 @@ export class WTRConfig {
 								src: url(${FONT_ASSETS}Lato-700.woff2) format('woff2');
 							}
 
-							html {
-								font-size: 20px;
-							}
 							body {
-								background-color: #ffffff;
-								color: var(--d2l-color-ferrite, #202122);
+								background-color: var(--d2l-theme-background-color-base);
+								color: var(--d2l-theme-text-color-static-standard);
 								font-family: 'Lato', sans-serif;
 								letter-spacing: 0.01rem;
 								font-size: 0.95rem;

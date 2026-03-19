@@ -4,6 +4,7 @@ import { nextFrame } from '@open-wc/testing';
 
 const DEFAULT_PAGE_PADDING = true,
 	DEFAULT_LANG = 'en',
+	DEFAULT_COLOR_MODE = undefined,
 	DEFAULT_MATHJAX_RENDER_LATEX = false,
 	DEFAULT_MEDIA = 'screen',
 	DEFAULT_VIEWPORT = {
@@ -18,6 +19,7 @@ let
 	currentMathjaxRenderLatex = DEFAULT_MATHJAX_RENDER_LATEX,
 	currentMedia = DEFAULT_MEDIA,
 	currentRtl = false,
+	currentColorMode = DEFAULT_COLOR_MODE,
 	currentViewportHeight = 0,
 	currentViewportWidth = 0,
 	shouldResetMouse = false;
@@ -47,6 +49,7 @@ export async function reset(opts = {}) {
 		lang: DEFAULT_LANG,
 		mathjax: {},
 		rtl: !!opts.lang?.startsWith('ar'),
+		colorMode: DEFAULT_COLOR_MODE,
 		pagePadding: DEFAULT_PAGE_PADDING,
 		media: DEFAULT_MEDIA
 	};
@@ -87,6 +90,17 @@ export async function reset(opts = {}) {
 		}
 		awaitNextFrame = true;
 		currentRtl = opts.rtl;
+	}
+
+	if (opts.colorMode !== currentColorMode) {
+		const colorMode = ['light', 'dark'].includes(opts.colorMode) ? opts.colorMode : DEFAULT_COLOR_MODE;
+		if (!colorMode) {
+			document.documentElement.removeAttribute('data-color-mode');
+		} else {
+			document.documentElement.setAttribute('data-color-mode', colorMode);
+		}
+		awaitNextFrame = true;
+		currentColorMode = colorMode;
 	}
 
 	opts.lang ??= '';
