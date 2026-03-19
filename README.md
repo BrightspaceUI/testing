@@ -343,6 +343,8 @@ class SlowElem extends LitElement {
 }
 ```
 
+The [`LoadingCompleteMixin` in `@brightspace-ui/core`](https://github.com/BrightspaceUI/core/tree/main/mixins/loading-complete) has been added to make implementing this even simpler.
+
 To bypass waiting for `getLoadingComplete()`, set the `awaitLoadingComplete` configuration option to `false`:
 
 ```javascript
