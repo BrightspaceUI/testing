@@ -4,6 +4,7 @@ import { env } from 'node:process';
 import { PATHS } from './paths.js';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
+import { TestInfoManager } from './visual-diff-info.js';
 
 const isCI = !!env['CI'];
 const DEFAULT_TOLERANCE = 0; // TODO: Support tolerance override?
@@ -105,29 +106,6 @@ function extractTestPartsFromName(name) {
 	};
 }
 
-const testInfoMap = new Map();
-export function getTestInfo(session, fullTitle) {
-	return testInfoMap.get(getTestInfoKey(session, fullTitle));
-}
-function getTestInfoKey(session, fullTitle) {
-	return `${session.browser.name.toLowerCase()}|${session.testFile}|${fullTitle}`;
-}
-function setTestInfo(session, fullTitle, testInfo) {
-	const key = getTestInfoKey(session, fullTitle);
-	if (testInfoMap.has(key)) {
-		const info = testInfoMap.get(key);
-		testInfo.slowDuration = info.slowDuration;
-		if (info.golden || testInfo.golden) {
-			testInfo.golden = { ...info.golden, ...testInfo.golden };
-		}
-		if (info.new || testInfo.new) {
-			testInfo.new = { ...info.new, ...testInfo.new };
-		}
-		testInfo.diff = testInfo.diff || info.diff;
-	}
-	testInfoMap.set(key, testInfo);
-}
-
 export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 	let currentRun = 0,
 		rootDir;
@@ -142,6 +120,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 			await clearAllDirs(updateGoldens, join(rootDir, PATHS.VDIFF_ROOT));
 		},
 		async executeCommand({ command, payload, session }) {
+			const infoManager = new TestInfoManager(session, payload.name);
 
 			if (session.browser.type !== 'playwright') {
 				throw new Error('Visual-diff is only supported for browser type Playwright.');
@@ -190,28 +169,23 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 				const screenshotFileBuffer = await readFile(screenshotFileName);
 				const screenshotImage = PNG.sync.read(screenshotFileBuffer);
-				setTestInfo(session, payload.name, {
+				infoManager.set({
 					slowDuration: payload.slowDuration,
 					new: {
 						height: screenshotImage.height,
-						path: passFileName.substring(rootLength),
+						path: screenshotFileName.substring(rootLength),
 						width: screenshotImage.width
 					}
 				});
 
 				const goldenExists = await checkFileExists(goldenFileName);
 				if (!goldenExists) {
-					setTestInfo(session, payload.name, {
-						new: {
-							path: `${screenshotFile.substring(rootLength)}.png`
-						}
-					});
 					return { pass: false, message: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.' };
 				}
 
 				const goldenFileBuffer = await readFile(goldenFileName);
 				const goldenImage = PNG.sync.read(goldenFileBuffer);
-				setTestInfo(session, payload.name, {
+				infoManager.set({
 					golden: {
 						height: goldenImage.height,
 						path: goldenFileName.substring(rootLength),
@@ -225,6 +199,11 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					if (goldenSize === screenshotSize && screenshotFileBuffer.equals(goldenFileBuffer)) {
 						const success = await tryMoveFile(screenshotFileName, passFileName);
 						if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
+						infoManager.set({
+							new: {
+								path: passFileName.substring(rootLength)
+							}
+						});
 						return { pass: true };
 					}
 
@@ -234,22 +213,18 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					);
 
 					if (pixelsDiff !== 0) {
-						setTestInfo(session, payload.name, {
+						infoManager.set({
 							diff: `${screenshotFile.substring(rootLength)}-diff.png`,
-							new: {
-								path: `${screenshotFile.substring(rootLength)}.png`
-							},
 							pixelsDiff
 						});
 						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
 						return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
 					} else {
-						setTestInfo(session, payload.name, {
+						infoManager.set({
 							golden: {
 								byteSize: goldenSize
 							},
 							new: {
-								path: `${screenshotFile.substring(rootLength)}.png`,
 								byteSize: screenshotSize
 							},
 							pixelsDiff
@@ -291,7 +266,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(bestDiffImage));
 
 				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
-				setTestInfo(session, payload.name, {
+				infoManager.set({
 					diff: `${screenshotFile.substring(rootLength)}-diff.png`,
 					golden: {
 						path: `${screenshotFile.substring(rootLength)}-resized-golden.png`
