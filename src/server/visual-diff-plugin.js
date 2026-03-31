@@ -181,7 +181,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				async function takeScreenshot() {
 					const path = updateGoldens ? goldenFileName : screenshotFileName;
 					const page = session.browser.getPage(session.id);
-					return await page.screenshot({path, ...screenshotOpts});
+					return await page.screenshot({ path, ...screenshotOpts });
 				}
 
 				const screenshotFileBuffer = await takeScreenshot();
