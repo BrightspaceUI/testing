@@ -271,14 +271,14 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 				let bestIndex = -1;
 				let bestDiffImage = null;
-				let pixelsDiff = Number.MAX_SAFE_INTEGER;
+				let bestPixelsDiff = Number.MAX_SAFE_INTEGER;
 				for (let i = 0; i < newScreenshots.length; i++) {
-					const { diff: currentDiff, pixelsDiff: currentPixelsDiff } = getPixelsDiff(newScreenshots[i].png, newGoldens[i].png);
+					const { diff, pixelsDiff } = getPixelsDiff(newScreenshots[i].png, newGoldens[i].png);
 
-					if (currentPixelsDiff < pixelsDiff) {
+					if (pixelsDiff < bestPixelsDiff) {
 						bestIndex = i;
-						bestDiffImage = currentDiff;
-						pixelsDiff = currentPixelsDiff;
+						bestDiffImage = diff;
+						bestPixelsDiff = pixelsDiff;
 					}
 				}
 
@@ -295,10 +295,10 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 					new: {
 						path: `${screenshotFile.substring(rootLength)}-resized-screenshot.png`
 					},
-					pixelsDiff
+					pixelsDiff: bestPixelsDiff
 				});
 
-				return { pass: false, message: `Images are not the same size. When resized, ${pixelsDiff} pixels are different.` };
+				return { pass: false, message: `Images are not the same size. When resized, ${bestPixelsDiff} pixels are different.` };
 			}
 
 		}
