@@ -51,29 +51,50 @@ async function clearDiffPaths(dir) {
 	}
 }
 
+function getResizedPng(xName, yName, original, newSize) {
+
+	let x = 0;
+	let y = 0;
+
+	if (xName === 'center') {
+		x = Math.floor((newSize.width - original.width) / 2);
+	} else if (xName === 'right') {
+		x = newSize.width - original.width;
+	}
+
+	if (yName === 'center') {
+		y = Math.floor((newSize.height - original.height) / 2);
+	} else if (yName === 'bottom') {
+		y = newSize.height - original.height;
+	}
+
+	const resized = new PNG(newSize);
+	PNG.bitblt(original, resized, 0, 0, original.width, original.height, x, y);
+	return resized;
+}
+
 async function createComparisonPNGs(original, newSize) {
 	const resizedPNGs = [];
-	[
-		{ name: 'top', coord: 0 },
-		{ name: 'center', coord: Math.floor((newSize.height - original.height) / 2) },
-		{ name: 'bottom', coord: newSize.height - original.height }
-	].forEach(y => {
-		[
-			{ name: 'left', coord: 0 },
-			{ name: 'center', coord: Math.floor((newSize.width - original.width) / 2) },
-			{ name: 'right', coord: newSize.width - original.width }
-		].forEach(x => { // TODO: position added for reports, remove/adjust as needed
+	[ 'top', 'center', 'bottom' ].forEach(y => {
+		['left', 'center', 'right'].forEach(x => { // TODO: position added for reports, remove/adjust as needed
 			if (original.width === newSize.width && original.height === newSize.height) {
-				resizedPNGs.push({ png: original, position: `${y.name}-${x.name}` });
+				resizedPNGs.push({ png: original, position: `${y}-${x}` });
 			} else {
-				const resized = new PNG(newSize);
-				PNG.bitblt(original, resized, 0, 0, original.width, original.height, x.coord, y.coord);
-				resizedPNGs.push({ png: resized, position: `${y.name}-${x.name}` });
+				const resized = getResizedPng(x, y, original, newSize);
+				resizedPNGs.push({ png: resized, position: `${y}-${x}` });
 			}
 		});
 	});
 
 	return resizedPNGs;
+}
+
+function getPixelsDiff(screenshotImage, goldenImage) {
+	const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
+	const pixelsDiff = pixelmatch(
+		screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { diffMask: true, threshold: DEFAULT_TOLERANCE }
+	);
+	return { diff, pixelsDiff };
 }
 
 async function tryMoveFile(srcFileName, destFileName) {
@@ -151,15 +172,19 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				}
 
 				const screenshotOpts = {
-					animations: 'disabled',
-					path: updateGoldens ? goldenFileName : screenshotFileName
+					animations: 'disabled'
 				};
 
 				if (payload.fullPage) screenshotOpts.fullPage = true;
 				if (payload.rect) screenshotOpts.clip = payload.rect;
 
-				const page = session.browser.getPage(session.id);
-				await page.screenshot(screenshotOpts);
+				async function takeScreenshot() {
+					const path = updateGoldens ? goldenFileName : screenshotFileName;
+					const page = session.browser.getPage(session.id);
+					return await page.screenshot({path, ...screenshotOpts});
+				}
+
+				const screenshotFileBuffer = await takeScreenshot();
 
 				if (updateGoldens) {
 					return { pass: true };
@@ -167,73 +192,72 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 				const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
 
-				const screenshotFileBuffer = await readFile(screenshotFileName);
-				const screenshotImage = PNG.sync.read(screenshotFileBuffer);
-				infoManager.set({
-					slowDuration: payload.slowDuration,
-					new: {
-						height: screenshotImage.height,
-						path: screenshotFileName.substring(rootLength),
-						width: screenshotImage.width
-					}
-				});
+				async function runCompareTest() {
+					const screenshotImage = PNG.sync.read(screenshotFileBuffer);
+					infoManager.set({
+						slowDuration: payload.slowDuration,
+						new: {
+							height: screenshotImage.height,
+							path: screenshotFileName.substring(rootLength),
+							width: screenshotImage.width
+						}
+					});
 
-				const goldenExists = await checkFileExists(goldenFileName);
-				if (!goldenExists) {
-					return { pass: false, message: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.' };
-				}
-
-				const goldenFileBuffer = await readFile(goldenFileName);
-				const goldenImage = PNG.sync.read(goldenFileBuffer);
-				infoManager.set({
-					golden: {
-						height: goldenImage.height,
-						path: goldenFileName.substring(rootLength),
-						width: goldenImage.width
-					}
-				});
-
-				if (screenshotImage.width === goldenImage.width && screenshotImage.height === goldenImage.height) {
-					const goldenSize = (await stat(goldenFileName)).size;
-					const screenshotSize = (await stat(screenshotFileName)).size;
-					if (goldenSize === screenshotSize && screenshotFileBuffer.equals(goldenFileBuffer)) {
-						const success = await tryMoveFile(screenshotFileName, passFileName);
-						if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
-						infoManager.set({
-							new: {
-								path: passFileName.substring(rootLength)
-							}
-						});
-						return { pass: true };
+					const goldenExists = await checkFileExists(goldenFileName);
+					if (!goldenExists) {
+						return { pass: false, message: 'No golden exists. Use the "--golden" CLI flag to re-run and re-generate goldens.' };
 					}
 
-					const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
-					const pixelsDiff = pixelmatch(
-						screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { diffMask: true, threshold: DEFAULT_TOLERANCE }
-					);
+					const goldenFileBuffer = await readFile(goldenFileName);
+					const goldenImage = PNG.sync.read(goldenFileBuffer);
+					infoManager.set({
+						golden: {
+							height: goldenImage.height,
+							path: goldenFileName.substring(rootLength),
+							width: goldenImage.width
+						}
+					});
 
-					if (pixelsDiff !== 0) {
-						infoManager.set({
-							diff: `${screenshotFile.substring(rootLength)}-diff.png`,
-							pixelsDiff
-						});
-						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
-						return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
+					if (screenshotImage.width === goldenImage.width && screenshotImage.height === goldenImage.height) {
+						const goldenSize = (await stat(goldenFileName)).size;
+						const screenshotSize = (await stat(screenshotFileName)).size;
+						if (goldenSize === screenshotSize && screenshotFileBuffer.equals(goldenFileBuffer)) {
+							const success = await tryMoveFile(screenshotFileName, passFileName);
+							if (!success) return { pass: false, message: 'Problem moving file to "pass" directory.' };
+							infoManager.set({
+								new: {
+									path: passFileName.substring(rootLength)
+								}
+							});
+							return { pass: true };
+						}
+
+						const { diff, pixelsDiff } = getPixelsDiff(screenshotImage, goldenImage);
+
+						if (pixelsDiff !== 0) {
+							infoManager.set({
+								diff: `${screenshotFile.substring(rootLength)}-diff.png`,
+								pixelsDiff
+							});
+							await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
+							return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
+						} else {
+							infoManager.set({
+								golden: {
+									byteSize: goldenSize
+								},
+								new: {
+									byteSize: screenshotSize
+								},
+								pixelsDiff
+							});
+							return { pass: false, message: 'Image diff is clean but the images do not have the same bytes.' };
+						}
 					} else {
-						infoManager.set({
-							golden: {
-								byteSize: goldenSize
-							},
-							new: {
-								byteSize: screenshotSize
-							},
-							pixelsDiff
-						});
-						return { pass: false, message: 'Image diff is clean but the images do not have the same bytes.' };
+						return { resizeRequired: true };
 					}
-				} else {
-					return { resizeRequired: true };
 				}
+				return await runCompareTest();
 			} else if (command === 'brightspace-visual-diff-compare-resize') {
 				const screenshotImage = PNG.sync.read(await readFile(screenshotFileName));
 				const goldenImage = PNG.sync.read(await readFile(goldenFileName));
@@ -249,10 +273,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				let bestDiffImage = null;
 				let pixelsDiff = Number.MAX_SAFE_INTEGER;
 				for (let i = 0; i < newScreenshots.length; i++) {
-					const currentDiff = new PNG(newSize);
-					const currentPixelsDiff = pixelmatch(
-						newScreenshots[i].png.data, newGoldens[i].png.data, currentDiff.data, currentDiff.width, currentDiff.height, { diffMask: true, threshold: DEFAULT_TOLERANCE }
-					);
+					const { diff: currentDiff, pixelsDiff: currentPixelsDiff } = getPixelsDiff(newScreenshots[i].png, newGoldens[i].png);
 
 					if (currentPixelsDiff < pixelsDiff) {
 						bestIndex = i;
