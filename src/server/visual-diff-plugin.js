@@ -52,31 +52,25 @@ async function clearDiffPaths(dir) {
 }
 
 function getResizedPng(xName, yName, original, newSize) {
-
-	let x = 0;
-	let y = 0;
-
-	if (xName === 'center') {
-		x = Math.floor((newSize.width - original.width) / 2);
-	} else if (xName === 'right') {
-		x = newSize.width - original.width;
-	}
-
-	if (yName === 'center') {
-		y = Math.floor((newSize.height - original.height) / 2);
-	} else if (yName === 'bottom') {
-		y = newSize.height - original.height;
-	}
-
+	const xOffsets = {
+		left: 0,
+		center: Math.floor((newSize.width - original.width) / 2),
+		right: newSize.width - original.width
+	};
+	const yOffsets = {
+		top: 0,
+		center: Math.floor((newSize.height - original.height) / 2),
+		bottom: newSize.height - original.height
+	};
 	const resized = new PNG(newSize);
-	PNG.bitblt(original, resized, 0, 0, original.width, original.height, x, y);
+	PNG.bitblt(original, resized, 0, 0, original.width, original.height, xOffsets[xName], yOffsets[yName]);
 	return resized;
 }
 
 async function createComparisonPNGs(original, newSize) {
 	const resizedPNGs = [];
 	[ 'top', 'center', 'bottom' ].forEach(y => {
-		['left', 'center', 'right'].forEach(x => { // TODO: position added for reports, remove/adjust as needed
+		['left', 'center', 'right'].forEach(x => {
 			if (original.width === newSize.width && original.height === newSize.height) {
 				resizedPNGs.push({ png: original, position: `${y}-${x}` });
 			} else {
