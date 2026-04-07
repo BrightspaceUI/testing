@@ -168,7 +168,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 			const passFile = join(newPath, PATHS.PASS, browser, newName);
 			const screenshotFile = join(newPath, PATHS.FAIL, browser, newName);
 			function getFileName(base, alt = 'default') {
-				return `${base}${alt === 'default' ? '' : `-${alt}`}.png`;
+				return `${base}${alt === 'default' ? '' : `.${alt}`}.png`;
 			}
 			const tests = ['default', ...(payload.altTests || [])];
 			const rootLength = join(rootDir, PATHS.VDIFF_ROOT).length + 1;
