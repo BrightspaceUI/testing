@@ -89,11 +89,12 @@ async function ScreenshotAndCompare(opts = {}) {
 		({ rect, fullPage } = findLargestRect(elemsToInclude, margin));
 	}
 	const slowDuration = this.test.slow();
+	const altTests = opts['dark'] ? ['dark'] : [];
 
-	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration });
+	let result = await executeServerCommand('brightspace-visual-diff-compare', { altTests, name, fullPage, rect, slowDuration });
 	if (result.resizeRequired) {
 		this.test.timeout(0);
-		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name });
+		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { altTests, name });
 	}
 
 	if (window.d2lTest) document.documentElement.classList.remove('screenshot');

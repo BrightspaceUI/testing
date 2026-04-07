@@ -85,39 +85,43 @@ function flattenResults(session, browserData, fileData) {
 
 	function collectTests(prefix, tests) {
 		tests.forEach(t => {
-			const testName = `${prefix}${t.name}`;
+			let testName = `${prefix}${t.name}`;
 			const testKey = testName.replaceAll(' > ', ' ');
-			const info = getTestInfo(session, testKey);
+			const infos = getTestInfo(session, testKey);
 
 			// tests missing info but with no error were skipped via grep, so exclude them
-			if (!info && !t.error) return;
+			if (!infos && !t.error) return;
 
-			if (!fileData.tests.has(testName)) {
-				fileData.tests.set(testName, {
-					name: testName,
-					numByteDiff: 0,
-					numFailed: 0,
-					results: []
+			for (const test in infos) {
+				const info = infos[test];
+				if (test !== 'default') testName = `${prefix}${t.name} (${test})`;
+				if (!fileData.tests.has(testName)) {
+					fileData.tests.set(testName, {
+						name: testName,
+						numByteDiff: 0,
+						numFailed: 0,
+						results: []
+					});
+				}
+				const testData = fileData.tests.get(testName);
+				const bytediff = !t.passed && info?.diff === undefined && info?.pixelsDiff === 0;
+				if (!t.passed) {
+					if (bytediff) {
+						browserData.numByteDiff++;
+						testData.numByteDiff++;
+					}
+					browserData.numFailed++;
+					testData.numFailed++;
+				}
+				testData.results.push({
+					name: browserData.name,
+					duration: t.duration,
+					error: t.error?.message,
+					passed: t.passed,
+					bytediff,
+					info: info
 				});
 			}
-			const testData = fileData.tests.get(testName);
-			const bytediff = !t.passed && info?.diff === undefined && info?.pixelsDiff === 0;
-			if (!t.passed) {
-				if (bytediff) {
-					browserData.numByteDiff++;
-					testData.numByteDiff++;
-				}
-				browserData.numFailed++;
-				testData.numFailed++;
-			}
-			testData.results.push({
-				name: browserData.name,
-				duration: t.duration,
-				error: t.error?.message,
-				passed: t.passed,
-				bytediff,
-				info: info
-			});
 		});
 	}
 
