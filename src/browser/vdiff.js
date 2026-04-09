@@ -91,7 +91,7 @@ async function ScreenshotAndCompare(opts = {}) {
 	const slowDuration = this.test.slow();
 
 	this.test.timeout(0);
-	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration });
+	const result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration });
 
 	if (window.d2lTest) document.documentElement.classList.remove('screenshot');
 
