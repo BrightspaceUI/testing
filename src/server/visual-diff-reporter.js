@@ -87,13 +87,13 @@ function flattenResults(session, browserData, fileData) {
 		tests.forEach(t => {
 			let testName = `${prefix}${t.name}`;
 			const testKey = testName.replaceAll(' > ', ' ');
-			const infos = getTestInfo(session, testKey);
+			const allTestInfo = getTestInfo(session, testKey);
 
 			// tests missing info but with no error were skipped via grep, so exclude them
-			if (!infos && !t.error) return;
+			if (!allTestInfo && !t.error) return;
 
-			for (const test in infos) {
-				const info = infos[test];
+			for (const test in allTestInfo) {
+				const info = allTestInfo[test];
 				if (test !== 'default') testName = `${prefix}${t.name} (${test})`;
 				if (!fileData.tests.has(testName)) {
 					fileData.tests.set(testName, {
