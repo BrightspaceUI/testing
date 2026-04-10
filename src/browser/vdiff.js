@@ -90,11 +90,8 @@ async function ScreenshotAndCompare(opts = {}) {
 	}
 	const slowDuration = this.test.slow();
 
-	let result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration });
-	if (result.resizeRequired) {
-		this.test.timeout(0);
-		result = await executeServerCommand('brightspace-visual-diff-compare-resize', { name });
-	}
+	this.test.timeout(0);
+	const result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration });
 
 	if (window.d2lTest) document.documentElement.classList.remove('screenshot');
 
