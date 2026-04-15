@@ -310,8 +310,8 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 				} else {
 					const { screenshot, golden, diff, pixelsDiff } = await getBestResizePng(screenshotImage, goldenImage);
 
-					const screenshotResizedPath = getFileName(`${screenshotFile}-resized`, alt);
-					const goldenResizedPath = getFileName(`${goldenFile}-resized`, alt);
+					const screenshotResizedPath = getFileName(`${screenshotFile}-resized-screenshot`, alt);
+					const goldenResizedPath = getFileName(`${screenshotFile}-resized-golden`, alt);
 					const diffPath = getFileName(`${screenshotFile}-diff`, alt);
 					await writeFile(screenshotResizedPath, PNG.sync.write(screenshot));
 					await writeFile(goldenResizedPath, PNG.sync.write(golden));
