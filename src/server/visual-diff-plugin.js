@@ -290,10 +290,10 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 					if (pixelsDiff !== 0) {
 						infoManager.set({
-							diff: `${screenshotFile.substring(rootLength)}-diff.png`,
+							diff: getFileName(`${screenshotFile}-diff`, alt).substring(rootLength),
 							pixelsDiff
 						}, alt);
-						await writeFile(`${screenshotFile}-diff.png`, PNG.sync.write(diff));
+						await writeFile(getFileName(`${screenshotFile}-diff`, alt), PNG.sync.write(diff));
 						return { pass: false, message: `Image does not match golden. ${pixelsDiff} pixels are different.` };
 					} else {
 						infoManager.set({
