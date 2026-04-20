@@ -89,9 +89,11 @@ async function ScreenshotAndCompare(opts = {}) {
 		({ rect, fullPage } = findLargestRect(elemsToInclude, margin));
 	}
 	const slowDuration = this.test.slow();
+	const altTests = [];
+	if (opts.allColorModes) altTests.push('dark');
 
 	this.test.timeout(0);
-	const result = await executeServerCommand('brightspace-visual-diff-compare', { name, fullPage, rect, slowDuration });
+	const result = await executeServerCommand('brightspace-visual-diff-compare', { altTests, name, fullPage, rect, slowDuration });
 
 	if (window.d2lTest) document.documentElement.classList.remove('screenshot');
 

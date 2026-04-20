@@ -8,9 +8,9 @@ export class TestInfoManager {
 		return testInfoMap.get(this.key);
 	}
 
-	set(testInfo) {
+	set(testInfo, alt = 'default') {
 		if (testInfoMap.has(this.key)) {
-			const info = this.get();
+			const info = this.get()?.[alt] || {};
 			testInfo.slowDuration = info.slowDuration;
 
 			if (info.golden || testInfo.golden) {
@@ -21,7 +21,8 @@ export class TestInfoManager {
 			}
 			testInfo.diff = testInfo.diff || info.diff;
 		}
-		testInfoMap.set(this.key, testInfo);
+		const tests = testInfoMap.get(this.key) || {};
+		testInfoMap.set(this.key, { ...tests, [alt]: testInfo });
 	}
 }
 
