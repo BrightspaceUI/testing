@@ -106,7 +106,7 @@ function flattenResults(session, browserData, fileData) {
 				const testData = fileData.tests.get(testName);
 				const passed = !!(info?.golden) && !(info?.diff) && !(info?.pixelsDiff);
 				const bytediff = info?.diff === undefined && info?.pixelsDiff === 0;
-				if (passed) {
+				if (!passed) {
 					if (bytediff) {
 						browserData.numByteDiff++;
 						testData.numByteDiff++;
