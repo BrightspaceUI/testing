@@ -20,6 +20,7 @@ export class TestInfoManager {
 				testInfo.new = { ...info.new, ...testInfo.new };
 			}
 			testInfo.diff = testInfo.diff || info.diff;
+			testInfo.byteSizeDiff = testInfo.byteSizeDiff || info.byteSizeDiff;
 		}
 		const tests = testInfoMap.get(this.key) || {};
 		testInfoMap.set(this.key, { ...tests, [alt]: testInfo });

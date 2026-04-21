@@ -104,10 +104,9 @@ function flattenResults(session, browserData, fileData) {
 					});
 				}
 				const testData = fileData.tests.get(testName);
-				const passed = !!(info?.golden) && !(info?.diff) && !(info?.pixelsDiff);
-				const bytediff = info?.diff === undefined && info?.pixelsDiff === 0;
+				const passed = !!(info.golden) && !(info.pixelsDiff) && !(info.byteSizeDiff);
 				if (!passed) {
-					if (bytediff) {
+					if (info.byteSizeDiff) {
 						browserData.numByteDiff++;
 						testData.numByteDiff++;
 					}
@@ -119,7 +118,7 @@ function flattenResults(session, browserData, fileData) {
 					duration: t.duration,
 					error: t.error?.message,
 					passed,
-					bytediff,
+					bytediff: info.byteSizeDiff,
 					info: info
 				});
 			}
