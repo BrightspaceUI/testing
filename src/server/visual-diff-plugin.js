@@ -303,7 +303,8 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 							new: {
 								byteSize: screenshotSize
 							},
-							pixelsDiff
+							pixelsDiff,
+							byteSizeDiff: true
 						}, alt);
 						return { pass: false, message: 'Image diff is clean but the images do not have the same bytes.' };
 					}

@@ -104,9 +104,9 @@ function flattenResults(session, browserData, fileData) {
 					});
 				}
 				const testData = fileData.tests.get(testName);
-				const bytediff = !t.passed && info?.diff === undefined && info?.pixelsDiff === 0;
-				if (!t.passed) {
-					if (bytediff) {
+				const passed = !!(info.golden) && !(info.pixelsDiff) && !(info.byteSizeDiff);
+				if (!passed) {
+					if (info.byteSizeDiff) {
 						browserData.numByteDiff++;
 						testData.numByteDiff++;
 					}
@@ -117,8 +117,8 @@ function flattenResults(session, browserData, fileData) {
 					name: browserData.name,
 					duration: t.duration,
 					error: t.error?.message,
-					passed: t.passed,
-					bytediff,
+					passed,
+					bytediff: info.byteSizeDiff,
 					info: info
 				});
 			}
