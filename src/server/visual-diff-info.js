@@ -20,7 +20,7 @@ export class TestInfoManager {
 				if ((prop === 'golden' || prop === 'new') && prop in info) {
 					info[prop] = { ...info[prop], ...testInfo[prop] };
 				}
-				info[prop] = testInfo[prop];
+				else info[prop] = testInfo[prop];
 			}
 		}
 	}
