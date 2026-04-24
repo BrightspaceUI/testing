@@ -185,7 +185,7 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 			await clearAllDirs(updateGoldens, join(rootDir, PATHS.VDIFF_ROOT));
 		},
 		async executeCommand({ command, payload, session }) {
-			const infoManager = new TestInfoManager(session, payload.name);
+			const infoManager = new TestInfoManager(session, payload.name, payload.slowDuration);
 
 			if (session.browser.type !== 'playwright') {
 				throw new Error('Visual-diff is only supported for browser type Playwright.');
@@ -249,7 +249,6 @@ export function visualDiff({ updateGoldens = false, runSubset = false } = {}) {
 
 				const screenshotImage = PNG.sync.read(screenshotFileBuffers[alt]);
 				infoManager.set({
-					slowDuration: payload.slowDuration,
 					new: {
 						height: screenshotImage.height,
 						path: screenshotFileName.substring(rootLength),
