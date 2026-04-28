@@ -234,9 +234,9 @@ export function renderBrowserResults(browser, tests, options) {
 		let status = STATUS_TYPE.NORMAL;
 		if (resultData.info) {
 			status = STATUS_TYPE.WARNING;
-			if (resultData.duration > resultData.info.slowDuration) {
+			if (resultData.duration > resultData.slowDuration) {
 				status = STATUS_TYPE.ERROR;
-			} else if (resultData.duration < (resultData.info.slowDuration / 2)) {
+			} else if (resultData.duration < (resultData.slowDuration / 2)) {
 				status = STATUS_TYPE.NORMAL;
 			}
 		}

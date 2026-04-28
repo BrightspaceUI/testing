@@ -92,8 +92,8 @@ function flattenResults(session, browserData, fileData) {
 			// tests missing info but with no error were skipped via grep, so exclude them
 			if (!allTestInfo && !t.error) return;
 
-			for (const test in allTestInfo) {
-				const info = allTestInfo[test];
+			for (const test in allTestInfo.tests) {
+				const info = allTestInfo.tests[test];
 				if (test !== 'default') testName = `${prefix}${t.name} (${test})`;
 				if (!fileData.tests.has(testName)) {
 					fileData.tests.set(testName, {
@@ -119,6 +119,7 @@ function flattenResults(session, browserData, fileData) {
 					error: t.error?.message,
 					passed,
 					bytediff: info.byteSizeDiff,
+					slowDuration: allTestInfo.slowDuration,
 					info: info
 				});
 			}

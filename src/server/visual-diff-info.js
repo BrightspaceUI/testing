@@ -1,29 +1,28 @@
 const testInfoMap = new Map();
 
 export class TestInfoManager {
-	constructor(session, fullTitle) {
+	constructor(session, fullTitle, slowDuration) {
 		this.key = `${session.browser.name.toLowerCase()}|${session.testFile}|${fullTitle}`;
+		if (!testInfoMap.has(this.key)) testInfoMap.set(this.key, { slowDuration, tests: {} });
 	}
 	get() {
 		return testInfoMap.get(this.key);
 	}
 
 	set(testInfo, alt = 'default') {
-		if (testInfoMap.has(this.key)) {
-			const info = this.get()?.[alt] || {};
-			testInfo.slowDuration = info.slowDuration;
+		const tests = this.get().tests;
 
-			if (info.golden || testInfo.golden) {
-				testInfo.golden = { ...info.golden, ...testInfo.golden };
+		if (!(alt in tests)) {
+			tests[alt] = testInfo;
+		} else {
+			const info = tests[alt];
+			for (const prop in testInfo) {
+				if ((prop === 'golden' || prop === 'new') && prop in info) {
+					info[prop] = { ...info[prop], ...testInfo[prop] };
+				}
+				else info[prop] = testInfo[prop];
 			}
-			if (info.new || testInfo.new) {
-				testInfo.new = { ...info.new, ...testInfo.new };
-			}
-			testInfo.diff = testInfo.diff || info.diff;
-			testInfo.byteSizeDiff = testInfo.byteSizeDiff || info.byteSizeDiff;
 		}
-		const tests = testInfoMap.get(this.key) || {};
-		testInfoMap.set(this.key, { ...tests, [alt]: testInfo });
 	}
 }
 
