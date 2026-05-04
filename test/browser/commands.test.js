@@ -141,7 +141,7 @@ describe('commands', () => {
 		});
 	});
 
-	describe('keyboard/focus', async() => {
+	describe('keyboard/focus', () => {
 		let buttonElem, inputElem;
 
 		beforeEach(async() => {
