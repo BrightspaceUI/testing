@@ -2,7 +2,7 @@
   "name": "@brightspace-ui/testing",
   "description": "Utilities for testing front-end components and applications",
   "type": "module",
-  "version": "1.40.0",
+  "version": "1.41.0",
   "repository": "https://github.com/BrightspaceUI/testing.git",
   "scripts": {
     "lint": "npm run lint:eslint && npm run lint:style",
@@ -26,7 +26,7 @@
     "@brightspace-ui/stylelint-config": "^2",
     "chai": "^6",
     "eslint": "^9",
-    "eslint-config-brightspace": "^2",
+    "eslint-config-brightspace": "^3",
     "globals": "^17",
     "mocha": "^11",
     "sinon": "^21",
