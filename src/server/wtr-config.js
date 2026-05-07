@@ -59,6 +59,86 @@ const SUPPRESS_RESIZE_OBSERVER_ERRORS = `
 	</script>
 `;
 export const DEFAULT_VDIFF_SLOW = 500;
+const HTML_BODY = testFramework => `
+	<body>
+		${TEST_PAGE}
+		${SUPPRESS_RESIZE_OBSERVER_ERRORS}
+		<script type="module" src="${testFramework}"></script>
+	</body>
+`;
+const HTML_HEAD = `
+	<head>
+		<link rel="preload" href="${FONT_ASSETS}Lato-400.woff2" as="font" type="font/woff2" crossorigin>
+		<link rel="preload" href="${FONT_ASSETS}Lato-700.woff2" as="font" type="font/woff2" crossorigin>
+		<style>
+
+			html {
+				--d2l-cursor-resize-inline-end: e-resize;
+				--d2l-cursor-resize-inline-start: w-resize;
+				--d2l-document-direction: ltr;
+				--d2l-inline-end: right;
+				--d2l-inline-start: left;
+				--d2l-length-factor: 1;
+				--d2l-mirror-transform: none;
+				--d2l-theme-background-color-base: #ffffff;
+				--d2l-theme-text-color-static-standard: #202122;
+				font-size: 20px;
+			}
+
+			html[dir="rtl"] * {
+				--d2l-cursor-resize-inline-end: w-resize;
+				--d2l-cursor-resize-inline-start: e-resize;
+				--d2l-document-direction: rtl;
+				--d2l-inline-end: left;
+				--d2l-inline-start: right;
+				--d2l-length-factor: -1;
+				--d2l-mirror-transform: scale(-1, 1);
+			}
+
+			html[data-color-mode="dark"] {
+				--d2l-theme-background-color-base: #161718;
+				--d2l-theme-text-color-static-standard: #cdd5dc;
+			}
+
+			@font-face {
+				font-family: 'Lato';
+				font-style: normal;
+				font-weight: 400;
+				src: url(${FONT_ASSETS}Lato-400.woff2) format('woff2');
+			}
+			@font-face {
+				font-family: 'Lato';
+				font-style: normal;
+				font-weight: 700;
+				src: url(${FONT_ASSETS}Lato-700.woff2) format('woff2');
+			}
+
+			body {
+				background-color: var(--d2l-theme-background-color-base);
+				color: var(--d2l-theme-text-color-static-standard);
+				font-family: 'Lato', sans-serif;
+				letter-spacing: 0.01rem;
+				font-size: 0.95rem;
+				font-weight: 400;
+				line-height: 1.4rem;
+				margin: 0;
+				padding: 38px;
+			}
+			body.no-padding {
+				padding: 0;
+			}
+		</style>
+	</head>
+`;
+const DEFAULT_TEST_RUNNER_HTML = testFramework => `<!DOCTYPE html>
+<html lang="en" data-timezone='${TIMEZONE}'>
+	${HTML_BODY(testFramework)}
+</html>`;
+const FULL_TEST_RUNNER_HTML = testFramework => `<!DOCTYPE html>
+<html lang="en" data-timezone='${TIMEZONE}'>
+	${HTML_HEAD}
+	${HTML_BODY(testFramework)}
+</html>`;
 
 export class WTRConfig {
 
@@ -73,77 +153,7 @@ export class WTRConfig {
 			name: 'vdiff',
 			files: this.#pattern,
 			browsers: [BROWSER_MAP.chrome],
-			testRunnerHtml: testFramework =>
-				`<!DOCTYPE html>
-				<html lang="en" data-timezone='${TIMEZONE}'>
-					<head>
-						<link rel="preload" href="${FONT_ASSETS}Lato-400.woff2" as="font" type="font/woff2" crossorigin>
-						<link rel="preload" href="${FONT_ASSETS}Lato-700.woff2" as="font" type="font/woff2" crossorigin>
-						<style>
-
-							html {
-								--d2l-cursor-resize-inline-end: e-resize;
-								--d2l-cursor-resize-inline-start: w-resize;
-								--d2l-document-direction: ltr;
-								--d2l-inline-end: right;
-								--d2l-inline-start: left;
-								--d2l-length-factor: 1;
-								--d2l-mirror-transform: none;
-								--d2l-theme-background-color-base: #ffffff;
-								--d2l-theme-text-color-static-standard: #202122;
-								font-size: 20px;
-							}
-
-							html[dir="rtl"] * {
-								--d2l-cursor-resize-inline-end: w-resize;
-								--d2l-cursor-resize-inline-start: e-resize;
-								--d2l-document-direction: rtl;
-								--d2l-inline-end: left;
-								--d2l-inline-start: right;
-								--d2l-length-factor: -1;
-								--d2l-mirror-transform: scale(-1, 1);
-							}
-
-							html[data-color-mode="dark"] {
-								--d2l-theme-background-color-base: #161718;
-								--d2l-theme-text-color-static-standard: #cdd5dc;
-							}
-
-							@font-face {
-								font-family: 'Lato';
-								font-style: normal;
-								font-weight: 400;
-								src: url(${FONT_ASSETS}Lato-400.woff2) format('woff2');
-							}
-							@font-face {
-								font-family: 'Lato';
-								font-style: normal;
-								font-weight: 700;
-								src: url(${FONT_ASSETS}Lato-700.woff2) format('woff2');
-							}
-
-							body {
-								background-color: var(--d2l-theme-background-color-base);
-								color: var(--d2l-theme-text-color-static-standard);
-								font-family: 'Lato', sans-serif;
-								letter-spacing: 0.01rem;
-								font-size: 0.95rem;
-								font-weight: 400;
-								line-height: 1.4rem;
-								margin: 0;
-								padding: 38px;
-							}
-							body.no-padding {
-								padding: 0;
-							}
-						</style>
-					</head>
-					<body>
-						${TEST_PAGE}
-						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
-						<script type="module" src="${testFramework}"></script>
-					</body>
-				</html>`
+			testRunnerHtml: FULL_TEST_RUNNER_HTML
 		};
 	}
 	create({
@@ -169,18 +179,14 @@ export class WTRConfig {
 		};
 
 		if (!['test', 'vdiff', ...passthroughGroupNames].includes(group)) {
-			config.groups.push({ name: group, files: this.#pattern });
+			const groupConfig = { name: group, files: this.#pattern };
+			if (group === 'axe') groupConfig.testRunnerHtml = FULL_TEST_RUNNER_HTML;
+			config.groups.push(groupConfig);
 		} else {
 			const groupConfig = config.groups.find(g => g.name === group);
 			if (groupConfig) {
 				groupConfig.files = this.#pattern;
 			}
-		}
-
-		if (filter) {
-			config.groups.forEach(group => {
-				group.files = this.#filterFiles([ group.files ].flat());
-			});
 		}
 
 		config.reporters ??= [ defaultReporterGrep() ];
@@ -250,15 +256,7 @@ export class WTRConfig {
 			nodeResolve: {
 				exportConditions: ['default']
 			},
-			testRunnerHtml: testFramework =>
-				`<!DOCTYPE html>
-				<html lang="en" data-timezone='${TIMEZONE}'>
-					<body>
-						${TEST_PAGE}
-						${SUPPRESS_RESIZE_OBSERVER_ERRORS}
-						<script type="module" src="${testFramework}"></script>
-					</body>
-				</html>`,
+			testRunnerHtml: DEFAULT_TEST_RUNNER_HTML,
 		};
 	}
 

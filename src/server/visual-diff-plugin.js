@@ -1,5 +1,6 @@
 import { access, constants, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
+import { ALT_TESTS } from '../alt-tests.js';
 import { env } from 'node:process';
 import { PATHS } from './paths.js';
 import pixelmatch from 'pixelmatch';
@@ -8,17 +9,6 @@ import { TestInfoManager } from './visual-diff-info.js';
 
 const isCI = !!env['CI'];
 const DEFAULT_TOLERANCE = 0; // TODO: Support tolerance override?
-
-const ALT_TESTS = {
-	dark: {
-		set() {
-			document.documentElement.setAttribute('data-color-mode', 'dark');
-		},
-		reset() {
-			document.documentElement.removeAttribute('data-color-mode');
-		}
-	}
-};
 
 async function checkFileExists(fileName) {
 	try {

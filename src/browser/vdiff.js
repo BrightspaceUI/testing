@@ -1,4 +1,5 @@
 import { chai, expect } from '@open-wc/testing';
+import { allColorModes } from '../alt-tests.js';
 import { executeServerCommand } from '@web/test-runner-commands';
 
 // start loading fonts early
@@ -90,7 +91,7 @@ async function ScreenshotAndCompare(opts = {}) {
 	}
 	const slowDuration = this.test.slow();
 	const altTests = [];
-	if (opts.allColorModes) altTests.push('dark');
+	if (opts.allColorModes) altTests.push(...allColorModes);
 
 	this.test.timeout(0);
 	const result = await executeServerCommand('brightspace-visual-diff-compare', { altTests, name, fullPage, rect, slowDuration });
