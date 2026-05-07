@@ -34,7 +34,7 @@ describe('WTRConfig', () => {
 			const group = config.groups[0];
 			expect(config.groups).to.be.an('array').that.has.length(1);
 			expect(group.name).to.equal('implicit-group');
-			expect(group.files).to.include.members(['./test/**/*.implicit-group.js']);
+			expect(group.files).to.include.members(['./**/test/**/*.implicit-group.js']);
 			expect(group.browsers).to.be.an('array').that.has.length(3);
 		});
 
@@ -44,7 +44,7 @@ describe('WTRConfig', () => {
 			const group = config.groups[0];
 			expect(config.groups).to.be.an('array').that.has.length(1);
 			expect(group.name).to.equal('a-group');
-			expect(group.files).to.include.members(['./test/**/*.a-group.js']);
+			expect(group.files).to.include.members(['./**/test/**/*.a-group.js']);
 		});
 
 		it('should enable nodeResolve to default', () => {
@@ -120,7 +120,7 @@ describe('WTRConfig', () => {
 		});
 
 		it('should set a common default files pattern', () => {
-			expect(config.groups[0].files).to.deep.equal([ './test/**/*.test.js', '!**/node_modules/**/*' ]);
+			expect(config.groups[0].files).to.deep.equal([ './**/test/**/*.test.js', '!**/node_modules/**/*' ]);
 		});
 
 		it('should run a given pattern function to set files', () => {
@@ -149,10 +149,10 @@ describe('WTRConfig', () => {
 
 		it('should filter test files using --filter values', () => {
 			const wtrConfig = new WTRConfig({ filter: ['subset', 'subset*'] });
-			const config = wtrConfig.create({ pattern: type => `./test/**/*/*.${type}.*` });
+			const config = wtrConfig.create({ pattern: type => `./**/test/**/*/*.${type}.*` });
 			expect(config.files).to.be.undefined;
 			expect(config.groups[0].files).to.have.length(3);
-			expect(config.groups[0].files).to.have.members(['./test/**/*/+(subset.test.*|*.test.subset)', './test/**/*/+(subset*.test.*|*.test.subset*)', '!**/node_modules/**/*']);
+			expect(config.groups[0].files).to.have.members(['./**/test/**/*/+(subset.test.*|*.test.subset)', './**/test/**/*/+(subset*.test.*|*.test.subset*)', '!**/node_modules/**/*']);
 		});
 
 		it('should never filter excluded files', () => {

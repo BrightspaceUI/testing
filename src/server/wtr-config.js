@@ -35,7 +35,7 @@ const defaultReporterGrep = () => {
 	};
 };
 
-const DEFAULT_PATTERN = type => `./test/**/*.${type}.js`;
+const DEFAULT_PATTERN = type => `./**/test/**/*.${type}.js`;
 const DEFAULT_TEST_REPORTING = !!env['CI'];
 const BROWSER_MAP = {
 	chrome: 'chromium',
