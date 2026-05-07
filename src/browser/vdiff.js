@@ -1,6 +1,6 @@
 import { chai, expect } from '@open-wc/testing';
+import { allColorModes } from '../alt-tests.js';
 import { executeServerCommand } from '@web/test-runner-commands';
-import { allColorModes } from '../alt-tests';
 
 // start loading fonts early
 [...document.fonts].forEach(font => font.load());

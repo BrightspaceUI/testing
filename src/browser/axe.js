@@ -1,6 +1,7 @@
+import { allColorModes, ALT_TESTS } from '../alt-tests.js';
 import { chai } from '@open-wc/testing';
-import { ALT_TESTS, allColorModes } from '../alt-tests';
 
+/* eslint-disable no-invalid-this, prefer-arrow-callback */
 chai.Assertion.overwriteMethod('accessible', function(_super) {
 	return async function(opts = {}) {
 		let violationsHeader = '';
@@ -8,13 +9,13 @@ chai.Assertion.overwriteMethod('accessible', function(_super) {
 		const run = async(prefix = '') => {
 			try {
 				await _super.apply(this, arguments);
-			} catch(e) {
+			} catch (e) {
 				const violations = e.message.split('---');
 				violationsHeader = violations.shift();
 				violations.pop();
 				violationsMessages.push(...violations.map(v => `${prefix}${v}`));
 			}
-		}
+		};
 		await run();
 		if (opts.allColorModes) {
 			for (const mode of allColorModes) {
@@ -31,3 +32,4 @@ chai.Assertion.overwriteMethod('accessible', function(_super) {
 
 	};
 });
+/* eslint-enable */

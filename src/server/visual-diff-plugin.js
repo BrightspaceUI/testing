@@ -1,11 +1,11 @@
 import { access, constants, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
+import { ALT_TESTS } from '../alt-tests.js';
 import { env } from 'node:process';
 import { PATHS } from './paths.js';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 import { TestInfoManager } from './visual-diff-info.js';
-import { ALT_TESTS } from '../alt-tests.js';
 
 const isCI = !!env['CI'];
 const DEFAULT_TOLERANCE = 0; // TODO: Support tolerance override?
