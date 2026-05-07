@@ -16,7 +16,7 @@ async function getTestRunnerOptions(argv = []) {
 			name: 'files',
 			type: String,
 			multiple: true,
-			description: 'Test files to run. Path or glob.\n[Default: ./test/**/*.<group>.js]',
+			description: 'Test files to run. Path or glob.\n[Default: ./**/test/**/*.<group>.js]',
 			order: 8
 		},
 		{

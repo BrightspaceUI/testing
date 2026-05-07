@@ -424,7 +424,7 @@ Use the `d2l-test-runner` binary to execute a set of tests and report their resu
 | timeout | `Number` | `2000` | Test timeout threshold in ms |
 | filter | `String` | | Filter test files by replacing wildcards with this glob |
 | grep | `String` | | Only run tests matching this string or regexp |
-| files | `String` | `'./test/**/*.<group>.js'` | Test files to run. Path or glob. |
+| files | `String` | `'./**/test/**/*.<group>.js'` | Test files to run. Path or glob. |
 | config | `String` | `'./d2l-test-runner.config.js'` | Location of config file |
 | watch | `Boolean` | `false` | Reload tests on file changes. Allows debugging in all browsers. |
 | open | `Boolean` | `false` | Open the browser in headed mode |
@@ -461,9 +461,9 @@ export default {
 
 Tests are organized into groups, which can be configured and run together.
 
-The group name appears in the default `files` pattern (`'./test/**/*.<group>.js'`), making it typical for test files to have the group name as part of their extension. For example, the default group is `'test'` so all test files named `*.test.js` will belong to it by default. Similarly, the `vdiff` group contains files named `*.vdiff.js`.
+The group name appears in the default `files` pattern (`'./**/test/**/*.<group>.js'`), making it typical for test files to have the group name as part of their extension. For example, the default group is `'test'` so all test files named `*.test.js` will belong to it by default. Similarly, the `vdiff` group contains files named `*.vdiff.js`.
 
-To run tests which match the pattern `'./test/**/*.mygroup.js'`:
+To run tests which match the pattern `'./**/test/**/*.mygroup.js'`:
 ```bash
 d2l-test-runner --group mygroup
 ```
@@ -488,9 +488,9 @@ While writing or debugging tests, it can be desirable to focus the runner on a s
 
 Use the `filter` option to filter by file name. It replaces any wildcards in the file name portion of the `files` pattern with the provided [glob](https://en.wikipedia.org/wiki/Glob_(programming)).
 
-For example, with the `'test'` group and default pattern `'./test/**/*.<group>.js'`, passing `d2l-test-runner --filter foo` will run tests which match `'./test/**/foo.test.js'`.
+For example, with the `'test'` group and default pattern `'./**/test/**/*.<group>.js'`, passing `d2l-test-runner --filter foo` will run tests which match `'./**/test/**/foo.test.js'`.
 
-Wildcards can still be used but need to be escaped. So `d2l-test-runner --filter foo\*` will run tests which match `'./test/**/foo*.test.js'`.
+Wildcards can still be used but need to be escaped. So `d2l-test-runner --filter foo\*` will run tests which match `'./**/test/**/foo*.test.js'`.
 
 ### By Test Name
 

@@ -156,7 +156,7 @@ By default, `d2l-test-runner` will:
 
 * Run in Chrome, Firefox and Safari (except `vdiff` just runs in Chrome)
 * Enable the `--node-resolve` flag
-* Look for tests in `./test/**/*.test.js` (using the `test` group)
+* Look for tests in `./**/test/**/*.test.js` (using the `test` group)
 * Suppress `ResizeObserver` errors (a common reason repos use a config file)
 
 Due to these new defaults, if the repo is using a `web-test-runner.config.js`, it may no longer be necessary and could be removed. If the config file is necessary, rename it to `d2l-test-runner.config.js`.
@@ -165,7 +165,7 @@ Before
 
 ```yml
   "scripts": {
-    "test:unit": "web-test-runner --files \"./test/**/*.test.js\" --node-resolve"
+    "test:unit": "web-test-runner --files \"./**/test/**/*.test.js\" --node-resolve"
   }
 ```
 

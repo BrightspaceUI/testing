@@ -14,7 +14,7 @@ describe('runner.getOptions()', () => {
 		expect(opts.config.groups).to.be.an('array').with.length(1);
 		expect(opts.config.groups[0]).to.deep.include({
 			name: 'test',
-			files: [ './test/**/*.test.js', '!**/node_modules/**/*' ]
+			files: [ './**/test/**/*.test.js', '!**/node_modules/**/*' ]
 		});
 	});
 
