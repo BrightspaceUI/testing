@@ -5,20 +5,10 @@ import { PATHS } from './paths.js';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 import { TestInfoManager } from './visual-diff-info.js';
+import { ALT_TESTS } from '../alt-tests.js';
 
 const isCI = !!env['CI'];
 const DEFAULT_TOLERANCE = 0; // TODO: Support tolerance override?
-
-const ALT_TESTS = {
-	dark: {
-		set() {
-			document.documentElement.setAttribute('data-color-mode', 'dark');
-		},
-		reset() {
-			document.documentElement.removeAttribute('data-color-mode');
-		}
-	}
-};
 
 async function checkFileExists(fileName) {
 	try {
