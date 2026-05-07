@@ -3,7 +3,6 @@ import { ALT_TESTS, allColorModes } from '../alt-tests';
 
 chai.Assertion.overwriteMethod('accessible', function(_super) {
 	return async function(opts = {}) {
-		console.log(opts);
 		let violationsHeader = '';
 		const violationsMessages = [];
 		const run = async(prefix = '') => {
