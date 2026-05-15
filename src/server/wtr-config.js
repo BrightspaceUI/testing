@@ -140,7 +140,7 @@ const FULL_TEST_RUNNER_HTML = (expandBody = false) => {
 	<html lang="en" data-timezone='${TIMEZONE}'>
 		${HTML_HEAD(expandBody)}
 		${HTML_BODY(testFramework)}
-	</html>`
+	</html>`;
 };
 
 export class WTRConfig {
