@@ -66,7 +66,7 @@ const HTML_BODY = testFramework => `
 		<script type="module" src="${testFramework}"></script>
 	</body>
 `;
-const HTML_HEAD = `
+const HTML_HEAD = (expandBody = false) => `
 	<head>
 		<link rel="preload" href="${FONT_ASSETS}Lato-400.woff2" as="font" type="font/woff2" crossorigin>
 		<link rel="preload" href="${FONT_ASSETS}Lato-700.woff2" as="font" type="font/woff2" crossorigin>
@@ -123,6 +123,7 @@ const HTML_HEAD = `
 				line-height: 1.4rem;
 				margin: 0;
 				padding: 38px;
+				${expandBody ? 'height: 100vh;box-sizing: border-box;' : ''}
 			}
 			body.no-padding {
 				padding: 0;
@@ -134,11 +135,13 @@ const DEFAULT_TEST_RUNNER_HTML = testFramework => `<!DOCTYPE html>
 <html lang="en" data-timezone='${TIMEZONE}'>
 	${HTML_BODY(testFramework)}
 </html>`;
-const FULL_TEST_RUNNER_HTML = testFramework => `<!DOCTYPE html>
-<html lang="en" data-timezone='${TIMEZONE}'>
-	${HTML_HEAD}
-	${HTML_BODY(testFramework)}
-</html>`;
+const FULL_TEST_RUNNER_HTML = (expandBody = false) => {
+	return testFramework => `<!DOCTYPE html>
+	<html lang="en" data-timezone='${TIMEZONE}'>
+		${HTML_HEAD(expandBody)}
+		${HTML_BODY(testFramework)}
+	</html>`
+};
 
 export class WTRConfig {
 
@@ -153,7 +156,7 @@ export class WTRConfig {
 			name: 'vdiff',
 			files: this.#pattern,
 			browsers: [BROWSER_MAP.chrome],
-			testRunnerHtml: FULL_TEST_RUNNER_HTML
+			testRunnerHtml: FULL_TEST_RUNNER_HTML()
 		};
 	}
 	create({
@@ -180,7 +183,7 @@ export class WTRConfig {
 
 		if (!['test', 'vdiff', ...passthroughGroupNames].includes(group)) {
 			const groupConfig = { name: group, files: this.#pattern };
-			if (group === 'axe') groupConfig.testRunnerHtml = FULL_TEST_RUNNER_HTML;
+			if (group === 'axe') groupConfig.testRunnerHtml = FULL_TEST_RUNNER_HTML(true);
 			config.groups.push(groupConfig);
 		} else {
 			const groupConfig = config.groups.find(g => g.name === group);
