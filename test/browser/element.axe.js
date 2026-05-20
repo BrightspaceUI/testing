@@ -1,15 +1,15 @@
-import { html } from 'lit';
 import { expect, fixture } from '../../src/browser/index.js';
+import { html } from 'lit';
 
 describe('axe', () => {
-	it('typography', async() =>{
+	it('typography', async() => {
 		// If typography is set, font color should not match background color, so this should fail accessibility tests
 		const el = await fixture(html`<div style="background-color: black">My content</div>`);
 		await expect(el).to.not.be.accessible();
 	});
 
 	describe('color modes', () => {
-		it('fails on light only', async() =>{
+		it('fails on light only', async() => {
 			const el = await fixture(html`<div style="background-color: black">My content</div>`);
 			try {
 				await expect(el).to.be.accessible({ allColorModes: true });
@@ -18,13 +18,12 @@ describe('axe', () => {
 			}
 		});
 
-		it('fails on dark only', async() =>{
+		it('fails on dark only', async() => {
 			const el = await fixture(html`<div style="background-color: white">My content</div>`);
 			await expect(el).to.be.accessible();
 			await expect(el).to.not.be.accessible({ allColorModes: true });
 		});
 	});
-
 
 	it('fixed position outside body', async() => {
 		const el = await fixture(html`<div style="position: fixed; top: 200px; width: 600px; height: 100px;">
@@ -33,6 +32,5 @@ describe('axe', () => {
 		document.body.style.overflow = 'hidden';
 		await expect(el).to.not.be.accessible();
 	});
-
 
 });
