@@ -9,6 +9,7 @@
     "lint:eslint": "eslint .",
     "lint:style": "stylelint \"**/*.{js,html}\" --ignore-path .gitignore",
     "test": "npm run lint && npm run test:bin && npm run test:server && npm run test:browser",
+    "test:axe": "npx d2l-test-runner axe",
     "test:bin": "mocha './test/bin/**/*.test.js'",
     "test:browser": "npm run test:browser:other && npm run test:browser:ctor",
     "test:browser:other": "npx d2l-test-runner --files \"./test/browser/**/*.test.js\"",

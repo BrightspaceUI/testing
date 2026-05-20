@@ -30,6 +30,7 @@ chai.Assertion.overwriteMethod('accessible', function(_super) {
 			throw new Error(violationsMessages.join('---'));
 		}
 
+		return this;
 	};
 });
 /* eslint-enable */
