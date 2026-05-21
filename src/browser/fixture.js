@@ -36,7 +36,7 @@ function getComposedChildren(node) {
  * @param {*} elem
  * @param {boolean} awaitLoadingComplete
  */
-async function waitForElem(elem, awaitLoadingComplete = true) {
+export async function waitForElem(elem, awaitLoadingComplete = true) {
 
 	if (!elem) return;
 

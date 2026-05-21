@@ -139,9 +139,9 @@ it('should work when printing', async() => {
 });
 ```
 
-### Accessibility Testing with aXe
+### Accessibility Testing with axe
 
-Elements can be processed by the [aXe accessibility validator](https://github.com/dequelabs/axe-core), which will automatically fail the test if any violations are detected.
+Elements can be processed by the [axe accessibility validator](https://github.com/dequelabs/axe-core), which will automatically fail the test if any violations are detected.
 
 ```javascript
 it('should be accessible', async() => {
@@ -299,6 +299,20 @@ it('should wait for updates', async() => {
   const elem = await fixture(html`<my-elem></my-elem>`);
   elem.someProp = 'foo';
   await elem.updateComplete;
+});
+```
+
+If that change causes a different set of nested components to be rendered, and those nested components take some time to finish *their* rendering, it's possible that awaiting `updateComplete` isn't enough.
+
+In this case, `waitForElem` can be used to recursively wait in a similar way to the original `fixture` call:
+
+```javascript
+import { fixture, waitForElem } from '@brightspace-ui/testing';
+
+it('should wait for recursive re-rendering', async() => {
+  const elem = await fixture(html`<my-elem></my-elem>`);
+  elem.errorState = true;
+  await waitForElem(elem);
 });
 ```
 
