@@ -42,14 +42,14 @@ export async function waitForElem(elem, awaitLoadingComplete = true) {
 
 	const doWait = async() => {
 
-		const update = elem.updateComplete;
-		if (typeof update === 'object' && Promise.resolve(update) === update) {
-			await update;
+		if (awaitLoadingComplete && typeof elem.getLoadingComplete === 'function') {
+			await elem.getLoadingComplete();
 			await nextFrame();
 		}
 
-		if (awaitLoadingComplete && typeof elem.getLoadingComplete === 'function') {
-			await elem.getLoadingComplete();
+		const update = elem.updateComplete;
+		if (typeof update === 'object' && Promise.resolve(update) === update) {
+			await update;
 			await nextFrame();
 		}
 
