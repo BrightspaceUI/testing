@@ -83,7 +83,9 @@ describe('commands', () => {
 		it('should clickElemAt top-left by default', async() => {
 			await clickElemAt(elem);
 
-			const { x: expectedX, y: expectedY } = elem.getBoundingClientRect();
+			const { x, y } = elem.getBoundingClientRect();
+			const expectedX = Math.floor(x);
+			const expectedY = Math.floor(y);
 
 			expect(clickPos.x).to.equal(expectedX);
 			expect(clickPos.y).to.equal(expectedY);
@@ -93,8 +95,8 @@ describe('commands', () => {
 			await clickElemAt(elem, 10, 10);
 
 			const { x, y } = elem.getBoundingClientRect();
-			const expectedX = x + 10;
-			const expectedY = y + 10;
+			const expectedX = Math.floor(x + 10);
+			const expectedY = Math.floor(y + 10);
 
 			expect(clickPos.x).to.equal(expectedX);
 			expect(clickPos.y).to.equal(expectedY);
@@ -123,7 +125,9 @@ describe('commands', () => {
 		it('should hoverElemAt top-left by default', async() => {
 			await hoverElemAt(elem);
 
-			const { x: expectedX, y: expectedY } = elem.getBoundingClientRect();
+			const { x, y } = elem.getBoundingClientRect();
+			const expectedX = Math.floor(x);
+			const expectedY = Math.floor(y);
 
 			expect(mousePos.x).to.equal(expectedX);
 			expect(mousePos.y).to.equal(expectedY);
@@ -133,8 +137,8 @@ describe('commands', () => {
 			await hoverElemAt(elem, 10, 10);
 
 			const { x, y } = elem.getBoundingClientRect();
-			const expectedX = x + 10;
-			const expectedY = y + 10;
+			const expectedX = Math.floor(x + 10);
+			const expectedY = Math.floor(y + 10);
 
 			expect(mousePos.x).to.equal(expectedX);
 			expect(mousePos.y).to.equal(expectedY);
