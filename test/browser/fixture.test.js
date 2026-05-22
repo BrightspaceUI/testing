@@ -357,6 +357,7 @@ describe('fixture', () => {
 			const waitPromise = waitForElem(elem);
 			await waitUntil(() => resolves.has('slow'));
 			timeouts.push(setTimeout(() => resolves.get('slow')(), 50));
+			expect(elem.shadowRoot.querySelector(slowElem).finished).to.be.false;
 			await waitPromise;
 			expect(elem.shadowRoot.querySelector(slowElem).finished).to.be.true;
 		});
