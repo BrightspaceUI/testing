@@ -1,5 +1,5 @@
 
-import { defineCE, expect, fixture, html, waitUntil } from '../../src/browser/index.js';
+import { defineCE, expect, fixture, html, waitForElem, waitUntil } from '../../src/browser/index.js';
 import { LitElement, nothing } from 'lit';
 import { restore, stub } from 'sinon';
 import { focusElem } from '../../src/browser/commands.js';
@@ -60,6 +60,24 @@ const removedElem = defineCE(
 		async getLoadingComplete() {
 			setTimeout(() => this.remove());
 			return new Promise(() => {});
+		}
+	}
+);
+
+const fastOrSlowElem = defineCE(
+	class extends LitElement {
+		static properties = {
+			slow: { type: Boolean }
+		};
+		constructor() {
+			super();
+			this.slow = false;
+		}
+		render() {
+			if (this.slow) {
+				return unsafeHTML(`<${slowElem} id="slow">slow</${slowElem}>`);
+			}
+			return html`<p>fast</p>`;
 		}
 	}
 );
@@ -330,6 +348,18 @@ describe('fixture', () => {
 		it('should abort waiting if elements are removed before getLoadingComplete', async() => {
 			const elem = await fixture(`<div><${removedElem}></${removedElem}></div>`);
 			expect(elem.querySelector(removedElem)).to.be.null;
+		});
+
+		it('should wait for elements that are updated to be slow', async() => {
+			const elem = await fixture(`<${fastOrSlowElem}></${fastOrSlowElem}>`);
+			expect(elem.shadowRoot.querySelector('p').textContent).to.equal('fast');
+			elem.slow = true;
+			const waitPromise = waitForElem(elem);
+			await waitUntil(() => resolves.has('slow'));
+			timeouts.push(setTimeout(() => resolves.get('slow')(), 50));
+			expect(elem.shadowRoot.querySelector(slowElem).finished).to.be.false;
+			await waitPromise;
+			expect(elem.shadowRoot.querySelector(slowElem).finished).to.be.true;
 		});
 
 	});
