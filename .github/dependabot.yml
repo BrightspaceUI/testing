@@ -13,4 +13,5 @@ registries:
   npm-npmjs:
     type: npm-registry
     url: https://npm.package-registry.brightspace.com/
+    token: ${{ secrets.D2L_PACKAGE_REGISTRY_AUTH_TOKEN }}
     replaces-base: true
