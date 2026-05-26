@@ -17,10 +17,11 @@ jobs:
         uses: Brightspace/third-party-actions@actions/checkout
         with:
           persist-credentials: false
-      - uses: Brightspace/setup-node@main
+      - uses: Brightspace/setup-node@v2
         with:
-          node-version-file: .nvmrc
           cache: 'npm'
+          node-version-file: .nvmrc
+          registry-auth-token: ${{ secrets.D2L_PACKAGE_REGISTRY_AUTH_TOKEN }}
       - name: Semantic Release
         uses: BrightspaceUI/actions/semantic-release@semantic-release-beta-test
         with:

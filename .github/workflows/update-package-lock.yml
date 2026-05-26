@@ -12,10 +12,11 @@ jobs:
       - uses: Brightspace/third-party-actions@actions/checkout
         with:
           token: ${{ secrets.PR_GITHUB_TOKEN }}
-      - uses: Brightspace/setup-node@main
+      - uses: Brightspace/setup-node@v2
         with:
-          node-version-file: .nvmrc
           cache: 'npm'
+          node-version-file: .nvmrc
+          registry-auth-token: ${{ secrets.D2L_PACKAGE_REGISTRY_AUTH_TOKEN }}
       - name: Update package-lock.json
         uses: BrightspaceUI/actions/update-package-lock@main
         with:

@@ -6,10 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: Brightspace/third-party-actions@actions/checkout
-      - uses: Brightspace/setup-node@main
+      - uses: Brightspace/setup-node@v2
         with:
-          node-version-file: .nvmrc
           cache: 'npm'
+          node-version-file: .nvmrc
+          registry-auth-token: ${{ secrets.D2L_PACKAGE_REGISTRY_AUTH_TOKEN }}
       - name: Install dependencies
         run: npm ci
       - name: vdiff Tests
