@@ -54,7 +54,7 @@
     "@web/test-runner-playwright": "^0.11",
     "command-line-args": "^6",
     "command-line-usage": "^7",
-    "d2l-test-reporting": "^5",
+    "d2l-test-reporting": "^6",
     "glob": "^13",
     "lit": "^2 || ^3",
     "pixelmatch": "^7",
