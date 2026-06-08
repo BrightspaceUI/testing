@@ -2,15 +2,15 @@
   "tool": "UI Platform & Components",
   "overrides": [
     {
-      "pattern": "**/test/*.test.js",
+      "pattern": "./test/**/*.test.js",
       "type": "UI Unit"
     },
     {
-      "pattern": "**/test/*.axe.js",
+      "pattern": "./test/**/*.axe.js",
       "type": "UI Accessibility"
     },
     {
-      "pattern": "**/test/*.vdiff.js",
+      "pattern": "./test/**/*.vdiff.js",
       "type": "UI Visual Diff"
     }
   ]
