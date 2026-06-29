@@ -27,7 +27,7 @@
     "@brightspace-ui/stylelint-config": "^2",
     "chai": "^6",
     "eslint": "^9",
-    "eslint-config-brightspace": "^3",
+    "eslint-config-brightspace": "^4",
     "globals": "^17",
     "mocha": "^11",
     "sinon": "^22",
