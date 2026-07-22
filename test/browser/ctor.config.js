@@ -2,7 +2,7 @@ export default {
 	pattern: () => 'test/browser/**/*.ctor.js',
 	testRunnerHtml: testFramework =>
 		`<!DOCTYPE html>
-		<html>
+		<html lang="en">
 			<body>
 				<script>
 				window.addEventListener('error', (err) => {
