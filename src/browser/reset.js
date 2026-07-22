@@ -1,5 +1,6 @@
 import { setViewport as cmdSetViewport, emulateMedia, sendMouse } from '@web/test-runner-commands';
 import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
+import { localeData } from '@brightspace-ui/intl/lib/locale-data/current.js';
 import { nextFrame } from '@open-wc/testing';
 
 const DEFAULT_PAGE_PADDING = true,
@@ -48,7 +49,6 @@ export async function reset(opts = {}) {
 	const defaultOpts = {
 		lang: DEFAULT_LANG,
 		mathjax: {},
-		rtl: !!opts.lang?.startsWith('ar'),
 		colorMode: DEFAULT_COLOR_MODE,
 		pagePadding: DEFAULT_PAGE_PADDING,
 		media: DEFAULT_MEDIA
@@ -82,16 +82,6 @@ export async function reset(opts = {}) {
 		awaitNextFrame = true;
 	}
 
-	if (opts.rtl !== currentRtl) {
-		if (!opts.rtl) {
-			document.documentElement.removeAttribute('dir');
-		} else {
-			document.documentElement.setAttribute('dir', 'rtl');
-		}
-		awaitNextFrame = true;
-		currentRtl = opts.rtl;
-	}
-
 	if (opts.colorMode !== currentColorMode) {
 		const colorMode = ['light', 'dark'].includes(opts.colorMode) ? opts.colorMode : DEFAULT_COLOR_MODE;
 		if (!colorMode) {
@@ -106,7 +96,18 @@ export async function reset(opts = {}) {
 	opts.lang ??= '';
 	if (documentLocaleSettings.language !== opts.lang) {
 		document.documentElement.lang = opts.lang;
+		await localeData;
+	}
+
+	opts.rtl ??= localeData.layout.orientation.characterOrder === 'right-to-left';
+	if (opts.rtl !== currentRtl) {
+		if (!opts.rtl) {
+			document.documentElement.removeAttribute('dir');
+		} else {
+			document.documentElement.setAttribute('dir', 'rtl');
+		}
 		awaitNextFrame = true;
+		currentRtl = opts.rtl;
 	}
 
 	if (await setViewport(opts.viewport)) {
