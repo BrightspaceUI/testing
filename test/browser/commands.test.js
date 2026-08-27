@@ -1,9 +1,10 @@
-import { clickAt, clickElem, clickElemAt, dragDropElems, expect, fixture, focusElem, hoverAt, hoverElem, hoverElemAt, sendKeys, sendKeysElem, setViewport } from '../../src/browser/index.js';
+import { clickAt, clickElem, clickElemAt, dragDropElems, dragElemBy, expect, fixture, focusElem, hoverAt, hoverElem, hoverElemAt, sendKeys, sendKeysElem, setViewport } from '../../src/browser/index.js';
 import { html } from 'lit';
 import { spy } from 'sinon';
 
 describe('commands', () => {
 	const buttonTemplate = html`<button>text</button>`;
+	const dragTemplate = html`<div style="position: absolute; top: 95px; left: 95px; width: 10px; height: 10px;"></div>`;
 	const draggableTemplate = html`
 		<div>
 			<div id="dest" style="height: 100px; width: 100px;"></div>
@@ -194,6 +195,73 @@ describe('commands', () => {
 
 	});
 
+	describe('drag', () => {
+		const allPointerEvents = [], dragMoveEvents = [];
+		let dragStarted = false;
+		function onPointer(e) {
+			allPointerEvents.push({ type: e.type, x: e.clientX, y: e.clientY });
+			if (e.type === 'pointerdown') dragStarted = true;
+			else if (e.type === 'pointerup') dragStarted = false;
+			else if (e.type === 'pointermove' && dragStarted) dragMoveEvents.push({ x: e.clientX, y: e.clientY });
+		}
+
+		beforeEach(async() => {
+			elem = await fixture(dragTemplate);
+
+			window.addEventListener('pointerdown', onPointer);
+			window.addEventListener('pointermove', onPointer);
+			window.addEventListener('pointerup', onPointer);
+		});
+
+		afterEach(() => {
+			window.removeEventListener('pointerdown', onPointer);
+			window.removeEventListener('pointermove', onPointer);
+			window.removeEventListener('pointerup', onPointer);
+
+			allPointerEvents.length = 0;
+			dragMoveEvents.length = 0;
+			dragStarted = false;
+		});
+
+		it('should start dragging from the center of element and fire pointer events throughout the full drag flow', async() => {
+			await dragElemBy(elem, 20, 20);
+			expect(allPointerEvents).to.deep.equal([
+				{ type: 'pointermove', x: 100, y: 100 }, // Move to element center
+				{ type: 'pointerdown', x: 100, y: 100 }, // Start drag
+				{ type: 'pointermove', x: 110, y: 110 }, // Drag 10px
+				{ type: 'pointermove', x: 120, y: 120 }, // Drag 10px
+				{ type: 'pointerup', x: 120, y: 120 }, // End drag
+			]);
+		});
+
+		it('should move to the target offset in 10px increments to the max', async() => {
+			await dragElemBy(elem, 25, 0);
+			expect(dragMoveEvents).to.deep.equal([
+				{ x: 110, y: 100 },
+				{ x: 120, y: 100 },
+				{ x: 125, y: 100 },
+			]);
+		});
+
+		it('should clamp the shorter axis while the longer axis keeps stepping', async() => {
+			await dragElemBy(elem, 30, 15);
+			expect(dragMoveEvents).to.deep.equal([
+				{ x: 110, y: 110 },
+				{ x: 120, y: 115 },
+				{ x: 130, y: 115 },
+			]);
+		});
+
+		it('should drag in negative directions', async() => {
+			await dragElemBy(elem, -25, -25);
+			expect(dragMoveEvents).to.deep.equal([
+				{ x: 90, y: 90 },
+				{ x: 80, y: 80 },
+				{ x: 75, y: 75 },
+			]);
+		});
+	});
+
 	describe('drag & drop', () => {
 
 		it('should drag & drop element', (done) => {
@@ -226,6 +294,8 @@ describe('commands', () => {
 			{ command: 'clickElem', action: (elem) => clickElem(elem) },
 			{ command: 'clickAt', action: () => clickAt(5, 10) },
 			{ command: 'clickElemAt', action: (elem) => clickElemAt(elem, 10, 10) },
+			{ command: 'dragDropElems', action: (elem) => dragDropElems(elem, elem) },
+			{ command: 'dragElemBy', action: (elem) => dragElemBy(elem, 10, 10) },
 			{ command: 'hoverElem', action: (elem) => hoverElem(elem) },
 			{ command: 'hoverAt', action: () => hoverAt(5, 10) },
 			{ command: 'hoverElemAt', action: (elem) => hoverElemAt(elem, 10, 10) },
