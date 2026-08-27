@@ -20,7 +20,6 @@ describe('commands', () => {
 	let elem, focusSource, hovered, key, keys;
 	const clickPos = { x: 0, y: 0 };
 	const mousePos = { x: 0, y: 0 };
-	const pointerEvents = [];
 
 	function onClick(e) {
 		clickPos.x = e.clientX;
@@ -43,14 +42,6 @@ describe('commands', () => {
 		mousePos.y = e.clientY;
 	}
 
-	function onPointer(e) {
-		pointerEvents.push({
-			type: e.type,
-			x: e.clientX,
-			y: e.clientY
-		});
-	}
-
 	function onMouseOver() {
 		hovered = true;
 	}
@@ -63,22 +54,12 @@ describe('commands', () => {
 		window.addEventListener('click', onClick);
 		window.addEventListener('keydown', onKeyDown);
 		window.addEventListener('mousemove', onMouseMove);
-		window.addEventListener('pointerdown', onPointer);
-		window.addEventListener('pointermove', onPointer);
-		window.addEventListener('pointerup', onPointer);
-	});
-
-	beforeEach(() => {
-		pointerEvents.length = 0;
 	});
 
 	after(() => {
 		window.removeEventListener('click', onClick);
 		window.removeEventListener('keydown', onKeyDown);
 		window.removeEventListener('mousemove', onMouseMove);
-		window.removeEventListener('pointerdown', onPointer);
-		window.removeEventListener('pointermove', onPointer);
-		window.removeEventListener('pointerup', onPointer);
 	});
 
 	describe('click/hover', () => {
@@ -215,16 +196,35 @@ describe('commands', () => {
 	});
 
 	describe('drag', () => {
-		const getDragMoves = (events) => events.slice(1).filter(e => e.type === 'pointermove').map(e => ({ x: e.x, y: e.y }));
+		const allPointerEvents = [], dragMoveEvents = [];
+		let dragStarted = false;
+		function onPointer(e) {
+			allPointerEvents.push({ type: e.type, x: e.clientX, y: e.clientY });
+			if (e.type === 'pointerdown') dragStarted = true;
+			else if (e.type === 'pointerup') dragStarted = false;
+			else if (e.type === 'pointermove' && dragStarted) dragMoveEvents.push({ x: e.clientX, y: e.clientY });
+		}
 
 		beforeEach(async() => {
 			elem = await fixture(dragTemplate);
-			pointerEvents.length = 0;
+
+			window.addEventListener('pointerdown', onPointer);
+			window.addEventListener('pointermove', onPointer);
+			window.addEventListener('pointerup', onPointer);
+		});
+
+		afterEach(() => {
+			allPointerEvents.length = 0;
+			dragMoveEvents.length = 0;
+
+			window.removeEventListener('pointerdown', onPointer);
+			window.removeEventListener('pointermove', onPointer);
+			window.removeEventListener('pointerup', onPointer);
 		});
 
 		it('should start dragging from the center of element and fire pointer events throughout the full drag flow', async() => {
 			await dragElemBy(elem, 20, 20);
-			expect(pointerEvents).to.deep.equal([
+			expect(allPointerEvents).to.deep.equal([
 				{ type: 'pointermove', x: 100, y: 100 }, // Move to element center
 				{ type: 'pointerdown', x: 100, y: 100 }, // Start drag
 				{ type: 'pointermove', x: 110, y: 110 }, // Drag 10px
@@ -235,7 +235,7 @@ describe('commands', () => {
 
 		it('should move to the target offset in 10px increments to the max', async() => {
 			await dragElemBy(elem, 25, 0);
-			expect(getDragMoves(pointerEvents)).to.deep.equal([
+			expect(dragMoveEvents).to.deep.equal([
 				{ x: 110, y: 100 },
 				{ x: 120, y: 100 },
 				{ x: 125, y: 100 },
@@ -244,7 +244,7 @@ describe('commands', () => {
 
 		it('should clamp the shorter axis while the longer axis keeps stepping', async() => {
 			await dragElemBy(elem, 30, 15);
-			expect(getDragMoves(pointerEvents)).to.deep.equal([
+			expect(dragMoveEvents).to.deep.equal([
 				{ x: 110, y: 110 },
 				{ x: 120, y: 115 },
 				{ x: 130, y: 115 },
@@ -253,7 +253,7 @@ describe('commands', () => {
 
 		it('should drag in negative directions', async() => {
 			await dragElemBy(elem, -25, -25);
-			expect(getDragMoves(pointerEvents)).to.deep.equal([
+			expect(dragMoveEvents).to.deep.equal([
 				{ x: 90, y: 90 },
 				{ x: 80, y: 80 },
 				{ x: 75, y: 75 },
