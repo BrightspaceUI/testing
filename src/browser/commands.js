@@ -41,16 +41,16 @@ export async function dragDropElems(elem, toElem) {
 }
 
 export async function dragElemBy(elem, offsetX = 0, offsetY = 0) {
-	const pixels = 10; // Mimic dragging by moving in 10px increments to the target position
-	const numSteps = Math.ceil(Math.max(Math.abs(offsetX), Math.abs(offsetY)) / pixels);
+	const dragIncrementSize = 10; // To mimic real user dragging
+	const numSteps = Math.ceil(Math.max(Math.abs(offsetX), Math.abs(offsetY)) / dragIncrementSize);
 
 	const position = getElementPosition(elem);
 	await sendMouse({ type: 'move', position: [position.x, position.y] });
 
 	await sendMouse({ type: 'down' });
 	for (let i = 1; i <= numSteps; i++) {
-		const dx = Math.sign(offsetX) * Math.min(Math.abs(offsetX), pixels * i);
-		const dy = Math.sign(offsetY) * Math.min(Math.abs(offsetY), pixels * i);
+		const dx = Math.sign(offsetX) * Math.min(Math.abs(offsetX), dragIncrementSize * i);
+		const dy = Math.sign(offsetY) * Math.min(Math.abs(offsetY), dragIncrementSize * i);
 		await sendMouse({ type: 'move', position: [position.x + dx, position.y + dy] });
 	}
 	await sendMouse({ type: 'up' });
