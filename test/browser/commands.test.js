@@ -214,12 +214,13 @@ describe('commands', () => {
 		});
 
 		afterEach(() => {
-			allPointerEvents.length = 0;
-			dragMoveEvents.length = 0;
-
 			window.removeEventListener('pointerdown', onPointer);
 			window.removeEventListener('pointermove', onPointer);
 			window.removeEventListener('pointerup', onPointer);
+
+			allPointerEvents.length = 0;
+			dragMoveEvents.length = 0;
+			dragStarted = false;
 		});
 
 		it('should start dragging from the center of element and fire pointer events throughout the full drag flow', async() => {
@@ -293,6 +294,8 @@ describe('commands', () => {
 			{ command: 'clickElem', action: (elem) => clickElem(elem) },
 			{ command: 'clickAt', action: () => clickAt(5, 10) },
 			{ command: 'clickElemAt', action: (elem) => clickElemAt(elem, 10, 10) },
+			{ command: 'dragDropElems', action: (elem) => dragDropElems(elem, elem) },
+			{ command: 'dragElemBy', action: (elem) => dragElemBy(elem, 10, 10) },
 			{ command: 'hoverElem', action: (elem) => hoverElem(elem) },
 			{ command: 'hoverAt', action: () => hoverAt(5, 10) },
 			{ command: 'hoverElemAt', action: (elem) => hoverElemAt(elem, 10, 10) },
