@@ -260,6 +260,20 @@ describe('commands', () => {
 				{ x: 75, y: 75 },
 			]);
 		});
+
+		it('should complete the drag by default', async() => {
+			expect(dragStarted).to.be.false;
+			await dragElemBy(elem, 5, 5);
+			expect(dragMoveEvents).to.deep.equal([{ x: 105, y: 105 }]);
+			expect(dragStarted).to.be.false;
+		});
+
+		it('supports dragging but not dropping/completing the drag', async() => {
+			expect(dragStarted).to.be.false;
+			await dragElemBy(elem, 5, 5, false);
+			expect(dragMoveEvents).to.deep.equal([{ x: 105, y: 105 }]);
+			expect(dragStarted).to.be.true;
+		});
 	});
 
 	describe('drag & drop', () => {
@@ -286,8 +300,18 @@ describe('commands', () => {
 	});
 
 	describe('mouseReset', () => {
+		let mouseUpFired = false;
+		function onMouseUp() {
+			mouseUpFired = true;
+		}
+
 		beforeEach(async() => {
 			elem = await fixture(buttonTemplate);
+		});
+
+		afterEach(() => {
+			window.removeEventListener('mouseup', onMouseUp);
+			mouseUpFired = false;
 		});
 
 		[
@@ -308,6 +332,14 @@ describe('commands', () => {
 				await fixture(buttonTemplate);
 				expect(mousePos.x).to.equal(0);
 				expect(mousePos.y).to.equal(0);
+			});
+
+			it(`should release mouse after ${command}`, async() => {
+				await action(elem);
+				window.addEventListener('mouseup', onMouseUp, { once: true });
+
+				await fixture(buttonTemplate);
+				expect(mouseUpFired).to.be.true;
 			});
 		});
 	});

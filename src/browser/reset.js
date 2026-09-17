@@ -74,7 +74,8 @@ export async function reset(opts = {}) {
 
 	if (shouldResetMouse) {
 		shouldResetMouse = false;
-		await sendMouse({ type: 'move', position: [0, 0] }).catch(() => {});
+		await sendMouse({ type: 'move', position: [0, 0] });
+		await sendMouse({ type: 'up' });
 	}
 
 	if (document.activeElement !== document.body) {
