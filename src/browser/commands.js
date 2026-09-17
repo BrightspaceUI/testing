@@ -40,7 +40,7 @@ export async function dragDropElems(elem, toElem) {
 	await sendMouse({ type: 'up' });
 }
 
-export async function dragElemBy(elem, offsetX = 0, offsetY = 0) {
+export async function dragElemBy(elem, offsetX = 0, offsetY = 0, completeDrag = true) {
 	const dragIncrementSize = 10; // To mimic real user dragging
 	const numSteps = Math.ceil(Math.max(Math.abs(offsetX), Math.abs(offsetY)) / dragIncrementSize);
 
@@ -53,7 +53,7 @@ export async function dragElemBy(elem, offsetX = 0, offsetY = 0) {
 		const dy = Math.sign(offsetY) * Math.min(Math.abs(offsetY), dragIncrementSize * i);
 		await sendMouse({ type: 'move', position: [position.x + dx, position.y + dy] });
 	}
-	await sendMouse({ type: 'up' });
+	if (completeDrag) await sendMouse({ type: 'up' });
 }
 
 export async function focusElem(elem) {

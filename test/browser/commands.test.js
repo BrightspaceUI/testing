@@ -260,6 +260,20 @@ describe('commands', () => {
 				{ x: 75, y: 75 },
 			]);
 		});
+
+		it('should complete the drag by default', async() => {
+			expect(dragStarted).to.be.false;
+			await dragElemBy(elem, 5, 5);
+			expect(dragMoveEvents).to.deep.equal([{ x: 105, y: 105 }]);
+			expect(dragStarted).to.be.false;
+		});
+
+		it('supports dragging but not dropping/completing the drag', async() => {
+			expect(dragStarted).to.be.false;
+			await dragElemBy(elem, 5, 5, false);
+			expect(dragMoveEvents).to.deep.equal([{ x: 105, y: 105 }]);
+			expect(dragStarted).to.be.true;
+		});
 	});
 
 	describe('drag & drop', () => {
