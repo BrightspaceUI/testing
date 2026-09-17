@@ -300,8 +300,18 @@ describe('commands', () => {
 	});
 
 	describe('mouseReset', () => {
+		let mouseUpFired = false;
+		function onMouseUp() {
+			mouseUpFired = true;
+		}
+
 		beforeEach(async() => {
 			elem = await fixture(buttonTemplate);
+		});
+
+		afterEach(() => {
+			window.removeEventListener('mouseup', onMouseUp);
+			mouseUpFired = false;
 		});
 
 		[
@@ -322,6 +332,14 @@ describe('commands', () => {
 				await fixture(buttonTemplate);
 				expect(mousePos.x).to.equal(0);
 				expect(mousePos.y).to.equal(0);
+			});
+
+			it(`should release mouse after ${command}`, async() => {
+				await action(elem);
+				window.addEventListener('mouseup', onMouseUp, { once: true });
+
+				await fixture(buttonTemplate);
+				expect(mouseUpFired).to.be.true;
 			});
 		});
 	});
