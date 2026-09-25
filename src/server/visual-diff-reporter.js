@@ -2,7 +2,7 @@ import * as os from 'node:os';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { env } from 'node:process';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { getTestInfo } from './visual-diff-info.js';
 import { PATHS } from './paths.js';
@@ -163,7 +163,13 @@ export function visualDiffReporter({ updateGoldens } = {}) {
 			cpSync(inputDir, tempDir, { force: true, recursive: true });
 			writeFileSync(join(tempDir, 'data.js'), `export default ${json};`);
 
-			execSync(`npx rollup -c ${join(__dirname, './rollup.config.js')}`, { stdio: 'pipe' });
+			execFileSync('npx', [
+				'rollup',
+				'-c',
+				join(__dirname, './rollup.config.js')
+			], {
+				stdio: 'pipe'
+			});
 
 			rmSync(tempDir, { recursive: true });
 
