@@ -58,7 +58,7 @@
     "d2l-test-reporting": "^6",
     "glob": "^13",
     "lit": "^2 || ^3",
-    "pixelmatch": "^7",
+    "pixelmatch": "^8",
     "pngjs": "^7",
     "rollup": "^4"
   }
