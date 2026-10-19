@@ -12,7 +12,7 @@ const elementTag = defineCE(
 			return css`
 				:host {
 					background-color: rgba(255, 165, 0, 0.5);
-					border: 1px solid orange;
+					border: 1px solid blue;
 					display: inline-block;
 					height: 60px;
 					margin: 10px;
