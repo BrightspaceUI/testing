@@ -126,7 +126,7 @@ async function createComparisonPNGs(original, newSize) {
 function getPixelsDiff(screenshotImage, goldenImage) {
 	const diff = new PNG({ width: screenshotImage.width, height: screenshotImage.height });
 	const pixelsDiff = pixelmatch(
-		screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { diffMask: true, threshold: DEFAULT_TOLERANCE }
+		screenshotImage.data, goldenImage.data, diff.data, screenshotImage.width, screenshotImage.height, { diffMask: true, includeAA: true, threshold: DEFAULT_TOLERANCE }
 	);
 	return { diff, pixelsDiff };
 }
