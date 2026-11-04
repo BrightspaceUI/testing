@@ -2,10 +2,12 @@ import * as os from 'node:os';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { env } from 'node:process';
-import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { getTestInfo } from './visual-diff-info.js';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { PATHS } from './paths.js';
+import { rollup } from 'rollup';
+import { rollupPluginHTML } from '@web/rollup-plugin-html';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const isCI = !!env['CI'];
@@ -144,7 +146,7 @@ export function visualDiffReporter({ updateGoldens } = {}) {
 			rootDir = config.rootDir;
 			rmSync(join(rootDir, PATHS.VDIFF_ROOT, PATHS.REPORT_ROOT), { force: true, recursive: true });
 		},
-		stop({ sessions }) {
+		async stop({ sessions }) {
 
 			const data = createData(rootDir, updateGoldens, sessions);
 			const json = JSON.stringify(data, (_key, val) => {
@@ -163,13 +165,21 @@ export function visualDiffReporter({ updateGoldens } = {}) {
 			cpSync(inputDir, tempDir, { force: true, recursive: true });
 			writeFileSync(join(tempDir, 'data.js'), `export default ${json};`);
 
-			execFileSync('npx', [
-				'rollup',
-				'-c',
-				join(__dirname, './rollup.config.js')
-			], {
-				stdio: 'pipe'
+			const bundle = await rollup({
+				input: join(tempDir, 'index.html'),
+				plugins: [
+					rollupPluginHTML(),
+					nodeResolve()
+				]
 			});
+			try {
+				await bundle.write({ dir: reportDir });
+			} catch (e) {
+				console.error('Failed to write vdiff report bundle');
+				console.error(e);
+			} finally {
+				await bundle.close();
+			}
 
 			rmSync(tempDir, { recursive: true });
 
