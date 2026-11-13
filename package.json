@@ -31,7 +31,7 @@
     "globals": "^17",
     "mocha": "^12",
     "sinon": "^22",
-    "stylelint": "^17"
+    "stylelint": "^18"
   },
   "exports": {
     ".": "./src/browser/index.js"
