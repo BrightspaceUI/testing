@@ -31,7 +31,7 @@ export const RESULT_STYLE = css`
 		flex: 0 1 auto;
 	}
 	.result-split-divider {
-		border-right: 4px dashed #007bff;
+		border-inline-end: 4px dashed #007bff;
 		flex: 0 0 auto;
 	}
 	.result-part {
@@ -49,18 +49,18 @@ export const RESULT_STYLE = css`
 		position: relative;
 	}
 	.result-split > .result-part:first-of-type > .result-part-wrapper {
-		text-align: right;
+		text-align: end;
 	}
 	.result-split > .result-part:first-of-type > div > .result-diff-container {
-		border-right: none;
+		border-inline-end: none;
 	}
 	.result-split > .result-part:last-of-type > div > .result-diff-container {
-		border-left: none;
+		border-inline-start: none;
 	}
 	.result-overlay {
 		background: hsla(0, 0%, 100%, 0.8);
 		cursor: zoom-in;
-		left: 0;
+		inset-inline-start: 0;
 		position: absolute;
 		top: 0;
 	}
@@ -111,7 +111,7 @@ export const RESULT_STYLE = css`
 	}
 	.result-graphic > .details {
 		font-size: 1rem;
-		text-align: left;
+		text-align: start;
 	}
 	.result-test-name {
 		align-items: center;

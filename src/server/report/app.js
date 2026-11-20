@@ -26,7 +26,7 @@ class App extends LitElement {
 		}
 		aside {
 			background-color: #ffffff;
-			border-right: 1px solid #e6e6e6;
+			border-inline-end: 1px solid #e6e6e6;
 			box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
 			padding: 20px;
 		}
@@ -56,7 +56,7 @@ class App extends LitElement {
 		}
 		tbody th {
 			font-weight: normal;
-			text-align: left;
+			text-align: start;
 			white-space: normal;
 			width: 100%;
 		}
