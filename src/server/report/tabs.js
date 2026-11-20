@@ -30,7 +30,7 @@ export const TAB_STYLE = css`
 	[role="tab"] {
 		background: none;
 		border: none;
-		border-right: 1px solid #cdd5dc;
+		border-inline-end: 1px solid #cdd5dc;
 		cursor: pointer;
 		flex: 1 0 auto;
 		margin: 0;
@@ -40,7 +40,7 @@ export const TAB_STYLE = css`
 		user-select: none;
 	}
 	[role="tab"]:last-child {
-		border-right: none;
+		border-inline-end: none;
 	}
 	[role="tab"] > span {
 		display: inline-block;
