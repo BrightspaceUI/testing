@@ -423,6 +423,10 @@ it('should use custom element', async() => {
 
 Use the `d2l-test-runner` binary to execute a set of tests and report their results. It builds upon the robust [@web/test-runner](https://modern-web.dev/docs/test-runner/overview/), while configuring it for Brightspace components and applications.
 
+By default, the runner installs Playwright browsers and their OS dependencies. On hosts that already have the required OS dependencies, set `D2L_TEST_SKIP_OS_DEPS` to skip installing them. Playwright still installs or updates the browser binaries for its installed version.
+
+Any value, including an empty string or `0`, enables the opt-out. Unset the variable entirely to restore the default behavior.
+
 ### CLI and Configuration
 
 `d2l-test-runner` can be configured using CLI arguments or an optional configuration file.
