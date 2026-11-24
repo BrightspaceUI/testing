@@ -1,5 +1,37 @@
+import { assert, stub } from 'sinon';
 import { expect } from 'chai';
+import process from 'node:process';
 import { runner } from '../../../src/server/cli/test-runner.js';
+
+describe('runner.install()', () => {
+	const envName = 'D2L_TEST_SKIP_OS_DEPS';
+	let originalValue;
+
+	beforeEach(() => {
+		originalValue = process.env[envName];
+	});
+
+	afterEach(() => {
+		if (originalValue === undefined) delete process.env[envName];
+		else process.env[envName] = originalValue;
+	});
+
+	it('installs browsers and OS dependencies when the opt-out is unset', () => {
+		delete process.env[envName];
+		const execute = stub();
+		runner.install(execute);
+		assert.calledOnceWithExactly(execute, 'npx playwright install --with-deps', { stdio: 'pipe' });
+	});
+
+	for (const value of ['', '0']) {
+		it(`installs only browsers when the opt-out is set to ${JSON.stringify(value)}`, () => {
+			process.env[envName] = value;
+			const execute = stub();
+			runner.install(execute);
+			assert.calledOnceWithExactly(execute, 'npx playwright install', { stdio: 'pipe' });
+		});
+	}
+});
 
 describe('runner.getOptions()', () => {
 

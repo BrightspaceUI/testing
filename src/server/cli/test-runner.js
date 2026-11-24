@@ -193,8 +193,11 @@ async function getTestRunnerOptions(argv = []) {
 	};
 }
 
-function installDeps() {
-	execSync('npx playwright install --with-deps', { stdio: 'pipe' });
+function installDeps(execute = execSync) {
+	const command = process.env.D2L_TEST_SKIP_OS_DEPS === undefined
+		? 'npx playwright install --with-deps'
+		: 'npx playwright install';
+	execute(command, { stdio: 'pipe' });
 }
 
 export const runner = {
